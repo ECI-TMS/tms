@@ -1,0 +1,94 @@
+{{!< dashboard}}
+
+<link rel="stylesheet" href="programs.css" />
+
+<style>
+  /* Additional styles specific to the Programs section */ .programs-container {
+  display: flex; flex-wrap: wrap; gap: 20px; padding-block: 20px; }
+  .program-card { border: 2px solid rgba(46, 90, 146,0.3); background-color:
+  #f7f7f7; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width:
+  200px;height: 150px; display: flex; flex-direction:column;justify-content:
+  space-between; overflow: hidden; } .program-card h3 { color: #2E5A92; }
+  .program-card p { color: white; font-weight: 500 } .add-button {
+  background-color: #2E5A92; color: #fff; padding: 10px 15px; border: none;
+  border-radius: 5px; cursor: pointer; } .add-button:hover { background-color:
+  #2E5ABB; } .card-upper { padding: 15px; display: flex;justify-content:
+  center;align-items: center; flex:1;} .card-lower { padding-inline: 15px;
+  background: #2E5A92; color: white; display: flex;height: 30px;
+  justify-content: center; }
+</style>
+
+<div class="content">
+  <button
+    class="add-button"
+    onclick="window.location.href='/admin/reports/{{program.ProgramID}}/create'"
+  >
+    Add Report</button>
+
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item" aria-current="page">Home</li>
+    <li class="breadcrumb-item" aria-current="page">Reports</li>
+    <li class="breadcrumb-item active" aria-current="page">{{program.Name}}</li>
+  </ol>
+
+  <div class="programs-container">
+    {{#each reports}}
+      <a href="/admin/report/{{this.ReportID}}" style="text-decoration: none;">
+        <div class="program-card">
+          <div class="card-upper"><h3>{{this.Name}}</h3></div>
+          <div class="card-lower"><p>Submitted:
+              {{this.SubmitedReports.length}}</p></div>
+        </div></a>
+    {{/each}}
+  </div>
+</div>
+
+<!-- Modal for adding/editing programs (can be hidden by default) -->
+<div
+  class="modal fade"
+  id="createReportModal"
+  tabindex="-1"
+  aria-labelledby="createReportModal"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Report</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form
+          action="/reports/{{program.ProgramID}}/create"
+          method="post"
+          class="row g-3 needs-validation"
+        >
+          {{! NAme }}
+          <div class="col-12">
+            <label for="validationCustom01" class="form-label">Name</label>
+            <input
+              type="text"
+              name="Name"
+              class="form-control"
+              id="validationCustom01"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-primary" type="submit">Submit form</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{! <script src="reports.js"></script> }}

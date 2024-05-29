@@ -1,0 +1,293 @@
+
+
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trainer Dashboard</title>
+  <style>
+    .save-grade-btn{
+      cursor: pointer;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff;
+      color:
+        #000;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #2e5a92;
+      color:
+        #fff;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    .container {
+      display:
+        flex;
+    }
+
+    .sidebar {
+      background-color: #2e5a92;
+      width: 20%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      margin-bottom: 10px;
+    }
+
+    .main-content {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    table {
+      width:
+        80%;
+      margin: 50px;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 15px;
+      text-align: left;
+      font-size: 16px;
+    }
+
+    th {
+      background-color: #2e5a92;
+      color: #fff;
+    }
+
+    table,
+    th,
+    td {
+      width: 1fr;
+      text-align: center;
+    }
+
+    table tbody tr {
+      background-color: white;
+    }
+
+    table tbody tr:nth-child(odd) {
+      background-color: #f2f2f2;
+    }
+
+    table thead th {
+      border: none;
+    }
+
+    .grade-input {
+      width: 80px;
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    
+    .add-button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left:
+        100px;
+      /* Add margin-left for space from the left */
+    }
+  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+</head>
+
+<body>
+  <header>
+    <h1>Trainer Dashboard</h1>
+    <button onclick="localStorage.removeItem('user'); location.href='/'" class="btn bg-white">Logout</button>
+  </header>
+
+  <button class="add-button" data-bs-toggle="modal" data-bs-target="#addProgram">Add Assignment</button>
+    <div class="container mt-4 mb-5">
+    
+    
+    
+    <div class="row flex-grow-1">
+        
+      <div class="col-12">
+    <table id="givenAssTable" class="w-100" >
+      <thead>
+        <tr>
+          <th class="text-center">Assignment </th>
+          <th class="text-center">Trainer</th>
+          <th class="text-center">DeadLine</th>
+  
+  
+        </tr>
+      </thead>
+      <tbody>
+        {{#each modifiedAssByTrainerData}}
+        <tr>
+          
+          
+          
+          
+          <td>{{this.Title}}</td>
+          <td>{{this.trainer.Username}}</td>
+          <td>{{this.Deadline}}</td>
+          
+          
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    </div>
+    </div>
+  </div>
+
+
+
+
+  {{!-- assignment by stduent --}}
+  <div class="main-content">
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Assignment</th>
+          <th>Submission Date</th>
+          <th>File</th>
+          <th>Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each assignments}}
+<tr>
+  <td>{{this.ParticipantID}}</td>
+  <td>{{this.Title}}</td>
+  <td>{{this.createdAt}}</td>
+  <td><a class="download-btn" download="true" href="{{this.FilePath}}"><i class="fa-solid fa-download text-success"></i></a></td>
+  <td>
+    <form  class="grade-form">
+      {{#when this.Grade 'eq' null}}
+      <input type="number" class="grade-input" min="0" max="10" step="1" name="Grade" value="{{this.Grade}}"
+        placeholder="0-10" />
+        <span class="badge text-bg-success  save-grade-btn cursor-pointer">save</span>
+   {{else}}
+   {{this.Grade}}
+ {{/when}}
+
+      
+      
+      <input type="hidden" value="{{this.AssignmentID}}" name="assignmentID" />
+      <input type="hidden" value="{{this.ParticipantID}}" name="UserID" />
+    </form>
+  </td>
+</tr>
+{{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal fade" id="addProgram" tabindex="-1" aria-labelledby="addProgram" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add Assignment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3 needs-validation" novalidate>
+            <input type="hidden" name="SessionID" class="form-control" id="sessionInput"
+              value="{{session.SessionID}}" />
+            {{! title }}
+            <div class="col-12">
+              <label for="validationCustom03" class="form-label">Title</label>
+              <input type="text" name="Title" class="form-control" id="titleInput" required />
+              <div class="invalid-feedback">
+                Please provide a valid Crieteria.
+              </div>
+            </div>
+            {{! file }}
+            <div class="col-12">
+              <label for="validationCustom03" class="form-label">Template</label>
+              <input type="file" name="template" class="form-control" id="fileInput" required />
+              <div class="invalid-feedback">
+                Please provide a valid Crieteria.
+              </div>
+            </div>
+            {{! deadline }}
+            <div class="col-12">
+              <label for="validationCustom03" class="form-label">Deadline</label>
+              <input type="date" name="Deadline" class="form-control" id="deadlineInput" required />
+              <div class="invalid-feedback">
+                Please provide a valid Requirements.
+              </div>
+            </div>
+
+            <div class="col-12">
+              <button class="btn btn-primary" id="uploadButton" type="button">Create Assignment</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
+<script>
+    $('.save-grade-btn').on('click', function() {
+    var form = $(this).closest('form');
+    var grade = form.find('input[name="Grade"]').val();
+    var assignmentID = form.find('input[name="assignmentID"]').val();
+    var userID = form.find('input[name="UserID"]').val();
+
+    
+
+    // You can further process the values here, like sending an AJAX request if needed
+    $.ajax({
+      type: 'POST',
+      url: '/trainer/assignment/mark', // Replace with your endpoint
+      data: {
+        Grade: grade,
+        assignmentID: assignmentID,
+        userID: userID,
+      },
+      success: function(response) {
+        // Handle the success response here
+        alert('grade updated')
+        
+      },
+      error: function(error) {
+        // Handle the error response here
+        console.log('Error sending data:', error);
+      }
+    });
+  });
+</script>
+<script src="https://kit.fontawesome.com/46ede82261.js" crossorigin="anonymous"></script>
+<script src="/js/createAssignment.js"></script>

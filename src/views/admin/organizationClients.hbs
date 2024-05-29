@@ -1,0 +1,48 @@
+{{!< dashboard}}
+
+<link rel="stylesheet" href="/css/admin/programs.css" />
+
+<style>
+  /* Additional styles specific to the Programs section */ .programs-container {
+  display: flex; flex-wrap: wrap; gap: 20px; padding-block: 20px; }
+  .program-card { border: 2px solid rgba(46, 90, 146,0.3); background-color:
+  #f7f7f7; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width:
+  200px;height: 150px; display: flex; flex-direction:column;justify-content:
+  space-between; overflow: hidden; } .program-card h3 { color: #2E5A92; }
+  .program-card p { color: white; font-weight: 500 } .add-button {
+  background-color: #2E5A92; color: #fff; padding: 10px 15px; border: none;
+  border-radius: 5px; cursor: pointer; } .add-button:hover { background-color:
+  #2E5ABB; } .card-upper { padding: 15px; display: flex;justify-content:
+  center;align-items: center; flex:1;} .card-lower { padding-inline: 15px;
+  background: #2E5A92; color: white; display: flex;height: 30px;
+  justify-content: center; }
+</style>
+
+<div class="content">
+  <button class="add-button"><a
+      style="color:white; text-decoration:none"
+      href="/admin/clients/create"
+    >
+      Add Client</a></button>
+
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item" aria-current="page">Home</li>
+    <li class="breadcrumb-item" aria-current="page">Organizations</li>
+    <li class="breadcrumb-item" aria-current="page">{{organization.Name}}</li>
+    <li class="breadcrumb-item active" aria-current="page">Clients</li>
+  </ol>
+
+  <div class="programs-container">
+    {{#each clients}}
+      <div class="program-card">
+        <div class="card-upper"><h3>{{this.user.Username}}</h3></div>
+        <div class="card-lower"><p>Donor: {{this.thirdparty.Name}}</p></div>
+      </div>
+    {{/each}}
+  </div>
+</div>
+
+{{! <script src="/js/admin/programs.js"></script> }}
+<script>
+  const button = document.getElementById("createProgram"); const url = ""
+</script>

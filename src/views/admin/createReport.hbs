@@ -1,0 +1,27 @@
+{{!< dashboard}} <div class="container">
+  <div class="col g-3 needs-validation">
+    {{! Name }}
+    <div class="col-md-6 mx-auto">
+      <label for="validationCustom01" class="form-label">Name</label>
+      <input type="text" name="Name" class="form-control input" id="titleInput" value="{{session.Course}}" required />
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+    </div>
+    <input type="hidden" name="ProgramID" class="form-control input" id="ProgramID" value="{{program.ProgramID}}"
+      required />
+    {{! file }}
+    <div class="col-md-6 mx-auto">
+      <label for="validationCustom03" class="form-label">Template</label>
+      <input type="file" name="template" class="form-control" id="fileInput" required />
+      <div class="invalid-feedback">
+        Please provide a valid Crieteria.
+      </div>
+    </div>
+    <div class="col-md-6 mx-auto mt-4">
+      <button class="btn btn-primary" id="uploadButton" type="button">Submit form</button>
+    </div>
+
+  </div>
+
+  <script src="/js/createReport.js"></script>

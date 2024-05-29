@@ -1,0 +1,17 @@
+{{!< dashboard}} <div class="container">
+<div class="row g-3 needs-validation">
+  <div class="mt-4">
+      <label for="fileInput" class="form-label">File</label>
+      <input type="file" name="File" class="form-control" id="fileInput" required />
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+    </div>
+      <input type="hidden" class="form-control" value="{{session.SessionID}}" id="sessionInput"  />
+
+    <div class="col-12 mt-4">
+      <button class="btn btn-primary" type="button" id="uploadButton">Submit form</button>
+    </div>
+  </div>
+</div>
+  <script src="/js/admin/materials.js"></script>

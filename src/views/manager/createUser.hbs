@@ -1,0 +1,91 @@
+{{!< managerDashboard}}
+<div class="container">
+  <form
+    method="post"
+    action="/user/create"
+    class="row g-3 needs-validation"
+    id="updateForm"
+  >
+    <input id="sessionId" type="hidden" value="{{session.SessionID}}" />
+    {{! Email }}
+    <div class="col-12">
+      <label for="validationCustom01" class="form-label">Email</label>
+      <input
+        type="text"
+        name="Email"
+        class="form-control"
+        id="validationCustom01"
+        value="{{session.Course}}"
+        required
+      />
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+    </div>
+    {{! Password }}
+    <div class="col-12">
+      <label for="validationCustom01" class="form-label">Password</label>
+      <input
+        type="password"
+        name="Password"
+        class="form-control"
+        id="validationCustom01"
+        required
+      />
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+    </div>
+    {{! Username }}
+    <div class="col-md-6">
+      <label for="validationCustom01" class="form-label">Username</label>
+      <input
+        type="text"
+        name="Username"
+        class="form-control"
+        id="validationCustom01"
+        required
+      />
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+    </div>
+    {{! user role }}
+    <div class="col-md-6">
+      <label for="validationCustom04" class="form-label">User Type</label>
+      <select
+        class="form-select"
+        name="UserType"
+        id="validationCustom04"
+        required
+      >
+        <option selected disabled value="">Choose...</option>
+        <option value="TRAINER">Trainer</option>
+        <option value="ADMIN">Admin</option>
+        <option value="STUDENT">Student</option>
+        <option value="MONITOR">Monitor</option>
+        <option value="MANAGER">Manager</option>
+      </select>
+      <div class="invalid-feedback">
+        Please select a valid Organization.
+      </div>
+    </div>
+    {{! Program }}
+    <div class="col-md-6">
+      <label for="validationCustom04" class="form-label">Program</label>
+      <select class="form-select" name="ProgramID" id="validationCustom04">
+        <option selected disabled value="">Choose...</option>
+        {{#each programs}}
+          <option value="{{this.ProgramID}}">{{this.Name}}</option>
+
+        {{/each}}
+      </select>
+      <div class="invalid-feedback">
+        Please select a valid Organization.
+      </div>
+    </div>
+
+    <div class="col-12">
+      <button class="btn btn-primary" type="submit">Submit form</button>
+    </div>
+  </form></div>

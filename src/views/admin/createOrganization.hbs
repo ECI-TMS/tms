@@ -1,0 +1,56 @@
+{{!< dashboard}}
+
+<style>
+  .pending { color: black; background-color: yellow; } body { font-family:
+  'Poppins', sans-serif; background-color: #fff; color: #000; } .container {
+  display: flex; justify-content: center; } table { margin: 20px; table-layout:
+  fixed; border-collapse: collapse; } th, td { padding: 15px; text-align: left;
+  } th { background-color: #2E5A92; color: #fff; } table, th, td { width: 1fr;
+  text-align: center; } .upload-btn { background-color: white; color: #2E5A92;
+  border-radius: 4px; cursor: pointer; padding: 2px; border: 1px solid #2E5A92;
+  } .upload-btn:hover { background-color: #2E5A92; color: #fff; } th, td {
+  width: 25%; } table tbody tr { background-color: white; } table tbody
+  tr:nth-child(odd) { background-color: #f2f2f2; } table thead th { border:
+  none; } th, td { padding: 15px; text-align: left; } th:nth-child(1),
+  td:nth-child(1) { width: 5%; } th:nth-child(2), td:nth-child(2) { width: 15%;
+  } th:nth-child(3), td:nth-child(3) { width: 8%; } th:nth-child(4),
+  td:nth-child(4) { width: 12%; } th:nth-child(5), td:nth-child(5) { width: 10%;
+  } th:nth-child(6), td:nth-child(6) { width: 10%; } th:nth-child(7),
+  td:nth-child(7) { width: 10%; } th:nth-child(8), td:nth-child(8) { width: 10%;
+  } th:nth-child(9), td:nth-child(9) { width: 8%; } th:nth-child(10),
+  td:nth-child(10) { width: 10%; } th:nth-child(11), td:nth-child(11) { width:
+  10%; }
+</style>
+<link rel="stylesheet" href="/css/admin/programs.css" />
+
+<div class="content w-screen">
+  <form
+    action="/organization/create"
+    method="post"
+    class="col gap-3 needs-validation mx-auto"
+  >
+    {{! course }}
+    <div class="col-md-6 mx-auto mb-4">
+      <label for="validationCustom01" class="form-label">Name</label>
+      <input
+        type="text"
+        name="Name"
+        class="form-control"
+        id="validationCustom01"
+        required
+      />
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+    </div>
+
+    <div class="col-md-6 mx-auto">
+      <button class="add-button" type="submit">Submit form</button>
+    </div>
+  </form>
+
+</div>
+
+<script defer>
+  new DataTable('#sessions');
+</script>

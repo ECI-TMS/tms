@@ -1,0 +1,52 @@
+{{!< managerDashboard}}
+
+<div class="content">
+  <!-- Inside the content div -->
+  <!-- Add radio buttons for filtering -->
+  <div class="chart-options">
+    <label>
+      <label>
+        <input type="radio" name="chartOption" value="gender" />
+        <span>Thematic Area</span>
+      </label>
+      <input type="radio" name="chartOption" value="program" checked />
+      <span>Program wise</span>
+    </label>
+    <label>
+      <input type="radio" name="chartOption" value="area" />
+      <span>Area Wise</span>
+    </label>
+    <label>
+      <input type="radio" name="chartOption" value="gender" />
+      <span>Gender Wise</span>
+    </label>
+  </div>
+
+  <!-- Add a container for dynamic chart rendering -->
+
+  <!-- Rest of your content -->
+</div>
+
+<div class="chart-container">
+  <h2>Program Overview</h2>
+  <div style="width: 300px; height: 300px;">
+    <canvas
+      id="programOverviewChart"
+      style="width: 100%; height: 100%;"
+    ></canvas>
+  </div>
+</div>
+<div class="chart-container">
+  <h2>Trainers Progress</h2>
+  <div style="width: 300px; height: 300px;">
+    <canvas id="trainersChart" style="width: 100%; height: 100%;"></canvas>
+  </div>
+</div>
+<div class="chart-container">
+  <h2>Students Progress</h2>
+  <div style="width: 300px; height: 300px;">
+    <canvas id="studentsChart" style="width: 100%; height: 100%;"></canvas>
+  </div>
+</div>
+
+<!-- <script src="dashboard.js"></script> -->

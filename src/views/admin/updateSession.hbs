@@ -1,0 +1,155 @@
+{{!< dashboard}}
+
+<form onsubmit="submitForm()" class="row g-3 needs-validation" id="updateForm">
+  <input id="sessionId" type="hidden" value="{{session.SessionID}}" />
+  {{! course }}
+  <div class="col-12">
+    <label for="validationCustom01" class="form-label">Course</label>
+    <input
+      type="text"
+      name="Course"
+      class="form-control"
+      id="validationCustom01"
+      value="{{session.Course}}"
+      required
+    />
+    <div class="valid-feedback">
+      Looks good!
+    </div>
+  </div>
+  {{! program }}
+  <div class="col-md-6">
+    <label for="validationCustom04" class="form-label">Program</label>
+    <select
+      class="form-select"
+      name="ProgramID"
+      id="validationCustom04"
+      value="{{session.ProgramId}}"
+      required
+    >
+      <option selected disabled value="">Choose...</option>
+      {{#each programs}}
+        <option value="{{this.ProgramID}}">{{this.Name}}</option>
+      {{/each}}
+    </select>
+    <div class="invalid-feedback">
+      Please select a valid Organization.
+    </div>
+  </div>
+  {{! center }}
+  <div class="col-md-6">
+    <label for="validationCustom04" class="form-label">Center</label>
+    <select
+      class="form-select"
+      value="{{session.Center}}"
+      name="Center"
+      id="validationCustom04"
+      required
+    >
+      <option selected disabled value="">Choose...</option>
+      {{#each centers}}
+        <option value="{{this.Name}}">{{this.Name}}</option>
+      {{/each}}
+    </select>
+    <div class="invalid-feedback">
+      Please select a valid Organization.
+    </div>
+  </div>
+  {{! start date }}
+  <div class="col-md-6">
+    <label for="validationCustom02" class="form-label">Start Date</label>
+    <input
+      type="date"
+      name="StartDate"
+      class="form-control"
+      id="validationCustom02"
+      value="{{session.StartDate}}"
+      required
+    />
+    <div class="valid-feedback">
+      Looks good!
+    </div>
+  </div>
+  {{! end date }}
+  <div class="col-md-6">
+    <label for="validationCustom02" class="form-label">End Date</label>
+    <input
+      type="date"
+      name="EndDate"
+      class="form-control"
+      id="validationCustom02"
+      value="{{session.EndDate}}"
+      required
+    />
+    <div class="valid-feedback">
+      Looks good!
+    </div>
+  </div>
+  {{! trainer }}
+  <div class="col-md-6">
+    <label for="validationCustom04" class="form-label">Trainer</label>
+    <select
+      class="form-select"
+      name="TrainerID"
+      id="validationCustom04"
+      value="{{session.TrainerID}}"
+      required
+    >
+      <option selected disabled value="">Choose...</option>
+      {{#each users}}
+        <option value="{{this.UserID}}">{{this.Username}}</option>
+      {{/each}}
+    </select>
+    <div class="invalid-feedback">
+      Please select a Trainer
+    </div>
+  </div>
+  {{! Monitor }}
+  <div class="col-md-6">
+    <label for="validationCustom04" class="form-label">Monitor</label>
+    <select
+      class="form-select"
+      name="MonitorID"
+      id="validationCustom04"
+      value="{{session.MonitorID}}"
+      required
+    >
+      <option selected disabled value="">Choose...</option>
+      {{#each users}}
+        <option value="{{this.UserID}}">{{this.Username}}</option>
+      {{/each}}
+    </select>
+    <div class="invalid-feedback">
+      Please select a Monitor
+    </div>
+  </div>
+
+  <div class="col-12">
+    <label for="validationCustom03" class="form-label">Deliverable Status</label>
+    <input
+      type="text"
+      name="DeliverablesStatus"
+      class="form-control"
+      id="validationCustom03"
+      value="{{session.DeliverablesStatus}}"
+    />
+    <div class="invalid-feedback">
+      Please provide a valid Crieteria.
+    </div>
+  </div>
+
+  <div class="col-12">
+    <button class="btn btn-primary" type="button" onclick="submitForm()">Submit
+      form</button>
+  </div>
+</form>
+
+<script>
+  function submitForm() { const sessionId =
+  document.getElementById("sessionId").value; const formData = new
+  FormData(document.getElementById('updateForm'));
+  fetch(`/session/update/${sessionId}`, { method: 'PATCH', body: formData, })
+  .then(response => { if (!response.ok) { throw new Error(`HTTP error! Status:
+  ${response.status}`); } }).catch(error => { console.error('Error:', error);
+  }); }
+</script>

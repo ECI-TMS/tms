@@ -1,0 +1,44 @@
+{{!< studentDashboard}}
+
+<style>
+
+  body { font-family: 'Poppins', sans-serif; background-color: #fff; color:
+  #000; } .container { display: flex; justify-content: center; } table { width:
+  80%; margin: 50px; table-layout: fixed; border-collapse: collapse; } th, td {
+  padding: 15px; text-align: left; } th { background-color: #2E5A92; color:
+  #fff; } table, th, td { width: 1fr; text-align: center; } .upload-btn {
+  background-color: #2E5A92; color: white; border: 1px solid white;
+  border-radius: 4px; cursor: pointer; } .upload-btn:hover { background-color:
+  white; color: #2E5A92; } th, td { width: 25%; } table tbody tr {
+  background-color: white; } table tbody tr:nth-child(odd) { background-color:
+  #f2f2f2; } table thead th { border: none; } th, td { padding: 15px;
+  text-align: left; } th:nth-child(1), td:nth-child(1) { width: 10%; }
+  th:nth-child(2), td:nth-child(2) { width: 50%; } th:nth-child(3),
+  td:nth-child(3) { width: 20%; } th:nth-child(4), td:nth-child(4) { width: 20%;
+  }
+
+</style>
+<div class="container">
+  <div class="row gap-4">
+    {{#each documentTypes}}
+    <div class="col-md-6">
+      <label for="validationCustom01" class="form-label">{{this.Name}}</label>
+      <input
+        type="file"
+        name="{{this.Name}}"
+        class="form-control"
+        id="validationCustom01"
+        required
+      />
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+    </div>
+    {{/each}}
+    <div class="col-12">
+      <button class="btn btn-primary" id="uploadButton">Submit form</button>
+    </div>
+  </div>
+</div>
+<script src="/js/student/dashboard.js"></script>
+<script src="/js/student/uploadDocuments.js"></script>

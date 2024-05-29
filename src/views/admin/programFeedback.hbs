@@ -1,0 +1,86 @@
+{{!< dashboard}} <style>
+  /* Additional styles specific to the Programs section */
+  .programs-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  }
+
+  .program-card {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  }
+
+  .program-card h3 {
+  color: #2E5A92;
+  font-size: 16px;
+  }
+
+  .add-button {
+  background-color: #2E5A92;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 20px;
+  }
+
+  .add-button:hover {
+  background-color: #2E5ABB;
+  }
+  </style>
+  <link rel="stylesheet" href="/css/admin/programs.css" />
+  <div class="content">
+    <button class="add-button" data-bs-toggle="modal" data-bs-target="#addSession">Add Feedback</button>
+    <div class="programs-container">
+      {{#each feedbacks}}
+      <div class="program-card">
+        {{#each this.Inputs}}
+        <h3>{{this.Name}} : <span style="font-weight: 800;">{{this.Value}}</span></h3>
+        <h3></h3>
+        {{/each}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  {{! create session modal }}
+  <div class="modal fade" id="addSession" tabindex="-1" aria-labelledby="addSession" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add Feedback</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="feedbackForm" action="/feedback/{{id}}/create" method="post">
+            <input type="hidden" id="programID" name="programID" value="{{id}}">
+            <div id="inputContainer">
+              {{! course }}
+              <div class="col-12 mt-2" id="singleInput">
+                <label for="name">Parameter:</label>
+                <input id="input" type="text" name="name" required>
+
+                <label for="feedbackType">Feedback Type:</label>
+                <select id="input" name="feedbackType" required>
+                  <option value="stars">Stars</option>
+                  <option value="text">Text</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-12 mt-4">
+              <button class="btn btn-primary" type="button" onclick="addInput()">Add Another</button>
+              <button class="btn btn-primary" type="submit">Submit form</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Include JavaScript files -->
+  <script src="/js/admin/feedback.js"></script>

@@ -1,0 +1,207 @@
+{{!< dashboard}} <style>
+    .container {
+    display: flex;
+    }
+
+
+    .main-content {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    }
+
+    table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    }
+
+    th, td {
+    padding: 15px;
+    text-align: left;
+    font-size: 16px;
+    }
+
+    th {
+    background-color: #2E5A92;
+    color: #fff;
+    }
+
+    table, th, td {
+    width: 1fr;
+    }
+
+    table tbody tr {
+    background-color: white;
+    }
+
+    table tbody tr:nth-child(odd) {
+    background-color: #f2f2f2;
+    }
+
+    table thead th {
+    border: none;
+    }
+
+    .grade-input {
+    width: 80px;
+    padding: 5px;
+    font-size: 16px;
+    }
+
+    .download-btn {
+    background-color: #2E5A92;
+    color: white;
+    border: 1px solid white;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 2px;
+    }
+
+    .download-btn:hover {
+    background-color: white;
+    color: #2E5A92;
+    }
+    .floating-button {
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+    border-radius: 50%;
+    background: #2E5A92;
+    border: none;
+    }
+    .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+    }
+
+    /* Styles for the modal */
+    .modal {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    height: 240px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Center the content */
+    text-align: center;
+    }
+
+    /* Styles for the modal title */
+    .modal h2 {
+    margin-top: 0;
+    }
+
+    /* Styles for the modal footer */
+    .deleteProgramFooter {
+    margin-top: 20px;
+    text-align: right;
+    }
+
+    /* Styles for the modal buttons */
+    .deleteProgramFooter button,
+    .deleteProgramFooter .deleteProgram {
+    padding: 10px 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    }
+
+    .deleteProgramFooter .deleteProgram {
+    background-color: red;
+    color: white;
+    }
+    </style>
+    <div class="container mt-4">
+        <table id="participantTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each documents}}
+                <tr>
+                    <td>{{this.Name}}</td>
+                    <td>
+                        <button type="button" onclick="deleteAction({{this.DocumentTypeID}})"
+                            class="btn btn-danger btn-sm" style="margin-left: 20px;">Delete</button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    {{!-- floating button --}}
+    <button data-bs-toggle="modal" data-bs-target="#addDocument" class="floating-button">
+        <svg width="50" height="50" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <title />
+            <g id="Complete">
+                <g data-name="add" id="add-2">
+                    <g>
+                        <line fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2" x1="12" x2="12" y1="19" y2="5" />
+                        <line fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2" x1="5" x2="19" y1="12" y2="12" />
+                    </g>
+                </g>
+            </g>
+        </svg>
+    </button>
+
+    <!-- Create Document Modal -->
+    <div class="modal fade" id="addDocument" tabindex="-1" aria-labelledby="addDocument" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Document </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/admin/document/create" method="post" class="row g-3 needs-validation" novalidate>
+                        {{! Name }}
+                        <div class="col-12">
+                            <label for="documentName" class="form-label">Name</label>
+                            <input type="text" name="Name" class="form-control" id="documentName" required />
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <button class="btn btn-primary" id="uploadButton">Submit form</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function deleteAction(id) {
+            document.body.style.cursor = "disabled"
+
+            fetch('/admin/document/' + id, { method: 'DELETE' })
+                .then((response) => response.json())
+                .then(() => {
+                    alert("Successfully deleted!");
+                    location.reload();
+                })
+        }
+    </script>

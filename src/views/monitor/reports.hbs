@@ -1,0 +1,102 @@
+{{!< monitorDashboard}} <style>
+  .container {
+  display: flex;
+  }
+
+
+  .main-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  }
+
+  table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  }
+
+  th, td {
+  padding: 15px;
+  text-align: left;
+  font-size: 16px;
+  }
+
+  th {
+  background-color: #2E5A92;
+  color: #fff;
+  }
+
+  table, th, td {
+  width: 1fr;
+  text-align: center;
+  }
+
+  table tbody tr {
+  background-color: white;
+  }
+
+  table tbody tr:nth-child(odd) {
+  background-color: #f2f2f2;
+  }
+
+  table thead th {
+  border: none;
+  }
+
+  .grade-input {
+  width: 80px;
+  padding: 5px;
+  font-size: 16px;
+  }
+
+  .download-btn {
+  background-color: #2E5A92;
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 2px;
+  }
+
+  .download-btn:hover {
+  background-color: white;
+  color: #2E5A92;
+  }
+  </style>
+
+  <link rel="stylesheet" href="programs.css" />
+
+
+
+  <div class="content">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item" aria-current="page">Home</li>
+      <li class="breadcrumb-item active" aria-current="page">Reports</li>
+    </ol>
+
+    <div class="programs-container">
+      <table id="participantTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Program</th>
+            <th>File</th>
+            <th>Upload</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each reports}}
+          <tr>
+            <td>{{this.ReportID}}</td>
+            <td>{{this.Name}}</td>
+            <td>{{this.ProgramID}}</td>
+            <td><a download="true" class="download-btn" href='{{this.FilePath}}'>Download</a></td>
+            <td><button class="download-btn" onclick="location.href='reports/{{this.ReportID}}/create'">Upload</button>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>

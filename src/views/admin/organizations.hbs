@@ -1,0 +1,38 @@
+{{!< dashboard}}
+
+<style>
+  /* Additional styles specific to the Programs section */ .programs-container {
+  display: flex; flex-wrap: wrap; gap: 20px; padding-block: 20px; }
+  .program-card { background-color: #f7f7f7; padding: 15px; border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 200px;aspect-ratio: 1;
+  display: flex;justify-content: center;align-items: center; } .program-card h3
+  { color: #2E5A92; } .add-button { background-color: #2E5A92; color: #fff;
+  padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;
+  margin-left: 20px; } .add-button:hover { background-color: #2E5ABB; }
+</style>
+<link rel="stylesheet" href="/css/admin/programs.css" />
+
+<div class="content">
+  <a class="add-button" href="/admin/organizations/create">Add Organization</a>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item" aria-current="page">Home</li>
+      <li class="breadcrumb-item active" aria-current="page">Organizations</li>
+    </ol>
+  </nav>
+  <div class="programs-container">
+    {{#each clients}}
+      <a
+        href="/admin/organization/{{this.ThirdPartyID}}"
+        style="text-decoration: none;"
+      >
+        <div class="program-card">
+          <h3>{{this.Name}}</h3>
+        </div></a>
+    {{/each}}
+  </div>
+</div>
+
+<script defer>
+  new DataTable('#sessions');
+</script>

@@ -1,0 +1,185 @@
+{{!< managerDashboard}}
+
+<form
+  action="/admin/program/create"
+  method="post"
+  class="row g-3 needs-validation"
+  novalidate
+>
+  <div class="col-md-6">
+    <label for="validationCustom01" class="form-label">Name</label>
+    <input
+      type="text"
+      name="Name"
+      class="form-control"
+      id="validationCustom01"
+      required
+    />
+    <div class="valid-feedback">
+      Looks good!
+    </div>
+  </div>
+  {{! donor organization }}
+  <div class="col-md-6">
+    <label for="validationCustom04" class="form-label">Donor Organization</label>
+    <select
+      class="form-select"
+      name="DonorOrganization"
+      id="validationCustom04"
+      required
+    >
+      <option selected disabled value="">Choose...</option>
+      {{#each donors}}
+        <option value="{{this.Name}}">{{this.Name}}</option>
+      {{/each}}
+    </select>
+    <div class="invalid-feedback">
+      Please select a valid Organization.
+    </div>
+  </div>
+  {{! start date }}
+  <div class="col-md-6">
+    <label for="validationCustom02" class="form-label">Start Date</label>
+    <input
+      type="date"
+      name="StartDate"
+      class="form-control"
+      id="validationCustom02"
+      value="{{session.StartDate}}"
+      required
+    />
+    <div class="valid-feedback">
+      Looks good!
+    </div>
+  </div>
+  {{! end date }}
+  <div class="col-md-6">
+    <label for="validationCustom02" class="form-label">End Date</label>
+    <input
+      type="date"
+      name="EndDate"
+      class="form-control"
+      id="validationCustom02"
+      value="{{session.EndDate}}"
+      required
+    />
+    <div class="valid-feedback">
+      Looks good!
+    </div>
+  </div>
+  <div class="col-md-6">
+    <label for="validationCustom03" class="form-label">Description</label>
+    <input
+      type="text"
+      name="Description"
+      class="form-control"
+      id="validationCustom03"
+      required
+    />
+    <div class="invalid-feedback">
+      Please provide a valid Description.
+    </div>
+  </div>
+  {{! Category }}
+  <div class="col-md-6">
+    <label for="validationCustom04" class="form-label">Category</label>
+    <select
+      class="form-select"
+      name="Category"
+      id="validationCustom04"
+      required
+    >
+      <option selected disabled value="">Choose...</option>
+      <option
+        value="Climate-Resilient Livelihoods and Enterprise development"
+      >Climate-Resilient Livelihoods and Enterprise development </option>
+      <option value="Youth and gender-based initiatives">Youth and gender-based
+        initiatives
+      </option>
+      <option value="Good Governance and Institutional Strengthening">Good
+        Governance and Institutional Strengthening</option>
+      <option value="Health and Safety">Health and Safety</option>
+      <option value="Technical Advisory Services for Microfinance">Technical
+        Advisory Services for Microfinance</option>
+      <option value="Research Monitoring and Evaluation">Research Monitoring and
+        Evaluation</option>
+
+    </select>
+    <div class="invalid-feedback">
+      Please select a valid Organization.
+    </div>
+  </div>
+  {{! age }}
+  <div class="col-md-6">
+    <label for="validationCustom03" class="form-label">Age</label>
+    <input
+      type="number"
+      name="Age"
+      class="form-control"
+      id="validationCustom03"
+      required
+    />
+    <div class="invalid-feedback">
+      Please provide a valid Age.
+    </div>
+  </div>
+  {{! Education }}
+  <div class="col-md-6">
+    <label for="validationCustom03" class="form-label">Education</label>
+    <input
+      type="text"
+      name="Education"
+      class="form-control"
+      id="validationCustom03"
+      required
+    />
+    <div class="invalid-feedback">
+      Please provide a valid Education.
+    </div>
+  </div>
+  <div class="col-md-6">
+    <label for="validationCustom03" class="form-label">Eligibility Criteria</label>
+    <input
+      type="text"
+      name="EligibilityCriteria"
+      class="form-control"
+      id="validationCustom03"
+      required
+    />
+    <div class="invalid-feedback">
+      Please provide a valid Crieteria.
+    </div>
+  </div>
+  {{! Gender }}
+  <div class="col-md-6">
+    <label for="validationCustom04" class="form-label">Gender</label>
+    <select class="form-select" name="Gender" id="validationCustom04" required>
+      <option selected disabled value="">Choose...</option>
+      <option value="MALE">Male </option>
+      <option value="FEMALE">Female
+      </option>
+      <option value="BOTH">Both</option>
+
+    </select>
+    <div class="invalid-feedback">
+      Please select a valid Organization.
+    </div>
+  </div>
+  <div class="col-12">
+    <label for="validationCustom03" class="form-label">Documents Requirements</label>
+    <input
+      type="number"
+      name="DocumentRequirements"
+      class="form-control"
+      id="validationCustom03"
+      required
+    />
+    <div class="invalid-feedback">
+      Please provide a valid Requirements.
+    </div>
+  </div>
+
+  <div class="col-12">
+    <button class="btn btn-primary" type="submit">Submit form</button>
+  </div>
+</form>

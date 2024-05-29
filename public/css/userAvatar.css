@@ -1,0 +1,67 @@
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-evenly;
+  width: 200px;
+  border: 2px solid rgb(255 255 255 / 33%);
+  padding: 5px 10px;
+  border-radius: 10px;
+}
+.profileImage {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.profileUserName {
+  margin: 0;
+  color: white;
+}
+
+#userProfile:hover .userMenu {
+  display: flex;
+}
+
+.userMenu {
+  display: none;
+  position: fixed;
+  right: 6px;
+  top: 52px;
+  background: #2e5a92;
+  z-index: 9999;
+  width: 200px;
+  height: 100px;
+  border: 2px solid rgb(255 255 255 / 33%);
+  border-top: none;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  box-shadow: 1px 10px 11px 0px #0000004f;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  flex: 1;
+  margin-bottom: 10px;
+}
+
+.menuList > a {
+  font-size: 13px !important;
+  padding: 8px;
+  color: white;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.userLogoutButton {
+  font-size: 13px !important;
+  padding: 8px !important;
+  color: white !important;
+  text-decoration: none !important;
+  border: 1px solid #ddd !important;
+  border-radius: 6px !important;
+}

@@ -1,0 +1,52 @@
+{{!< dashboard}}
+
+<link rel="stylesheet" href="/css/admin/programs.css" />
+
+<style>
+  .userImage{width: 100px; border-radius: 50%;border: 2px solid rgba(46, 90,
+  146,0.3);} .programs-container { display: flex; flex-wrap: wrap; gap: 20px;
+  padding-block: 20px; } .program-card { border: 2px solid rgba(46, 90,
+  146,0.3); background-color: #f7f7f7; border-radius: 8px; box-shadow: 0 4px 8px
+  rgba(0, 0, 0, 0.2); width: 200px;height: 250px; display: flex;
+  flex-direction:column;justify-content: space-evenly; overflow: hidden; }
+  .program-card h3,.program-card p { color: #2E5A92; font-size: 20px; }
+  .program-card p{font-size: 13px;} .add-button { background-color: #2E5A92;
+  color: #fff; padding: 10px 15px; border: none; border-radius: 5px; cursor:
+  pointer; } .add-button:hover { background-color: #2E5ABB; } .card-upper {
+  padding: 15px; display: flex;justify-content: center;align-items: center; }
+  .card-lower { padding-inline: 15px; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; }
+</style>
+
+<div class="content">
+  <button class="add-button"><a
+      style="color:white; text-decoration:none"
+      href="/admin/user/create"
+    >
+      Add Trainer</a></button>
+
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item" aria-current="page">Home</li>
+    <li class="breadcrumb-item" aria-current="page">Programs</li>
+    <li class="breadcrumb-item" aria-current="page">{{program.Name}}</li>
+    <li class="breadcrumb-item active" aria-current="page">Trainers</li>
+  </ol>
+
+  <div class="programs-container">
+    {{#each trainers}}
+      <div class="program-card">
+        <div class="card-upper"><img
+            class="userImage"
+            src="/placeholder-user.jpg"
+            alt=""
+          /></div>
+        <div class="card-lower"><h3>{{this.Username}}</h3></div>
+      </div>
+    {{/each}}
+  </div>
+</div>
+
+{{! <script src="/js/admin/programs.js"></script> }}
+<script>
+  const button = document.getElementById("createProgram"); const url = ""
+</script>

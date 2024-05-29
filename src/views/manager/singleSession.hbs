@@ -1,0 +1,262 @@
+{{!< managerDashboard}}
+
+<style>
+
+  body { font-family: 'Poppins', sans-serif; background-color: #fff; color:
+  #000; } .container { display: flex; justify-content: center; } table { width:
+  100%; margin: 20px; table-layout: fixed; border-collapse: collapse; } th, td {
+  padding: 15px; text-align: left; } th { background-color: #2E5A92; color:
+  #fff; } table, th, td { width: 1fr; text-align: center; } .upload-btn {
+  background-color: white; color: #2E5A92; border-radius: 4px; cursor: pointer;
+  padding: 2px; border: 1px solid #2E5A92; } .upload-btn:hover {
+  background-color: #2E5A92; color: #fff; } th, td { width: 25%; } table tbody
+  tr { background-color: white; } table tbody tr:nth-child(odd) {
+  background-color: #f2f2f2; } table thead th { border: none; } th, td {
+  padding: 15px; text-align: left; } th:nth-child(1), td:nth-child(1) { width:
+  5%; } th:nth-child(2), td:nth-child(2) { width: 15%; } th:nth-child(3),
+  td:nth-child(3) { width: 8%; } th:nth-child(4), td:nth-child(4) { width: 12%;
+  } th:nth-child(5), td:nth-child(5) { width: 10%; } th:nth-child(6),
+  td:nth-child(6) { width: 10%; } th:nth-child(7), td:nth-child(7) { width: 10%;
+  } th:nth-child(8), td:nth-child(8) { width: 10%; } th:nth-child(9),
+  td:nth-child(9) { width: 8%; } th:nth-child(10), td:nth-child(10) { width:
+  10%; } th:nth-child(11), td:nth-child(11) { width: 10%; }
+</style>
+<link rel="stylesheet" href="/css/admin/programs.css" />
+
+<div class="content">
+  {{! <button
+    class="add-button"
+    data-bs-toggle="modal"
+    data-bs-target="#addSession"
+  >Add Session</button> }}
+  {{! participants }}
+  <div class="container">
+    <h1>Participants</h1></div>
+  <div class="container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Session</th>
+          <th>CNIC</th>
+          <th>Contact</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each participants}}
+          <tr>
+            <td>{{this.id}}</td>
+
+            <td>{{this.name}}</td>
+            <td>{{this.email}}</td>
+            <td>{{this.sessionId}}</td>
+            <td>{{this.cnic}}</td>
+            <td>{{this.contact}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  {{! participants }}
+  <div class="container">
+    <h1>Assignments</h1></div>
+  <div class="container">
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Assignment</th>
+          <th>Submission Date</th>
+          <th>File</th>
+          <th>Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each assignments}}
+          <tr>
+            <td>{{this.UserID}}</td>
+            <td>Assignment ${i}</td>
+            <td>1 April 2023</td>
+            <td><a
+                class="download-btn"
+                href="{{this.FilePath}}"
+              >Download</a></td>
+            <td><input
+                type="number"
+                class="grade-input"
+                min="0"
+                max="100"
+                step="1"
+                placeholder="0-100"
+              /></td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{{! create session modal }}
+<div
+  class="modal fade"
+  id="addSession"
+  tabindex="-1"
+  aria-labelledby="addSession"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Session</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form
+          action="/session/create"
+          method="post"
+          class="row g-3 needs-validation"
+        >
+          {{! course }}
+          <div class="col-12">
+            <label for="validationCustom01" class="form-label">Course</label>
+            <input
+              type="text"
+              name="Course"
+              class="form-control"
+              id="validationCustom01"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          {{! program }}
+          <div class="col-md-6">
+            <label for="validationCustom04" class="form-label">Program</label>
+            <select
+              class="form-select"
+              name="ProgramID"
+              id="validationCustom04"
+              required
+            >
+              <option selected disabled value="">Choose...</option>
+              {{#each programs}}
+                <option value="{{this.ProgramID}}">{{this.Name}}</option>
+              {{/each}}
+            </select>
+            <div class="invalid-feedback">
+              Please select a valid Organization.
+            </div>
+          </div>
+          {{! center }}
+          <div class="col-md-6">
+            <label for="validationCustom04" class="form-label">Center</label>
+            <select
+              class="form-select"
+              name="Center"
+              id="validationCustom04"
+              required
+            >
+              <option selected disabled value="">Choose...</option>
+              {{#each centers}}
+                <option value="{{this.Name}}">{{this.Name}}</option>
+              {{/each}}
+            </select>
+            <div class="invalid-feedback">
+              Please select a valid Organization.
+            </div>
+          </div>
+          {{! start date }}
+          <div class="col-md-6">
+            <label for="validationCustom02" class="form-label">Start Date</label>
+            <input
+              type="date"
+              name="StartDate"
+              class="form-control"
+              id="validationCustom02"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          {{! end date }}
+          <div class="col-md-6">
+            <label for="validationCustom02" class="form-label">End Date</label>
+            <input
+              type="date"
+              name="EndDate"
+              class="form-control"
+              id="validationCustom02"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          {{! trainer }}
+          <div class="col-md-6">
+            <label for="validationCustom04" class="form-label">Trainer</label>
+            <select
+              class="form-select"
+              name="TrainerID"
+              id="validationCustom04"
+              required
+            >
+              <option selected disabled value="">Choose...</option>
+              {{#each users}}
+                <option value="{{this.UserID}}">{{this.Username}}</option>
+              {{/each}}
+            </select>
+            <div class="invalid-feedback">
+              Please select a Trainer
+            </div>
+          </div>
+          {{! Monitor }}
+          <div class="col-md-6">
+            <label for="validationCustom04" class="form-label">Monitor</label>
+            <select
+              class="form-select"
+              name="MonitorID"
+              id="validationCustom04"
+              required
+            >
+              <option selected disabled value="">Choose...</option>
+              {{#each users}}
+                <option value="{{this.UserID}}">{{this.Username}}</option>
+              {{/each}}
+            </select>
+            <div class="invalid-feedback">
+              Please select a Monitor
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label for="validationCustom03" class="form-label">Deliverable
+              Status</label>
+            <input
+              type="text"
+              name="DeliverablesStatus"
+              class="form-control"
+              id="validationCustom03"
+            />
+            <div class="invalid-feedback">
+              Please provide a valid Crieteria.
+            </div>
+          </div>
+
+          <div class="col-12">
+            <button class="btn btn-primary" type="submit">Submit form</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,101 @@
+{{!< dashboard}}
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 bg-white p-4"><h3 class="fw-bold">Add Session</h3></div>
+  </div>
+
+</div>
+ <div class="container mt-4">
+  <form action="/session/create" method="post" class="row g-3 needs-validation justify-content-center">
+  <input type="hidden" name="program_id" value="{{programId}}">
+
+  <div class="col-lg-6 bg-white p-5">
+    <div class="row gap-4">
+    {{! course }}
+    <div class="row ">
+    <div class="col-md-6">
+      <label for="validationCustom04" class="form-label">Course</label>
+      <select class="form-select" name="CourseID" id="validationCustom04" required>
+        <option selected disabled value="">Choose...</option>
+        {{#each courses}}
+        
+          <option value="{{this.CourseID}}"  {{#eq this.CourseID course_id}} selected {{/eq}}  >{{this.Name}}</option>
+        {{/each}}
+      </select>
+      <div class="invalid-feedback">
+        Please select a valid Organization.
+      </div>
+    </div>
+    {{! center }}
+    <div class="col-md-6">
+      <label for="validationCustom04" class="form-label">District</label>
+      <select class="form-select" name="Center" id="validationCustom04" required>
+        <option selected disabled value="">Choose...</option>
+        {{#each centers}}
+        <option value="{{this.Name}}">{{this.Name}}</option>
+        {{/each}}
+      </select>
+      <div class="invalid-feedback">
+        Please select a valid Organization.
+      </div>
+    </div>
+    </div>
+    <div class="row">
+    {{! start date }}
+    <div class="col-md-6">
+      <label for="validationCustom02" class="form-label">Start Date</label>
+      <input type="date" name="StartDate" class="form-control" id="validationCustom02" required />
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+    </div>
+    {{! end date }}
+    <div class="col-md-6">
+      <label for="validationCustom02" class="form-label">End Date</label>
+      <input type="date" name="EndDate" class="form-control" id="validationCustom02" required />
+      <div class="valid-feedback">
+        Looks good!
+      </div>
+    </div>
+    </div>
+    {{! trainer }}
+    <div class="row">
+    <div class="col-md-6">
+      <label for="validationCustom04" class="form-label">Trainer</label>
+      <select class="form-select" name="TrainerID" id="validationCustom04" required>
+        <option selected disabled value="">Choose...</option>
+        {{#each trainers}}
+        <option value="{{this.UserID}}">{{this.Username}}</option>
+        {{/each}}
+      </select>
+      <div class="invalid-feedback">
+        Please select a Trainer
+      </div>
+    </div>
+    {{! Monitor }}
+    <div class="col-md-6">
+      <label for="validationCustom04" class="form-label">Monitor</label>
+      <select class="form-select" name="MonitorID" id="validationCustom04" required>
+        <option selected disabled value="">Choose...</option>
+        {{#each monitors}}
+        <option value="{{this.UserID}}">{{this.Username}}</option>
+        {{/each}}
+      </select>
+      <div class="invalid-feedback">
+        Please select a Monitor
+      </div>
+    </div>
+    </div>
+
+    
+
+    
+
+    <div class="col-12">
+      <button class="btn btn-primary" type="submit">Add Session</button>
+    </div>
+</div>
+    </div>
+  </form>
+  </div>

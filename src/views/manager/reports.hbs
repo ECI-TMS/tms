@@ -1,0 +1,30 @@
+{{!< managerDashboard}}
+
+<link rel="stylesheet" href="programs.css" />
+
+<style>
+  /* Additional styles specific to the Programs section */ .programs-container {
+  display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; } .program-card {
+  background-color: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 4px
+  8px rgba(0, 0, 0, 0.1); width: 300px; } .program-card h3 { color: #2E5A92; }
+  .add-button { background-color: #2E5A92; color: #fff; padding: 10px 15px;
+  border: none; border-radius: 5px; cursor: pointer; margin-left: 20px; }
+  .add-button:hover { background-color: #2E5ABB; }
+</style>
+
+<div class="content">
+
+  <div class="programs-container">
+    <!-- Feedback cards will be dynamically added here -->
+  </div>
+</div>
+
+<!-- Modal for adding/editing programs (can be hidden by default) -->
+<div id="programModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeProgramModal()">&times;</span>
+    <!-- Form for adding/editing programs goes here -->
+  </div>
+</div>
+
+<script src="reports.js"></script>

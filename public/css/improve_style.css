@@ -1,0 +1,29 @@
+body{
+    background: #F1F1F1;
+    font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+label{
+    margin-bottom: 2px !important;
+    font-weight: bold;
+}
+.sidebar{
+    width: 250px;
+    left: -250px;
+}
+.sidebar_ul{
+    padding-left: 0;
+}
+.two_tag_vertically_center{
+    display: flex;
+    align-items: center;
+}
+.programs-container{
+    padding: 0 !important;
+}
+/* utility classes */
+.cursor-pointer{
+    cursor: pointer;
+}

@@ -1,0 +1,29 @@
+{{!< dashboard}}
+<div class="container">
+  <div class="modal-body">
+    <div class="col-12" id="inputContainer">
+      {{! Name }}
+      <input type="hidden" id="SessionID" value="{{SessionID}}" />
+      <div class="col-12">
+        <label for="name" class="form-label">Name</label>
+        <input
+          type="text"
+          name="name"
+          class="form-control"
+          id="name"
+          required
+        />
+        <div class="valid-feedback">
+          Looks good!
+        </div>
+      </div>
+    </div>
+    <div class="col-12 mt-4">
+      <button class="btn btn-primary" type="button" onclick="addInput()">Add
+        Question</button>
+      <button class="btn btn-primary" type="button" onclick="getData()">Submit
+        form</button>
+    </div>
+  </div></div>
+
+<script defer src="/js/admin/quiz.js"></script>

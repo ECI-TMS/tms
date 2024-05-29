@@ -1,0 +1,190 @@
+{{!< managerDashboard}}
+
+<style>
+  .pending { color: black; background-color: yellow; } body { font-family:
+  'Poppins', sans-serif; background-color: #fff; color: #000; } .container {
+  display: flex; justify-content: center; } table { width: 100%; margin-block:
+  20px; table-layout: fixed; border-collapse: collapse; } th, td { padding:
+  15px; text-align: left; } th { background-color: #2E5A92; color: #fff; }
+  table, th, td { width: 1fr; text-align: center; } .upload-btn {
+  background-color: white; color: #2E5A92; border-radius: 4px; cursor: pointer;
+  padding: 2px; border: 1px solid #2E5A92; } .upload-btn:hover {
+  background-color: #2E5A92; color: #fff; } th, td { width: 25%; } table tbody
+  tr { background-color: white; } table tbody tr:nth-child(odd) {
+  background-color: #f2f2f2; } table thead th { border: none; } th, td {
+  padding: 15px; text-align: left; } th:nth-child(1), td:nth-child(1) { width:
+  5%; } th:nth-child(2), td:nth-child(2) { width: 15%; } th:nth-child(3),
+  td:nth-child(3) { width: 8%; } th:nth-child(4), td:nth-child(4) { width: 12%;
+  } th:nth-child(5), td:nth-child(5) { width: 10%; } th:nth-child(6),
+  td:nth-child(6) { width: 10%; } th:nth-child(7), td:nth-child(7) { width: 10%;
+  } th:nth-child(8), td:nth-child(8) { width: 10%; } th:nth-child(9),
+  td:nth-child(9) { width: 8%; } th:nth-child(10), td:nth-child(10) { width:
+  10%; } th:nth-child(11), td:nth-child(11) { width: 10%; }
+</style>
+<link rel="stylesheet" href="/css/admin/programs.css" />
+
+<div class="content">
+  <button
+    class="add-button"
+    data-bs-toggle="modal"
+    data-bs-target="#addSession"
+  >Add Center</button>
+
+  <table id="sessions">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>City</th>
+        <th>Focal Person</th>
+        <th>Seating Capacity</th>
+        <th>Is Public Sector</th>
+        <th>Have Computer Lab</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each centers}}
+        <tr>
+          <td>{{this.CenterID}}</td>
+          <td>{{this.Name}}</td>
+          <td>
+            {{this.City}}
+          </td>
+          <td>{{this.FocalPerson}}</td>
+          <td>{{this.SeatingCapacity}}</td>
+          <td>{{this.isPublicSector}}</td>
+          <td>{{this.haveComputerLab}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
+{{! create session modal }}
+<div
+  class="modal fade"
+  id="addSession"
+  tabindex="-1"
+  aria-labelledby="addSession"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Center</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form
+          action="/admin/center/create"
+          method="post"
+          class="row g-3 needs-validation"
+        >
+          {{! NAme }}
+          <div class="col-12">
+            <label for="validationCustom01" class="form-label">Name</label>
+            <input
+              type="text"
+              name="Name"
+              class="form-control"
+              id="validationCustom01"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          {{! City }}
+          <div class="col-md-6">
+            <label for="validationCustom02" class="form-label">City</label>
+            <input
+              type="text"
+              name="City"
+              class="form-control"
+              id="validationCustom02"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          {{! FocalPerson }}
+          <div class="col-md-6">
+            <label for="validationCustom02" class="form-label">Focal Person</label>
+            <input
+              type="text"
+              name="FocalPerson"
+              class="form-control"
+              id="validationCustom02"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          {{! SeatingCapacity }}
+          <div class="col-md-6">
+            <label for="validationCustom02" class="form-label">Seating Capacity</label>
+            <input
+              type="number"
+              name="SeatingCapacity"
+              class="form-control"
+              id="validationCustom02"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          {{! isPublicSector }}
+          <div class="col-md-6">
+            <label for="validationCustom04" class="form-label">Is Public Sector</label>
+            <select
+              class="form-select"
+              name="isPublicSector"
+              id="validationCustom04"
+              required
+            >
+              <option selected disabled value="">Choose...</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+            <div class="invalid-feedback">
+              Please select a valid Option.
+            </div>
+          </div>
+          {{! haveComputerLab }}
+          <div class="col-md-6">
+            <label for="validationCustom04" class="form-label">Have Computer Lab</label>
+            <select
+              class="form-select"
+              name="haveComputerLab"
+              id="validationCustom04"
+              required
+            >
+              <option selected disabled value="">Choose...</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+            <div class="invalid-feedback">
+              Please select a valid Option.
+            </div>
+          </div>
+
+          <div class="col-12">
+            <button class="btn btn-primary" type="submit">Submit form</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script defer>
+  new DataTable('#example');
+</script>

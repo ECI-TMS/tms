@@ -1,0 +1,328 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model assignments {
+  AssignmentID             Int                        @id @default(autoincrement())
+  SessionID                Int?
+  Title                    String                     @db.VarChar(255)
+  Deadline                 String?
+  FilePath                 String?                    @db.VarChar(255)
+  ParticipantID            Int?
+  isUploadedByTrainer      Boolean                    @default(false)
+  Grade                    Int?
+  createdAt                DateTime                   @default(now())
+  trainingsessions         trainingsessions?          @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade, onUpdate: Restrict, map: "Assignments_ibfk_1")
+  marks                    marks[]
+  student_assignments_cust student_assignments_cust[]
+
+  @@index([SessionID], map: "SessionID")
+}
+
+model student_assignments_cust {
+  id            Int          @id @default(autoincrement())
+  AssignmentID  Int
+  Title         String       @db.VarChar(255)
+  FilePath      String?      @db.VarChar(255)
+  ParticipantID Int?
+  status        Boolean      @default(false)
+  Grade         Int?
+  createdAt     DateTime     @default(now())
+  assignments   assignments? @relation(fields: [AssignmentID], references: [AssignmentID], onDelete: Cascade, onUpdate: Restrict)
+}
+
+model materials {
+  MaterialID   Int      @id @default(autoincrement())
+  SessionID    Int?
+  Title        String   @db.VarChar(255)
+  DocumentType String   @db.VarChar(255)
+  FilePath     String?  @db.VarChar(255)
+  createdAt    DateTime @default(now())
+
+  @@index([SessionID], map: "SessionID")
+}
+
+model centers {
+  CenterID        Int     @id @default(autoincrement())
+  Name            String  @db.VarChar(22)
+  City            String  @db.VarChar(22)
+  FocalPerson     String  @db.VarChar(22)
+  SeatingCapacity Int
+  haveComputerLab Boolean
+}
+
+model Feedback {
+  FeedbackID     Int             @id @default(autoincrement())
+  SessionID      String?         @db.VarChar(22)
+  ProgramID      String?         @default("1") @db.VarChar(22)
+  UserID         String?         @db.VarChar(22)
+  CreatedByAdmin Boolean         @default(false)
+  Inputs         FeedbackInput[]
+}
+
+model FeedbackInput {
+  InputID    Int      @id @default(autoincrement())
+  Name       String
+  Value      String?
+  Feedback   Feedback @relation(fields: [feedbackID], references: [FeedbackID], onDelete: Cascade)
+  feedbackID Int
+}
+
+model documents {
+  DocumentID       Int               @id @default(autoincrement())
+  UserID           Int?
+  SessionID        Int?
+  DocumentType     String            @db.VarChar(50)
+  FilePath         String            @db.VarChar(255)
+  IsVerified       Boolean?
+  users            users?            @relation(fields: [UserID], references: [UserID], onDelete: Cascade, onUpdate: Restrict, map: "Documents_ibfk_1")
+  trainingsessions trainingsessions? @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade, onUpdate: Restrict, map: "Documents_ibfk_2")
+
+  @@index([SessionID], map: "SessionID")
+  @@index([UserID], map: "UserID")
+}
+
+model marks {
+  MarkID       Int          @id @default(autoincrement())
+  AssignmentID Int?
+  UserID       Int?
+  Mark         Int?
+  assignments  assignments? @relation(fields: [AssignmentID], references: [AssignmentID], onDelete: Cascade, onUpdate: Restrict, map: "Marks_ibfk_1")
+  users        users?       @relation(fields: [UserID], references: [UserID], onDelete: Cascade, onUpdate: Restrict, map: "Marks_ibfk_2")
+
+  @@index([AssignmentID], map: "AssignmentID")
+  @@index([UserID], map: "UserID")
+}
+
+model notifications {
+  NotificationID Int      @id
+  UserID         Int?
+  Message        String   @db.Text
+  IsRead         Boolean?
+  users          users?   @relation(fields: [UserID], references: [UserID], onDelete: Cascade, onUpdate: Restrict, map: "Notifications_ibfk_1")
+
+  @@index([UserID], map: "UserID")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  BOTH
+}
+
+model documentType {
+  DocumentTypeID Int                   @id @default(autoincrement())
+  Name           String                @db.VarChar(255)
+  programs       documentTypeProgram[]
+}
+
+model documentTypeProgram {
+  DocumentTypeID Int
+  ProgramID      Int
+  program        programs     @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Restrict)
+  documentType   documentType @relation(fields: [DocumentTypeID], references: [DocumentTypeID])
+
+  @@id([DocumentTypeID, ProgramID])
+}
+
+model programs {
+  ProgramID            Int                   @id @default(autoincrement())
+  Name                 String                @db.VarChar(255)
+  Startdate            String
+  EndDate              String
+  Category             String
+  ManagerID            Int?
+  Age                  String?
+  Education            String?
+  Gender               Gender?               @default(BOTH)
+  DonorOrganizationID  Int?
+  Description          String?               @db.Text
+  EligibilityCriteria  String?               @db.Text
+  DocumentRequirements Int?
+  Documents            documentTypeProgram[]
+  trainingsessions     trainingsessions[]
+  courses              course[] // Added relationship
+  thirdparty           thirdparties?         @relation(fields: [DonorOrganizationID], references: [ThirdPartyID], onDelete: Cascade)
+  reports              report[]
+}
+
+model report {
+  ReportID         Int              @id @default(autoincrement())
+  Name             String
+  ProgramID        Int
+  SessionID        Int
+  FilePath         String
+  createdAt        DateTime         @default(now())
+  SubmitedReports  submitedReport[]
+  program          programs         @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade)
+  trainingsessions trainingsessions @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade)
+}
+
+model submitedReport {
+  SubmitedReportID Int      @id @default(autoincrement())
+  ReportID         Int
+  UserID           Int
+  FilePath         String
+  createdAt        DateTime @default(now())
+  report           report   @relation(fields: [ReportID], references: [ReportID], onDelete: Cascade)
+  users            users    @relation(fields: [UserID], references: [UserID], onDelete: Cascade)
+}
+
+model course {
+  CourseID  Int                @id @default(autoincrement())
+  Name      String
+  ProgramID Int?
+  sessions  trainingsessions[]
+  program   programs?          @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade)
+}
+
+model Participant {
+  id        Int              @id @default(autoincrement())
+  name      String
+  cnic      String
+  email     String
+  contact   String
+  sessionId Int
+  session   trainingsessions @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
+}
+
+model Quiz {
+  id              Int               @id @default(autoincrement())
+  name            String
+  questions       QuizQuestion[]
+  SessionID       Int
+  SubmittedQuizes SubmittedQuiz[]
+  trainingsession trainingsessions? @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade)
+}
+
+model SubmittedQuiz {
+  id        Int    @id @default(autoincrement())
+  name      String
+  score     Int
+  UserID    Int
+  quiz      Quiz   @relation(fields: [QuizID], references: [id], onDelete: Cascade)
+  QuizID    Int
+  SessionID Int
+}
+
+model QuizQuestion {
+  id       Int      @id @default(autoincrement())
+  question String
+  options  Option[]
+  answer   String
+  quiz     Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId   Int
+}
+
+model Option {
+  id         Int          @id @default(autoincrement())
+  value      String
+  question   QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId Int
+}
+
+model progresstracking {
+  ProgressID       Int               @id
+  SessionID        Int?
+  UserID           Int?
+  Status           String?           @db.VarChar(50)
+  trainingsessions trainingsessions? @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade, onUpdate: Restrict, map: "ProgressTracking_ibfk_1")
+  users            users?            @relation(fields: [UserID], references: [UserID], onDelete: Cascade, onUpdate: Restrict, map: "ProgressTracking_ibfk_2")
+
+  @@index([SessionID], map: "SessionID")
+  @@index([UserID], map: "UserID")
+}
+
+model thirdparties {
+  ThirdPartyID       Int                  @id @default(autoincrement())
+  Name               String               @db.VarChar(255)
+  thirdpartytracking thirdpartytracking[]
+  clients            client[] // Added relationship
+  programs           programs[] // Added relationship
+}
+
+model thirdpartytracking {
+  TrackingID       Int               @id
+  ThirdPartyID     Int?
+  SessionID        Int?
+  Insights         String?           @db.Text
+  thirdparties     thirdparties?     @relation(fields: [ThirdPartyID], references: [ThirdPartyID], onDelete: Cascade, onUpdate: Restrict, map: "ThirdPartyTracking_ibfk_1")
+  trainingsessions trainingsessions? @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade, onUpdate: Restrict, map: "ThirdPartyTracking_ibfk_2")
+
+  @@index([SessionID], map: "SessionID")
+  @@index([ThirdPartyID], map: "ThirdPartyID")
+}
+
+model trainingsessions {
+  SessionID          Int                  @id @default(autoincrement())
+  ProgramID          Int?
+  Center             String               @db.VarChar(255)
+  StartDate          String?              @db.VarChar(255)
+  EndDate            String?              @db.VarChar(255)
+  TrainerID          Int?
+  MonitorID          Int?
+  DeliverablesStatus String?              @db.VarChar(50)
+  CourseID           Int
+  course             course?              @relation(fields: [CourseID], references: [CourseID], onDelete: Cascade, onUpdate: Restrict)
+  assignments        assignments[]
+  documents          documents[]
+  participants       Participant[]
+  progresstracking   progresstracking[]
+  thirdpartytracking thirdpartytracking[]
+  programs           programs?            @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Restrict)
+
+  users_trainingsessions_TrainerIDTousers users?   @relation("trainingsessions_TrainerIDTousers", fields: [TrainerID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
+  users_trainingsessions_MonitorIDTousers users?   @relation("trainingsessions_MonitorIDTousers", fields: [MonitorID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
+  // A TrainingSession can have multiple quizzes
+  quizzes                                 Quiz[]
+  report                                  report[]
+
+  @@index([MonitorID], map: "MonitorID")
+  @@index([ProgramID], map: "ProgramID")
+  @@index([TrainerID], map: "TrainerID")
+}
+
+enum UserType {
+  STUDENT
+  ADMIN
+  TRAINER
+  MONITOR
+  CLIENT
+  MANAGER
+}
+
+model users {
+  UserID           Int                @id @default(autoincrement())
+  Username         String             @db.VarChar(255)
+  Password         String             @db.VarChar(255)
+  Email            String             @db.VarChar(255)
+  FirstName        String?            @db.VarChar(255)
+  userData         String?            @db.VarChar(255)
+  SessionID        String?            @db.VarChar(255)
+  ProgramID        String?            @db.VarChar(255)
+  LastName         String?            @db.VarChar(255)
+  ProfilePicture   String?            @db.VarChar(255)
+  ContactNumber    String?            @db.VarChar(255)
+  UserType         UserType           @default(STUDENT)
+  documents        documents[]
+  marks            marks[]
+  notifications    notifications[]
+  progresstracking progresstracking[]
+
+  trainingsessions_trainingsessions_TrainerIDTousers trainingsessions[] @relation("trainingsessions_TrainerIDTousers")
+  trainingsessions_trainingsessions_MonitorIDTousers trainingsessions[] @relation("trainingsessions_MonitorIDTousers")
+  client                                             client?
+  submitedReport                                     submitedReport[]
+}
+
+model client {
+  ClientID     Int          @id @default(autoincrement()) // ClientID is the primary key and refers to UserID
+  user         users        @relation(fields: [ClientID], references: [UserID], onDelete: Cascade)
+  ThirdPartyID Int
+  thirdparty   thirdparties @relation(fields: [ThirdPartyID], references: [ThirdPartyID], onDelete: Cascade)
+}
