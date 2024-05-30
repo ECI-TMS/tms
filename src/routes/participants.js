@@ -10,7 +10,7 @@ import prisma from "../lib/db.js";
 const router = Router();
 
 router.post("/create", async (req, res) => {
-  const { name, cnic, email, contact, sessionId } = req.body;
+  const { name, cnic, email, contact, sessionId ,program_id,course_id } = req.body;
 
   try {
     if (!name && !cnic && !email && !contact && !sessionId) {
@@ -23,9 +23,12 @@ router.post("/create", async (req, res) => {
         cnic,
         email,
         contact,
+        program_id:+program_id,
         sessionId: +sessionId,
       },
     });
+
+
 
     const program = await prisma.trainingsessions.findFirst({
       where: {
@@ -33,9 +36,15 @@ router.post("/create", async (req, res) => {
       }
     })
 
-let hashedPassword = await hash(cnic, 10);
 
-    await prisma.users.create({
+
+    let userAsPart = await prisma.users.findFirst({
+      where: { Email: email },
+    });
+
+    if(!userAsPart){
+    let hashedPassword = await hash(cnic, 10);
+     userAsPart  = await prisma.users.create({
       data: {
         Username: name,
         Password: hashedPassword,
@@ -46,7 +55,19 @@ let hashedPassword = await hash(cnic, 10);
       },
     });
 
-    res.redirect("/admin/participants");
+  }
+
+
+    const newProgramUser = await prisma.programUsers.create({
+      data: {
+        UserID: +userAsPart.UserID,
+        ProgramID: +program_id,
+        SessionID: +sessionId,
+      },
+    });
+
+
+    res.redirect(`/admin/program/${program_id}/course/${course_id}/session/${+sessionId}/participants`);
   } catch (error) {
     console.log("🚀 ~ router.post ~ error url='/participant/create'", error)
     res.status(400).json({ error });

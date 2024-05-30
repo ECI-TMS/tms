@@ -1,32 +1,159 @@
 {{!< studentDashboard}}
 <style>
-  /* Additional styles specific to the Programs section */ .programs-container {
-  display: flex; flex-wrap: wrap; gap: 20px; padding-block: 20px; }
-  .program-card { border: 2px solid rgba(46, 90, 146,0.3); background-color:
-  #f7f7f7; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width:
-  200px;height: 150px; display: flex; flex-direction:column;justify-content:
-  space-between; overflow: hidden; } .program-card h3 { color: #2E5A92; }
-  .program-card p { color: white; font-weight: 500 } .add-button {
-  background-color: #2E5A92; color: #fff; padding: 10px 15px; border: none;
-  border-radius: 5px; cursor: pointer; } .add-button:hover { background-color:
-  #2E5ABB; } .card-upper { padding: 15px; display: flex;justify-content:
-  center;align-items: center; flex:1;} .card-lower { padding-inline: 15px;
-  background: #2E5A92; color: white; display: flex;height: 30px;
-  justify-content: center; }
+  .selected {
+  color: gold;
+}
+
 </style>
-<div class="container">
-  <form
-    method="post"
-    action="/student/feedback/create"
-    class="row g-3 needs-validation"
-    id="feedbackForm"
-  >
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
 
-    <div class="inputContainerBox"></div>
-    <div class="col-12">
-      <button class="btn btn-primary" type="submit">Submit form</button>
+      <div class="col-12 bg-white p-4"><h3 class="fw-bold"> Feedbacks</h3></div>
+      {{#each feedbacksArray}}
+        <div class="col-12 bg-white p-4 mt-4">
+          Session >
+          {{this.SessionID}}
+          <form
+            action="/student/feedbacks/program/{{../programId}}/session/{{this.SessionID}}"
+            method="post"
+          >
+            <div class="container mt-4">
+              <input
+                type="hidden"
+                name="trainer_id"
+                value="{{this.trainer.UserID}}"
+              />
+              <input
+                type="hidden"
+                name="trainer_feedbackid"
+                value="{{this.trainer.FeedbackID}}"
+              />
+              {{#each this.trainer.Inputs}}
+              {{#when this.feedback_type 'eq' 'text'}}
+
+               <div class="d-flex gap-2 align-items-center">
+                 <label  class="form-label"> {{../this.trainer.Username}} </label>
+              
+              <input type="text" class="form-control w-50"  placeholder="Enter feedback" name="trainer_feedback_response">
+              </div> 
+              
+
+                {{else}}
+                <div class="d-flex gap-2 align-items-center">
+                  <label  class="form-label"> {{../this.trainer.Username}} </label>
+                  <div class="d-flex gap-2">
+                    <input type="hidden" class="form-control w-50 feedback_response"  placeholder="Enter feedback" name="trainer_feedback_response">
+              <i class="fa-regular fa-star" data-id="1"></i>
+              <i class="fa-regular fa-star" data-id="2"></i>
+              <i class="fa-regular fa-star" data-id="3"></i>
+              <i class="fa-regular fa-star" data-id="4"></i>
+              <i class="fa-regular fa-star" data-id="5"></i>
+              </div>
+              </div>
+   
+              {{/when}}
+              {{/each}}
+              
+            </div>
+
+
+
+            <div class="container mt-4">
+              <input
+                type="hidden"
+                name="monitor_id"
+                value="{{this.monitor.UserID}}"
+              />
+              <input
+                type="hidden"
+                name="monitor_feedbackid"
+                value="{{this.monitor.FeedbackID}}"
+              />
+              {{#each this.monitor.Inputs}}
+              {{#when this.feedback_type 'eq' 'text'}}
+              <div class="d-flex gap-2 align-items-center">
+
+              <label  class="form-label"> {{../this.monitor.Username}} </label>
+              <input type="text" class="form-control w-50 feedback_response"  placeholder="Enter feedback" name="monitor_feedback_response">
+              </div>
+
+                {{else}}
+                <div class="d-flex gap-2 align-items-center">
+                  <label  class="form-label"> {{../this.monitor.Username}} </label>
+                <div class="d-flex gap-2">
+                  <input type="hidden" class="form-control w-50 feedback_response"  placeholder="Enter feedback" name="monitor_feedback_response">
+              <i class="fa-regular fa-star" data-id="1"></i>
+              <i class="fa-regular fa-star" data-id="2"></i>
+              <i class="fa-regular fa-star" data-id="3"></i>
+              <i class="fa-regular fa-star" data-id="4"></i>
+              <i class="fa-regular fa-star" data-id="5"></i>
+              </div>
+              </div>
+                
+   
+              {{/when}}
+              
+
+
+              
+              {{/each}}
+              
+              
+            </div>
+
+            <div class="container mt-4">
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-dark">Post </button>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      {{/each}}
+
     </div>
-  </form></div>
 
+  </div>
+</div>
 
 <script src="/js/student/feedback.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('fa-star')) {
+      
+      // Get the data-id attribute value of the clicked star
+      let starValue = event.target.getAttribute('data-id');
+      
+      // Change the color of the clicked star and all preceding stars
+      let currentStar = event.target;
+      while (currentStar) {
+        if (currentStar.classList.contains('fa-star')) {
+          currentStar.classList.add('selected');
+        }
+        currentStar = currentStar.previousElementSibling;
+      }
+      
+      // Remove the color from all the following stars
+      let nextStar = event.target.nextElementSibling;
+      while (nextStar) {
+        if (nextStar.classList.contains('fa-star')) {
+          nextStar.classList.remove('selected');
+        }
+        nextStar = nextStar.nextElementSibling;
+      }
+
+      // Find the preceding sibling input element with class name feedback_response and set its value
+      let feedbackInput = event.target.parentElement.querySelector('.feedback_response');
+      if (feedbackInput) {
+        feedbackInput.value = starValue;
+      }
+    }
+  });
+});
+
+</script>

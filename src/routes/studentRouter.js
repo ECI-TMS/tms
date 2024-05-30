@@ -32,7 +32,7 @@ const assignments = assignmentsWithDetails.map(assignment => {
   };
 });
 
-console.log(JSON.stringify(assignments, null, 2));
+
     res.render("student/dashboard", { assignments });
   } catch (error) {}
 });
@@ -41,7 +41,7 @@ router.get("/documents", async (req, res) => {
   try {
     const {token} = req.cookies
     const userData = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("userData",userData);
+    
 
     
     const programWithDocumentTypes = await prisma.programs.findUnique({
@@ -57,7 +57,7 @@ router.get("/documents", async (req, res) => {
     
     // Extract document types from the result
     const documentTypes = programWithDocumentTypes?.Documents.map((doc) => doc.documentType) || [];
-    console.log("documentTypes",documentTypes);
+    
     
     res.render("student/documents", {documentTypes});
   } catch (error) {
@@ -68,7 +68,7 @@ router.get("/materials", async (req, res) => {
   try {
     const {token} = req.cookies
     const userData = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("userData",userData);
+    
 
     const materials = await prisma.materials.findMany({
       where: { SessionID: +userData.SessionID },
@@ -102,24 +102,40 @@ router.get("/feedbacks", async (req, res) => {
     const { token } = req.cookies;
 
     const userData = jwt.verify(token, process.env.JWT_SECRET);
-    const program = await prisma.programs.findFirst({
+    
+    // ===================
+    const userPrograms = await prisma.programUsers.findMany({
       where: {
-        ProgramID: +userData.ProgramID
-      }
-    })
-    const feedbacks = await prisma.Feedback.findMany({
-      where: {
-        CreatedByAdmin: true,
+        UserID: +userData.UserID,
       },
       include: {
-        Inputs: true,
+        program: true,
+        user: true,
       },
     });
-    const feedbacksWithProgram = feedbacks.map(feedback => ({
-      ...feedback,ProgramName: program.Name
+
+    // Group by ProgramID and include full program info at the group level
+    const groupedByProgramID = userPrograms.reduce((acc, curr) => {
+      const { ProgramID } = curr.program;
+      if (!acc[ProgramID]) {
+        acc[ProgramID] = {
+          program: curr.program,
+          programs: [],
+        };
+      }
+      acc[ProgramID].programs.push(curr);
+      return acc;
+    }, {});
+
+    // Convert the grouped object into an array format
+    const userProgramsArray = Object.keys(groupedByProgramID).map(key => ({
+      ProgramID: key,
+      program: groupedByProgramID[key].program,
+      programs: groupedByProgramID[key].programs,
     }));
-    console.log("🚀 ~ router.get ~ feedbacks:", feedbacksWithProgram);
-    res.render("student/feedbacks", { feedbacks:feedbacksWithProgram });
+    
+    
+    res.render("student/feedbacks", { userPrograms:userProgramsArray });
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
   }
@@ -132,7 +148,7 @@ router.post("/feedback/create", async (req, res) => {
     const userData = jwt.verify(token, process.env.JWT_SECRET);
 
     const inputs = req.body;
-    console.log("🚀 ~ router.post ~ inputs:", inputs);
+    
 
     const newFeedback = await prisma.Feedback.create({
       data: {
@@ -157,28 +173,90 @@ router.post("/feedback/create", async (req, res) => {
   }
 });
 
-router.get("/feedback/data/:id", async (req, res) => {
+// router.get("/feedback/data/:id", async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const feedback = await prisma.Feedback.findFirst({
+//       where: {
+//         FeedbackID: +id,
+//       },
+//       include: {
+//         Inputs: true,
+//       },
+//     });
+    
+//     res.status(200).json({ feedback });
+//   } catch (error) {
+//     console.log("🚀 ~ router.get ~ error:", error);
+//   }
+// });
+router.get("/feedback/program/:programId", async (req, res) => {
   try {
-    const id = req.params.id;
-    const feedback = await prisma.Feedback.findFirst({
-      where: {
-        FeedbackID: +id,
-      },
-      include: {
-        Inputs: true,
-      },
-    });
-    console.log("🚀 ~ router.get ~ feedback:", feedback);
-    res.status(200).json({ feedback });
-  } catch (error) {
-    console.log("🚀 ~ router.get ~ error:", error);
-  }
+    const programId = +req.params.programId;
+
+const feedbacks = await prisma.feedback.findMany({
+  where: {
+    ProgramID: programId,
+  },
+  include: {
+    Inputs: true,
+    users: true,
+  },
 });
-router.get("/feedback/:id", async (req, res) => {
-  try {
-    res.render("student/singleFeedback");
+
+const groupedBySessionID = feedbacks.reduce((acc, curr) => {
+  const { SessionID, users } = curr;
+  if (!acc[SessionID]) {
+    acc[SessionID] = { SessionID, feedbacks: [], trainer: null, monitor: null };
+  }
+  acc[SessionID].feedbacks.push(curr);
+
+  // Assign trainer or monitor at the group level
+  if (users.UserType === 'TRAINER') {
+    acc[SessionID].trainer = users;
+    acc[SessionID].trainer.FeedbackID = curr.FeedbackID; // Assign FeedbackID to trainer
+  } else if (users.UserType === 'MONITOR') {
+    acc[SessionID].monitor = users;
+    acc[SessionID].monitor.FeedbackID = curr.FeedbackID; // Assign FeedbackID to monitor
+  }
+
+  return acc;
+}, {});
+
+// Convert the grouped object into an array format
+const feedbacksArray = Object.values(groupedBySessionID);
+
+// Ensure Inputs array exists for trainer and monitor
+feedbacksArray.forEach(session => {
+  if (!session.trainer.Inputs) {
+    session.trainer.Inputs = [];
+  }
+  if (!session.monitor.Inputs) {
+    session.monitor.Inputs = [];
+  }
+
+  // Iterate through each feedback in the session
+  session.feedbacks.forEach(feedback => {
+    // Check if the feedback user is a trainer or monitor and add the inputs
+    if (feedback.users.UserType === 'TRAINER') {
+      session.trainer.Inputs.push(...feedback.Inputs);
+    } else if (feedback.users.UserType === 'MONITOR') {
+      session.monitor.Inputs.push(...feedback.Inputs);
+    }
+  });
+});
+
+// console.log(feedbacksArray);
+
+    
+    // console.log(JSON.stringify(feedbacksArray, null, 2));
+    console.log(feedbacksArray);
+    
+    
+
+    res.render("student/singleFeedback",{feedbacksArray,programId});
   } catch (error) {
-    console.log("🚀 ~ router.get ~ error:", error);
+    
   }
 });
 
@@ -282,13 +360,7 @@ router.get("/quiz/:id/data", async (req, res) => {
 
 router.post("/quiz/:id/create", async (req, res) => {
   const { QuizID, QuizName, SessionID, score } = req.body.SubmissionData;
-  console.log(
-    "🚀 ~ router.post ~ QuizID, QuizName, SessionID, score:",
-    QuizID,
-    QuizName,
-    SessionID,
-    score
-  );
+  
   const { token } = req.cookies;
 
   const userData = jwt.verify(token, process.env.JWT_SECRET);
@@ -310,5 +382,38 @@ router.post("/quiz/:id/create", async (req, res) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 });
+
+router.post("/feedbacks/program/:programId/session/:session",authMiddleware,async (req,res)=>{
+  const {trainer_id,trainer_feedback_response,trainer_feedbackid,monitor_id,monitor_feedback_response,monitor_feedbackid} = req.body;
+  const {UserID} = req.user;
+  if(trainer_feedback_response){
+    const feedbackResponse = await prisma.feedbackResponse.create({
+      data: {
+        UserID: +UserID, // Replace with the actual UserID
+        FeedbackID: +trainer_feedbackid, // Replace with the actual FeedbackID
+        response: trainer_feedback_response,
+      },
+    });
+    
+
+  }
+
+
+
+  if(monitor_feedback_response){
+    const feedbackResponse = await prisma.feedbackResponse.create({
+      data: {
+        UserID: +UserID, // Replace with the actual UserID
+        FeedbackID: +monitor_feedbackid, // Replace with the actual FeedbackID
+        response: monitor_feedback_response,
+      },
+    });
+    
+    
+
+  }
+  res.redirect('/student/feedbacks');
+
+})
 
 export default router;

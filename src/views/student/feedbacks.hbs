@@ -78,14 +78,13 @@
 
 <div class="content">
 <div class="programs-container">
-      {{#each feedbacks}}
+      {{#each userPrograms}}
         <a
-        href="/student/feedback/{{this.FeedbackID}}"
+        href="/student/feedback/program/{{this.ProgramID}}"
         style="text-decoration: none;"
       >
         <div class="program-card">
-          <div class="card-upper"><h3>{{this.FeedbackID}}</h3></div>
-          <div class="card-lower"><p>Program: {{this.ProgramName}}</p></div>
+          <div class="card-lower"><p>Program: {{this.program.Name}}</p></div>
         </div></a>
       {{/each}} 
 </div>

@@ -57,20 +57,25 @@ model centers {
 }
 
 model Feedback {
-  FeedbackID     Int             @id @default(autoincrement())
-  SessionID      String?         @db.VarChar(22)
-  ProgramID      String?         @default("1") @db.VarChar(22)
-  UserID         String?         @db.VarChar(22)
-  CreatedByAdmin Boolean         @default(false)
-  Inputs         FeedbackInput[]
+  FeedbackID       Int                @id @default(autoincrement())
+  SessionID        Int
+  ProgramID        Int
+  UserID           Int
+  CreatedByAdmin   Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  Inputs           feedback_type[]
+  programs         programs           @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade)
+  users            users              @relation(fields: [UserID], references: [UserID], onDelete: Cascade)
+  FeedbackResponse FeedbackResponse[]
 }
 
-model FeedbackInput {
-  InputID    Int      @id @default(autoincrement())
-  Name       String
-  Value      String?
-  Feedback   Feedback @relation(fields: [feedbackID], references: [FeedbackID], onDelete: Cascade)
-  feedbackID Int
+model feedback_type {
+  InputID Int @id @default(autoincrement())
+
+  feedback_type String?
+  FeedbackID    Int
+  createdAt     DateTime @default(now())
+  Feedback      Feedback @relation(fields: [FeedbackID], references: [FeedbackID], onDelete: Cascade)
 }
 
 model documents {
@@ -149,6 +154,9 @@ model programs {
   courses              course[] // Added relationship
   thirdparty           thirdparties?         @relation(fields: [DonorOrganizationID], references: [ThirdPartyID], onDelete: Cascade)
   reports              report[]
+  Participant          Participant[]
+  ProgramUsers         ProgramUsers[]
+  Feedback             Feedback[]
 }
 
 model report {
@@ -157,6 +165,8 @@ model report {
   ProgramID        Int
   SessionID        Int
   FilePath         String
+  isForTrainer     Boolean          @default(false)
+  isForMonitor     Boolean          @default(false)
   createdAt        DateTime         @default(now())
   SubmitedReports  submitedReport[]
   program          programs         @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade)
@@ -182,13 +192,15 @@ model course {
 }
 
 model Participant {
-  id        Int              @id @default(autoincrement())
-  name      String
-  cnic      String
-  email     String
-  contact   String
-  sessionId Int
-  session   trainingsessions @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
+  id         Int              @id @default(autoincrement())
+  name       String
+  cnic       String
+  email      String
+  contact    String
+  sessionId  Int
+  program_id Int
+  session    trainingsessions @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
+  program    programs         @relation(fields: [program_id], references: [ProgramID], onDelete: Cascade)
 }
 
 model Quiz {
@@ -276,11 +288,12 @@ model trainingsessions {
   thirdpartytracking thirdpartytracking[]
   programs           programs?            @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Restrict)
 
-  users_trainingsessions_TrainerIDTousers users?   @relation("trainingsessions_TrainerIDTousers", fields: [TrainerID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
-  users_trainingsessions_MonitorIDTousers users?   @relation("trainingsessions_MonitorIDTousers", fields: [MonitorID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
+  users_trainingsessions_TrainerIDTousers users?         @relation("trainingsessions_TrainerIDTousers", fields: [TrainerID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
+  users_trainingsessions_MonitorIDTousers users?         @relation("trainingsessions_MonitorIDTousers", fields: [MonitorID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
   // A TrainingSession can have multiple quizzes
   quizzes                                 Quiz[]
   report                                  report[]
+  ProgramUsers                            ProgramUsers[]
 
   @@index([MonitorID], map: "MonitorID")
   @@index([ProgramID], map: "ProgramID")
@@ -318,6 +331,9 @@ model users {
   trainingsessions_trainingsessions_MonitorIDTousers trainingsessions[] @relation("trainingsessions_MonitorIDTousers")
   client                                             client?
   submitedReport                                     submitedReport[]
+  ProgramUsers                                       ProgramUsers[]
+  Feedback                                           Feedback[]
+  FeedbackResponse                                   FeedbackResponse[]
 }
 
 model client {
@@ -325,4 +341,24 @@ model client {
   user         users        @relation(fields: [ClientID], references: [UserID], onDelete: Cascade)
   ThirdPartyID Int
   thirdparty   thirdparties @relation(fields: [ThirdPartyID], references: [ThirdPartyID], onDelete: Cascade)
+}
+
+model ProgramUsers {
+  ProgramID Int
+  SessionID Int
+  UserID    Int
+  program   programs         @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade)
+  session   trainingsessions @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade)
+  user      users            @relation(fields: [UserID], references: [UserID])
+
+  @@id([ProgramID, UserID, SessionID])
+}
+
+model FeedbackResponse {
+  id         Int      @id @default(autoincrement())
+  UserID     Int
+  FeedbackID Int
+  response   String
+  users      users    @relation(fields: [UserID], references: [UserID], onDelete: Cascade)
+  Feedback   Feedback @relation(fields: [FeedbackID], references: [FeedbackID], onDelete: Cascade)
 }

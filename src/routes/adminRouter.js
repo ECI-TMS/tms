@@ -355,6 +355,9 @@ router.get("/programs/:id/participants", async (req, res) => {
 
 router.get("/programs/:programId/courses/:id", async (req, res) => {
   const programId =  req.params.programId;
+  const courseId =   +req.params.id;
+  
+
   try {
     const course = await prisma.course.findFirst({
       where: {
@@ -376,7 +379,8 @@ router.get("/programs/:programId/courses/:id", async (req, res) => {
     res.render("admin/singleCourse", {
       sessions,
       course,
-      programId
+      programId,
+      courseId
     });
   } catch (error) {
     res.status(400).json({ error });
@@ -493,9 +497,11 @@ router.get("/sessions", async (req, res) => {
   }
 });
 
-router.get("/sessions/:id", async (req, res) => {
+router.get("/program/:programId/course/:courseId/sessions/:id", async (req, res) => {
   try {
     const id = req.params.id;  // course id
+    const programId = +req.params.programId;  // course id
+    const courseId = +req.params.courseId;  // course id
     
     const data = await prisma.trainingsessions.findFirst({
       where: {
@@ -534,6 +540,8 @@ router.get("/sessions/:id", async (req, res) => {
       assignments,
       documents,
       quizes,
+      programId,
+      courseId
     });
   } catch (error) {
     console.log(
@@ -544,9 +552,11 @@ router.get("/sessions/:id", async (req, res) => {
   }
 });
 
-router.get("/session/:id/participants", async (req, res) => {
+router.get("/program/:programId/course/:courseId/session/:id/participants", async (req, res) => {
   try {
     const  sessionId  =  +req.params.id;
+    const  programId  =  +req.params.programId;
+    const  courseId  =  +req.params.courseId;
     const participants = await prisma.Participant.findMany({
       where: {
         sessionId: +req.params.id,
@@ -560,10 +570,12 @@ router.get("/session/:id/participants", async (req, res) => {
       },
     });
 
-    res.render("admin/sessionParticipants", {
+    res.render(`admin/sessionParticipants`, {
       participants,
       session,
-      sessionId
+      sessionId,
+      programId,
+      courseId
     });
   } catch (error) {
     res.status(400).json({ error });
@@ -983,9 +995,11 @@ router.post("/programs/:id/courses/create", async (req, res) => {
   }
 });
 
-router.get("/session/:sessionId/participant", async (req, res) => {
+router.get("/program/:programId/course/:courseId/session/:sessionId/participant", async (req, res) => {
   try {
      const sessionId =  +req.params.sessionId;
+     const programId =  +req.params.programId;
+     const courseId =  +req.params.courseId;
      const data = await prisma.Participant.findMany({
       where: {
         sessionId: sessionId
@@ -993,7 +1007,7 @@ router.get("/session/:sessionId/participant", async (req, res) => {
     });
 
     const sessions = await prisma.trainingsessions.findMany();
-    res.render("admin/participants", { participants: data, sessions });
+    res.render("admin/participants", { participants: data, sessions,programId,courseId,sessionId });
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -1110,21 +1124,98 @@ router.get("/feedbacks", async (req, res) => {
 router.get("/feedbacks/program/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const feedbacks = await prisma.Feedback.findMany({
+
+    
+
+    const sessions = await prisma.trainingsessions.findMany({
       where: {
-        ProgramID: id,
-        CreatedByAdmin: false,
+        ProgramID: +req.params.id,
+        
       },
       include: {
-        Inputs: true,
+        programs: true,
+        users_trainingsessions_TrainerIDTousers: true,
+        users_trainingsessions_MonitorIDTousers:true
       },
     });
     
-    res.render("admin/programFeedback", { feedbacks,id });
+
+    
+    
+    res.render("admin/programFeedback", { id ,sessions});
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
   }
 });
+
+
+router.post(`/feedbacks/program/:programId/session/:sessionId`,authMiddleware,async(req,res)=>{
+  const programId = +req.params.programId;
+  const sessionId = +req.params.sessionId;
+  const adminId = +req.user.UserID
+  
+  if(req.body['trainer_options']){
+    const UserID = +req.body['trainer_id'];
+    // console.log('for trainer the feedback type is :'  ,req.body['trainer_options']) ;
+    const feedbackInserted =  await prisma.feedback.create({
+      data: {
+        ProgramID: programId,
+        SessionID: sessionId,
+        UserID:UserID,
+        CreatedByAdmin:true
+        
+      }
+    });
+     const feedbackId =  feedbackInserted.FeedbackID ;
+     if(feedbackId){
+      const feedbackInserted =  await prisma.feedback_type.create({
+        data: {
+          FeedbackID: +feedbackId,
+          feedback_type: req.body['trainer_options'],
+          
+        }
+      });
+
+
+     }
+    
+
+  }
+  if(req.body['monitor_options']){
+    const UserID = +req.body['monitor_id'];
+    // console.log('for trainer the feedback type is :'  ,req.body['trainer_options']) ;
+    const feedbackInserted =  await prisma.feedback.create({
+      data: {
+        ProgramID: programId,
+        SessionID: sessionId,
+        UserID:UserID,
+        CreatedByAdmin:true
+        
+      }
+    });
+     const feedbackId =  feedbackInserted.FeedbackID ;
+     if(feedbackId){
+      const feedbackInserted =  await prisma.feedback_type.create({
+        data: {
+          FeedbackID: +feedbackId,
+          feedback_type: req.body['monitor_options'],
+          
+        }
+      });
+
+
+     }
+
+  }
+  res.redirect('/admin/feedbacks')
+  
+  
+
+  
+
+});
+
+
 
 router.post("/feedback/:id/create", async (req, res) => {
   try {
