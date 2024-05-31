@@ -3,6 +3,10 @@ import { hash } from "bcrypt";
 import { Router } from "express";
 import prisma from "../lib/db.js";
 import authMiddleware from "../middlewares/authmiddleware.js";
+import fs from 'fs-extra';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 const router = Router();
 
 
@@ -1373,7 +1377,7 @@ router.get("/reports", async (req, res) => {
   try {
     const programs = await prisma.programs.findMany({
       include: {
-        thirdparty: true,
+        trainingsessions: true,
       },
     });
     const sessions = await prisma.trainingsessions.findMany({
@@ -1381,6 +1385,7 @@ router.get("/reports", async (req, res) => {
         sessionId: req.params.SessionID
       },
     });
+    console.log(programs)
     // res.json(programs);
     res.render("admin/reports", { programs, sessions });
   } catch (error) {
@@ -1391,28 +1396,47 @@ router.get("/reports", async (req, res) => {
 // ======================================================
 // Handle the POST request to /add-report
 router.post("/reports/add-report", async (req, res) => {
-  const { Name, ProgramID, SessionID } = req.body;
-  const { template } = req.files;
+  const { name, ProgramID, SessionID,isTrainer,isMonitor } = req.body;
+  const file = req.files ? req.files.template : null;
+  console.log(file)
+  const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+  
 
-  try {
-    // if (!name ||!ProgramID ||!SessionID ||!template) {
-    //   return res.status(400).json({ error: "Missing fields" });
-    // }
-
-    const data = await prisma.report.create({
-      data: {
-        Name,
-        ProgramID,
-        SessionID,
-        FilePath: template.name,
-      },
-    });
-
-    if (!data) return res.status(400).json({ error: "Missing fields" });
-    res.redirect("/admin/reports");
-  } catch (error) {
-    res.status(500).json({ error });
+  
+  
+  
+try {
+  if (!name || !ProgramID || !SessionID || !file) {
+    return res.status(400).json({ error: "Missing fields" });
   }
+
+  // Define the reports directory relative to the project root
+  const reportsDir = path.join(__dirname, '../../public/uploads/reports');
+
+  // Ensure the directory exists, if not, create it
+  fs.ensureDirSync(reportsDir);
+
+  // Define the file path
+  const filePath = path.join(reportsDir, file.name);
+
+  // Save the file to the directory
+  file.mv(filePath, (err) => {
+    if (err) {
+      console.error("Error saving file:", err);
+      return res.status(500).json({ error: "Error saving file" });
+    }
+
+    console.log("File saved to:", filePath);
+
+    // Redirect after successful file upload
+    res.redirect("/admin/reports");
+  });
+
+} catch (error) {
+  console.error("Error:", error);
+  res.status(500).json({ error });
+}
 });
 
 
