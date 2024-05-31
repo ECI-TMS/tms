@@ -1369,18 +1369,57 @@ router.post("/center/create", async (req, res) => {
   }
 });
 
-router.get("/reports", async (_, res) => {
+router.get("/reports", async (req, res) => {
   try {
     const programs = await prisma.programs.findMany({
       include: {
         thirdparty: true,
       },
     });
-    res.render("admin/reports", { programs });
+    const sessions = await prisma.trainingsessions.findMany({
+      include: {
+        sessionId: req.params.SessionID
+      },
+    });
+    // res.json(programs);
+    res.render("admin/reports", { programs, sessions });
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
   }
 });
+
+// ======================================================
+// Handle the POST request to /add-report
+router.post("/reports/add-report", async (req, res) => {
+  const { Name, ProgramID, SessionID } = req.body;
+  const { template } = req.files;
+
+  try {
+    // if (!name ||!ProgramID ||!SessionID ||!template) {
+    //   return res.status(400).json({ error: "Missing fields" });
+    // }
+
+    const data = await prisma.report.create({
+      data: {
+        Name,
+        ProgramID,
+        SessionID,
+        FilePath: template.name,
+      },
+    });
+
+    if (!data) return res.status(400).json({ error: "Missing fields" });
+    res.redirect("/admin/reports");
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+
+
+
+
+
+
 
 // all reports of a program
 router.get("/reports/:id", async (req, res) => {
@@ -1458,6 +1497,7 @@ router.get("/reports/:id/create", async (req, res) => {
       },
     });
 
+    // res.json(program);
     res.render("admin/createReport", { program });
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
