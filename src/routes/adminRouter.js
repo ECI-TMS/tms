@@ -1412,7 +1412,9 @@ try {
   }
 
   // Define the reports directory relative to the project root
-  const reportsDir = path.join(__dirname, '../../public/uploads/reports');
+  // const reportsDir = path.join(__dirname, '../../public/uploads/reports');
+  const baseDir = path.join(__dirname, '../../public');
+    const reportsDir = path.join(baseDir, '/uploads/reports');
 
   // Ensure the directory exists, if not, create it
   fs.ensureDirSync(reportsDir);
@@ -1427,11 +1429,28 @@ try {
       return res.status(500).json({ error: "Error saving file" });
     }
 
-    console.log("File saved to:", filePath);
+    // console.log("File saved to:", filePath);
+    
 
     // Redirect after successful file upload
-    res.redirect("/admin/reports");
+    // res.redirect("/admin/reports");
   });
+  const FilePath = path.relative(baseDir, filePath);
+    try{
+      const report = await prisma.report.create({
+        data: {
+          Name: name,
+          ProgramID: parseInt(ProgramID),
+          SessionID: parseInt(SessionID),
+          FilePath: FilePath,
+          isForTrainer: isTrainer ==='true' ? true:false,
+          isForMonitor: isMonitor ==='true' ?true:false,
+        }
+      })
+
+    }catch(err){
+
+    }
 
 } catch (error) {
   console.error("Error:", error);
