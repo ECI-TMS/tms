@@ -173,6 +173,8 @@ router.post("/session/:id/materials/create", async (req, res) => {
   }
 
   try {
+    const {programId}  = req.body
+    
     // Create the program-specific directory if it doesn't exist
     const materialsDirectory = join(uploadsDirectory, "materials");
     const sessionDirectory = join(materialsDirectory, `${id}`);
@@ -201,6 +203,7 @@ const title = file.name.split(".")[0]
         data: {
           FilePath: path,
           SessionID: +id,
+          ProgramID:+programId,
           DocumentType: file.mimetype,
           Title: title
         },

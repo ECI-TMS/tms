@@ -135,6 +135,23 @@ router.post("/create", async (req, res) => {
       
         console.log(`Created quiz with ID: ${createdQuiz.id}`);
       }
+      // materials create after creating new session=============
+      const materials = await prisma.materials.findMany({
+        where: {
+          SessionID: +existingSessionId,
+        },
+      });
+      // Step 2: Modify the records to set the new SessionID and remove MaterialID
+      const newMaterials = materials.map(({ MaterialID, createdAt, ...material }) => ({
+        ...material,
+        SessionID: newSessionId,
+        
+      }));
+      
+      // Step 3: Insert the modified records back into the materials table
+      await prisma.materials.createMany({
+        data: newMaterials,
+      });
 
 
     }

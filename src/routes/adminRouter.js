@@ -531,6 +531,13 @@ router.get("/program/:programId/course/:courseId/sessions/:id", async (req, res)
         SessionID: +id,
       },
     });
+    const material = await prisma.materials.count({
+      where: {
+        SessionID: +id,
+        ProgramID: programId,
+
+      },
+    });
 
     if (!data) return res.redirect("/admin/sessions");
 
@@ -540,6 +547,7 @@ router.get("/program/:programId/course/:courseId/sessions/:id", async (req, res)
       assignments,
       documents,
       quizes,
+      material,
       programId,
       courseId
     });
@@ -697,7 +705,7 @@ router.get("/session/:id/documents", async (req, res) => {
   }
 });
 
-router.get("/session/:id/materials", async (req, res) => {
+router.get("/program/:programId/course/:courseId/session/:id/materials", async (req, res) => {
   try {
     const materials = await prisma.materials.findMany({
       where: {
@@ -714,22 +722,27 @@ router.get("/session/:id/materials", async (req, res) => {
     res.render("admin/trainingMaterial", {
       materials,
       session,
+      programId:req.params.programId,
+      courseId:req.params.courseId,
     });
   } catch (error) {
     res.status(400).json({ error });
   }
 });
 
-router.get("/session/:id/materials/create", async (req, res) => {
+router.get("/program/:programId/course/:courseId/session/:id/materials/create", async (req, res) => {
   try {
+    const programId =  +req.params.programId
+
+
  const session = await prisma.trainingsessions.findFirst({
       where: {
         SessionID: +req.params.id,
       },
     });
-
     res.render("admin/createMaterial", {
-      session,
+      sessionId:+req.params.id,
+      programId
     });
 
   } catch (error) {
