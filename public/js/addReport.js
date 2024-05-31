@@ -1,8 +1,9 @@
 const uploadButton = document.getElementById("uploadButton");
 const fileInput = document.getElementById("template");
-const ProgramID = document.getElementById("ProgramID");
-const SessionID = document.getElementById("SessionID");
+const programSelect = document.getElementById("SessionID");
 const titleInput = document.getElementById("name");
+const trainerCheck = document.getElementById("trainer_check");
+const monitorCheck = document.getElementById("monitor_check");
 const data = localStorage.getItem("user");
 const user = JSON.parse(data);
 
@@ -11,19 +12,34 @@ if (!data) {
 }
 
 function uploadFile(files) {
+  
   const file = files[0];
+  
   const title = titleInput.value;
-  const ProgramIDValue = ProgramID.value;
-  const SessionIDValue = SessionID.value;
+  const selectedOption = programSelect.options[programSelect.selectedIndex];
+  const programIDValue = selectedOption.getAttribute('data-program-id');
+  const sessionIDValue = programSelect.value;
+  const isTrainer = document.getElementById("flexRadioCheckedDisabled").checked;
+  const isMonitor = document.getElementById("flexRadioDisabled").checked;
 
-  if (file && title && ProgramIDValue && SessionIDValue) {
+  if (file && title && programIDValue && sessionIDValue) {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("template", file);
     formData.append("name", title);
-    formData.append("ProgramID", ProgramIDValue);
-    formData.append("SessionID", SessionIDValue);
+    formData.append("ProgramID", programIDValue);
+    formData.append("SessionID", sessionIDValue);
+    formData.append("isTrainer", isTrainer);
+    formData.append("isMonitor", isMonitor);
 
-    console.log(formData);
+    if (isTrainer) {
+      trainerCheck.value = true;
+      monitorCheck.value = false;
+    } else if (isMonitor) {
+      trainerCheck.value = false;
+      monitorCheck.value = true;
+    }
+
+    
 
     fetch("/admin/reports/add-report", {
       method: "POST",
@@ -48,7 +64,8 @@ function uploadFile(files) {
   }
 }
 
-uploadButton.addEventListener("click", () => {
+uploadButton.addEventListener("click", (event) => {
+  event.preventDefault();
   if (fileInput.files) {
     uploadFile(fileInput.files);
   }

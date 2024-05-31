@@ -16,6 +16,9 @@ export function hbsHelpers() {
         defaultLayout: 'dashboard',
         layoutsDir: layoutsDir,
         helpers: {
+            json: function(context) {
+                return JSON.stringify(context);
+              },
             baseUrl: function() {
                 return process.env.BACKEND_URL;
             },

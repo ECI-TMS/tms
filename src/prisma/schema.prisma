@@ -37,12 +37,15 @@ model student_assignments_cust {
 }
 
 model materials {
-  MaterialID   Int      @id @default(autoincrement())
-  SessionID    Int?
-  Title        String   @db.VarChar(255)
-  DocumentType String   @db.VarChar(255)
-  FilePath     String?  @db.VarChar(255)
-  createdAt    DateTime @default(now())
+  MaterialID       Int              @id @default(autoincrement())
+  ProgramID        Int
+  SessionID        Int
+  Title            String           @db.VarChar(255)
+  DocumentType     String           @db.VarChar(255)
+  FilePath         String?          @db.VarChar(255)
+  createdAt        DateTime         @default(now())
+  programs         programs         @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Restrict)
+  trainingsessions trainingsessions @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade, onUpdate: Restrict)
 
   @@index([SessionID], map: "SessionID")
 }
@@ -157,6 +160,7 @@ model programs {
   Participant          Participant[]
   ProgramUsers         ProgramUsers[]
   Feedback             Feedback[]
+  materials            materials[]
 }
 
 model report {
@@ -294,6 +298,7 @@ model trainingsessions {
   quizzes                                 Quiz[]
   report                                  report[]
   ProgramUsers                            ProgramUsers[]
+  materials                               materials[]
 
   @@index([MonitorID], map: "MonitorID")
   @@index([ProgramID], map: "ProgramID")

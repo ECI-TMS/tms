@@ -3,6 +3,10 @@ import { hash } from "bcrypt";
 import { Router } from "express";
 import prisma from "../lib/db.js";
 import authMiddleware from "../middlewares/authmiddleware.js";
+import fs from 'fs-extra';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 const router = Router();
 
 
@@ -531,6 +535,13 @@ router.get("/program/:programId/course/:courseId/sessions/:id", async (req, res)
         SessionID: +id,
       },
     });
+    const material = await prisma.materials.count({
+      where: {
+        SessionID: +id,
+        ProgramID: programId,
+
+      },
+    });
 
     if (!data) return res.redirect("/admin/sessions");
 
@@ -540,6 +551,7 @@ router.get("/program/:programId/course/:courseId/sessions/:id", async (req, res)
       assignments,
       documents,
       quizes,
+      material,
       programId,
       courseId
     });
@@ -697,7 +709,7 @@ router.get("/session/:id/documents", async (req, res) => {
   }
 });
 
-router.get("/session/:id/materials", async (req, res) => {
+router.get("/program/:programId/course/:courseId/session/:id/materials", async (req, res) => {
   try {
     const materials = await prisma.materials.findMany({
       where: {
@@ -714,22 +726,27 @@ router.get("/session/:id/materials", async (req, res) => {
     res.render("admin/trainingMaterial", {
       materials,
       session,
+      programId:req.params.programId,
+      courseId:req.params.courseId,
     });
   } catch (error) {
     res.status(400).json({ error });
   }
 });
 
-router.get("/session/:id/materials/create", async (req, res) => {
+router.get("/program/:programId/course/:courseId/session/:id/materials/create", async (req, res) => {
   try {
+    const programId =  +req.params.programId
+
+
  const session = await prisma.trainingsessions.findFirst({
       where: {
         SessionID: +req.params.id,
       },
     });
-
     res.render("admin/createMaterial", {
-      session,
+      sessionId:+req.params.id,
+      programId
     });
 
   } catch (error) {
@@ -1360,7 +1377,7 @@ router.get("/reports", async (req, res) => {
   try {
     const programs = await prisma.programs.findMany({
       include: {
-        thirdparty: true,
+        trainingsessions: true,
       },
     });
     const sessions = await prisma.trainingsessions.findMany({
@@ -1368,6 +1385,7 @@ router.get("/reports", async (req, res) => {
         sessionId: req.params.SessionID
       },
     });
+    console.log(programs)
     // res.json(programs);
     res.render("admin/reports", { programs, sessions });
   } catch (error) {
@@ -1378,28 +1396,47 @@ router.get("/reports", async (req, res) => {
 // ======================================================
 // Handle the POST request to /add-report
 router.post("/reports/add-report", async (req, res) => {
-  const { Name, ProgramID, SessionID } = req.body;
-  const { template } = req.files;
+  const { name, ProgramID, SessionID,isTrainer,isMonitor } = req.body;
+  const file = req.files ? req.files.template : null;
+  console.log(file)
+  const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+  
 
-  try {
-    if (!Name ||!ProgramID ||!SessionID ||!template) {
-      return res.status(400).json({ error: "Missing fields" });
+  
+  
+  
+try {
+  if (!name || !ProgramID || !SessionID || !file) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  // Define the reports directory relative to the project root
+  const reportsDir = path.join(__dirname, '../../public/uploads/reports');
+
+  // Ensure the directory exists, if not, create it
+  fs.ensureDirSync(reportsDir);
+
+  // Define the file path
+  const filePath = path.join(reportsDir, file.name);
+
+  // Save the file to the directory
+  file.mv(filePath, (err) => {
+    if (err) {
+      console.error("Error saving file:", err);
+      return res.status(500).json({ error: "Error saving file" });
     }
 
-    const data = await prisma.report.create({
-      data: {
-        Name,
-        ProgramID,
-        SessionID,
-        FilePath: template.name,
-      },
-    });
+    console.log("File saved to:", filePath);
 
-    if (!data) return res.status(400).json({ error: "Missing fields" });
+    // Redirect after successful file upload
     res.redirect("/admin/reports");
-  } catch (error) {
-    res.status(500).json({ error });
-  }
+  });
+
+} catch (error) {
+  console.error("Error:", error);
+  res.status(500).json({ error });
+}
 });
 
 

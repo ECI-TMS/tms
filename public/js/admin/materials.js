@@ -1,6 +1,7 @@
 const uploadButton = document.getElementById("uploadButton");
 const fileInput = document.getElementById("fileInput");
 const sessionInput = document.getElementById("sessionInput");
+const programId = document.getElementById("programId");
 const data = localStorage.getItem("user");
 const user = JSON.parse(data);
 if (!data) {
@@ -13,6 +14,7 @@ function uploadFile(files) {
   if (file) {
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("programId", programId.value);
 
     fetch(`/files/session/${sessionInput.value}/materials/create`, {
       method: "POST",
