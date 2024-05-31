@@ -1,42 +1,17 @@
-{{!< dashboard}} <style>
-  /* Additional styles specific to the Programs section */
-  .programs-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  padding: 20px;
-  }
-
-  .program-card {
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  }
-
-  .program-card h3 {
-  color: #2E5A92;
-  font-size: 16px;
-  }
-
-  .add-button {
-  background-color: #2E5A92;
-  color: #fff;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-left: 20px;
-  }
-
-  .add-button:hover {
-  background-color: #2E5ABB;
-  }
-  </style>
-  <link rel="stylesheet" href="/css/admin/programs.css" />
-  <div class="content">
-    <button class="add-button" data-bs-toggle="modal" data-bs-target="#addSession">Add Feedback</button>
+{{!< dashboard}}
+<style>
+  /* Additional styles specific to the Programs section */ .align-center {
+  display: flex; align-items: center; } .programs-container { display: flex;
+  flex-wrap: wrap; gap: 20px; padding: 20px; } .program-card { background-color:
+  #fff; padding: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0,
+  0.1); width: 500px; } .program-card h3 { color: #2E5A92; font-size: 16px; }
+  .add-button { background-color: #2E5A92; color: #fff; padding: 10px 15px;
+  border: none; border-radius: 5px; cursor: pointer; margin-left: 20px; }
+  .add-button:hover { background-color: #2E5ABB; }
+</style>
+<link rel="stylesheet" href="/css/admin/programs.css" />
+{{!-- <div class="content">
+    <button class="add-button" data-bs-toggle="modal" data-bs-target="#addSession">Add Feedback </button>
     <div class="programs-container">
       {{#each feedbacks}}
       <div class="program-card">
@@ -47,10 +22,10 @@
       </div>
       {{/each}}
     </div>
-  </div>
+  </div> --}}
 
-  {{! create session modal }}
-  <div class="modal fade" id="addSession" tabindex="-1" aria-labelledby="addSession" aria-hidden="true">
+{{! create session modal }}
+{{!-- <div class="modal fade" id="addSession" tabindex="-1" aria-labelledby="addSession" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -81,6 +56,124 @@
         </div>
       </div>
     </div>
+  </div> --}}
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      
+      <div class="col-12 bg-white p-4"><h3 class="fw-bold">Define Feedbacks</h3></div>
+      {{#each sessions}}
+        <div class="col-12 bg-white p-4 mt-4">
+          Session >
+          {{this.SessionID}}
+          <form action="/admin/feedbacks/program/{{this.ProgramID}}/session/{{this.SessionID}}" method="post">
+            <div class="container mt-4">
+              <input type="hidden" name="trainer_id" value="{{this.users_trainingsessions_TrainerIDTousers.UserID}}">
+              <div class="row justify-content-center">
+                <div class="col-12"><span
+                    class="badge text-bg-warning"
+                  >Trainer</span></div>
+                <div class="col-12 bg-white align-center">
+
+                  <label
+                    for="checkbox"
+                    class="me-5"
+                  >{{this.users_trainingsessions_TrainerIDTousers.Username}}</label>
+                  <div>
+                    <div class="form-check form-check-inline">
+
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="trainer_options"
+                        id="textOption"
+                        value="text"
+                      />
+                      <label
+                        class="form-check-label"
+                        for="textOption"
+                      >Text</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="trainer_options"
+                        id="starsOption"
+                        value="stars"
+                      />
+                      <label
+                        class="form-check-label"
+                        for="starsOption"
+                      >Stars</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+                <div class="container mt-4">
+                  <input type="hidden" name="monitor_id" value="{{this.users_trainingsessions_MonitorIDTousers.UserID}}">
+              <div class="row justify-content-center">
+                <div class="col-12"><span
+                    class="badge text-bg-warning"
+                  >Monitor</span></div>
+                <div class="col-12 bg-white align-center">
+
+                  <label
+                    for="checkbox"
+                    class="me-5"
+                  >{{this.users_trainingsessions_MonitorIDTousers.Username}}</label>
+                  <div>
+                    <div class="form-check form-check-inline">
+
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="monitor_options"
+                        id="textOption"
+                        value="text"
+                      />
+                      <label
+                        class="form-check-label"
+                        for="textOption"
+                      >Text</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="monitor_options"
+                        id="starsOption"
+                        value="stars"
+                      />
+                      <label
+                        class="form-check-label"
+                        for="starsOption"
+                      >Stars</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="container mt-4">
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-dark">Add </button>
+
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      {{/each}}
+
+    </div>
+
   </div>
-  <!-- Include JavaScript files -->
-  <script src="/js/admin/feedback.js"></script>
+</div>
+
+<!-- Include JavaScript files -->
+<script src="/js/admin/feedback.js"></script>

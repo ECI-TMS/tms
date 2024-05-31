@@ -124,6 +124,8 @@
           class="row g-3 needs-validation"
           novalidate
         >
+        <input type="hidden" name="program_id" value="{{programId}}">
+        <input type="hidden" name="course_id" value="{{courseId}}">
           {{! name }}
           <div class="col-12">
             <label for="validationCustom01" class="form-label">Name</label>
@@ -191,7 +193,7 @@
             >
               <option selected disabled value="">Choose...</option>
               {{#each sessions}}
-                <option value="{{this.SessionID}}">{{this.SessionID}}</option>
+                <option value="{{this.SessionID}}" {{#eq this.SessionID ../sessionId}} selected {{/eq}}>{{this.SessionID}}</option>
               {{/each}}
             </select>
             <div class="invalid-feedback">

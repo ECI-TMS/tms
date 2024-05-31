@@ -63,8 +63,10 @@ router.post("/create", async (req, res) => {
     });
     
     if(existingSession){
+      
       const  existingSessionId= existingSession.SessionID;
       const newSessionId =  data.SessionID;
+      // assignments create after creating new session ================
       const assignments = await prisma.assignments.findMany({
         where: {
           SessionID:+existingSessionId,
@@ -87,6 +89,53 @@ router.post("/create", async (req, res) => {
           },
         });
       }
+      // quizes create after creating new session=============
+      const quizes = await prisma.quiz.findMany({
+        where: {
+          SessionID: +existingSessionId,
+        },
+        include: {
+          questions: {
+            include: {
+              options: true,
+            },
+          },
+        },
+      });
+      const transformedData = quizes.map(quiz => ({
+        ...quiz,
+        SessionID: newSessionId, // Change the SessionID to the new value
+        questions: quiz.questions.map(question => ({
+          ...question,
+          quizId: undefined, // Remove the quizId to avoid conflicts during insertion
+          options: question.options.map(option => ({
+            ...option,
+            questionId: undefined, // Remove the questionId to avoid conflicts during insertion
+          })),
+        })),
+      }));
+      for (const quiz of transformedData) {
+        const createdQuiz = await prisma.quiz.create({
+          data: {
+            name: quiz.name,
+            SessionID: quiz.SessionID,
+            questions: {
+              create: quiz.questions.map(question => ({
+                question: question.question,
+                answer: question.answer,
+                options: {
+                  create: question.options.map(option => ({
+                    value: option.value,
+                  })),
+                },
+              })),
+            },
+          },
+        });
+      
+        console.log(`Created quiz with ID: ${createdQuiz.id}`);
+      }
+
 
     }
     
@@ -95,7 +144,7 @@ router.post("/create", async (req, res) => {
     // console.log(data);
     // console.log(`=========================`)
 
-    res.redirect("/admin/sessions");
+    res.redirect(`/admin/programs/${program_id}/courses/${CourseID}`);
   } catch (error) {
     res.status(400).json({ error });
   }

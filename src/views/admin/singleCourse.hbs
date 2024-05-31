@@ -35,10 +35,11 @@
   </ol>
 
 
+
   <div class="programs-container">
     {{#each sessions}}
       <a
-        href="/admin/sessions/{{this.SessionID}}"
+        href="/admin/program/{{../programId}}/course/{{../courseId}}/sessions/{{this.SessionID}}"
         style="text-decoration: none;"
       >
         <div class="program-card">
