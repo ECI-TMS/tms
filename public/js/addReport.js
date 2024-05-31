@@ -25,7 +25,7 @@ function uploadFile(files) {
 
     console.log(formData);
 
-    fetch("/admin/reports", {
+    fetch("/admin/reports/add-report", {
       method: "POST",
       body: formData,
     })

@@ -1382,9 +1382,9 @@ router.post("/reports/add-report", async (req, res) => {
   const { template } = req.files;
 
   try {
-    // if (!name ||!ProgramID ||!SessionID ||!template) {
-    //   return res.status(400).json({ error: "Missing fields" });
-    // }
+    if (!Name ||!ProgramID ||!SessionID ||!template) {
+      return res.status(400).json({ error: "Missing fields" });
+    }
 
     const data = await prisma.report.create({
       data: {

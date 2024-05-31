@@ -252,7 +252,90 @@ app.post("/:id/assignment/mark", async (req, res) => {
 app.get("/quiz", (_, res) => {
   res.render("quiz");
 });
+app.post("/reports/:id/create", async (req, res) => {
+  const { Name } = req.body;
+  const {file} = req.files
+    const ProgramID = +req.params.id;
+  
+  const uploadsDirectory = join(process.cwd(), "public", "uploads");
 
+  const programDirectory = join(uploadsDirectory, `${ProgramID}`);
+  if (!file  || !Name ) {
+    return res.status(400).json({ error: "Missing Fields" });
+  }
+if (!fs.existsSync(uploadsDirectory)) {
+      fs.mkdirSync(uploadsDirectory, { recursive: true });
+    }
+
+    // Create session directory if it doesn't exist
+    if (!fs.existsSync(programDirectory)) {
+      fs.mkdirSync(programDirectory, { recursive: true });
+    }
+
+    const FilePath = join(programDirectory, file.name);
+      file.mv(FilePath);
+      const path = FilePath.split(process.cwd())[1].replace("\\public", "");
+  try {
+    const report = await prisma.report.create({
+      data: {
+        Name,
+        ProgramID: +req.params.id,
+        FilePath: path
+      },
+    });
+    res.redirect(`/admin/reports/${req.params.id}`);
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+  }
+});
+
+app.post('/reports/add-report', async (req, res) => {
+  try {
+      const { name, ProgramID, SessionID } = req.body;
+      const { template } = req.files;
+
+      // Validate inputs
+      if (!name || !ProgramID || !SessionID || !template) {
+          return res.status(400).json({ error: 'Missing Fields' });
+      }
+
+      // Define upload directories
+      const uploadsDirectory = path.join(process.cwd(), 'public', 'uploads');
+      const sessionDirectory = path.join(uploadsDirectory, `${SessionID}`);
+      
+      // Create directories if they don't exist
+      if (!fs.existsSync(uploadsDirectory)) {
+          fs.mkdirSync(uploadsDirectory, { recursive: true });
+      }
+      if (!fs.existsSync(sessionDirectory)) {
+          fs.mkdirSync(sessionDirectory, { recursive: true });
+      }
+
+      // Save the file
+      const filePath = path.join(sessionDirectory, template.name);
+      await template.mv(filePath);
+      const relativePath = filePath.split(process.cwd())[1].replace("\\public", "");
+
+      // Save the data to the database
+      const reportData = {
+          name,
+          ProgramID,
+          SessionID,
+          FilePath: relativePath
+      };
+
+      // Assuming you are using a database client, e.g., Prisma, Sequelize, MySQL package
+      // Replace this with your actual database client code
+      const createdReport = await prisma.report.create({
+          data: reportData,
+      });
+
+      return res.status(200).json({ success: true, report: createdReport });
+  } catch (error) {
+      console.error('Error while adding report:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 
