@@ -2,6 +2,9 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import prisma from "../lib/db.js";
 import { formatDate } from "../lib/util.js";
+import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from 'path';
 const router = Router();
 
 // Routes
@@ -168,6 +171,103 @@ router.post('/assignment/mark',async(req,res)=>{
     res.json({status:false});
   }
 
-})
+});
+
+
+
+router.get("/reports", async (req, res) => {
+  const { token } = req.cookies;
+
+  try {
+    const userData = jwt.verify(token, process.env.JWT_SECRET);
+    const reports = await prisma.report.findMany({
+      where: {
+        isForTrainer: true,
+        ProgramID: +userData.ProgramID,
+        SubmitedReports: {
+          none: {},
+        },
+      },
+    });
+    // res.json(reports)
+    res.render("trainer/reports", { reports });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+  }
+});
+
+router.get("/reports/:id/create", async (req, res) => {
+  const { token } = req.cookies;
+
+  try {
+    const userData = jwt.verify(token, process.env.JWT_SECRET);
+
+    const report = await prisma.report.findFirst({
+      where: {
+        ReportID: +req.params.id,
+      },
+    });
+    const user = await prisma.users.findFirst({
+      where:{
+        UserID: userData.UserID
+      }
+    })
+
+    // console.log(report, user)
+    res.render("trainer/createReport", { report, user});
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+  }
+});
+
+router.post("/reports/:id/create", async (req, res) => {
+  const { ReportID, UserID } = req.body;
+  const file = req.files ? req.files.template : null;
+
+
+  if (!ReportID || !UserID || !file) {
+    return res.status(400).json({ error: "Missing required fields or file" });
+  }
+
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  // Define the reports directory relative to the project root
+  const baseDir = path.join(__dirname, '../../public');
+  const reportsDir = path.join(baseDir, 'uploads', 'uploadReport');
+
+  // Ensure the directory exists, if not, create it
+  if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+  }
+
+  // Define the file path
+  const filePath = path.join(reportsDir, file.name);
+
+  try {
+    // Save the file to the directory
+    await file.mv(filePath);
+
+    // Get the relative file path and prepend a backslash
+    let FilePath = path.relative(baseDir, filePath);
+    FilePath = `\\${FilePath}`;
+
+    // Insert data into the database
+    await prisma.submitedReport.create({
+      data: {
+        ReportID: parseInt(ReportID),
+        UserID: parseInt(UserID),
+        FilePath: FilePath,
+      }
+    });
+
+    // Redirect after successful file upload and database insertion
+    res.redirect("/trainer/reports");
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error });
+  }
+});
+
 
 export default router;

@@ -21,10 +21,23 @@
     />
     <link rel="stylesheet" href="/css/trainer/dashboard.css" />
     <link rel="stylesheet" href="/css/admin/dashboard.css" />
+    <style>
+      .add-button {
+        display: inline-block;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #2e5a92;
+        color: white;
+        text-decoration: none;
+        margin-bottom: 15px;
+      }
+    </style>
   </head>
   <body>
     <div class="header">
-      <button id="menuToggle">&#9776;</button>
+      <button id="menuToggle" onclick="toggleSidebar()">&#9776;</button>
       <h1>Monitor Dashboard</h1>
       <button
         onclick="localStorage.removeItem('user'); location.href='/'"
@@ -37,6 +50,10 @@
       </ul>
     </div>
     <div class="content">
+      <div>
+            <a href="/monitor/reports" class="add-button" >Reports</a>
+      </div>
+
       <h2>Assignments Completed/Uploaded</h2>
       <canvas
         id="assignmentsChart"

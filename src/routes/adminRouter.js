@@ -6,6 +6,7 @@ import authMiddleware from "../middlewares/authmiddleware.js";
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { log } from "console";
 
 const router = Router();
 
@@ -1405,7 +1406,7 @@ const __dirname = path.dirname(__filename);
 
   
   
-  
+  console.log("form data: ", req.body)
 try {
   if (!name || !ProgramID || !SessionID || !file) {
     return res.status(400).json({ error: "Missing fields" });
@@ -1451,7 +1452,7 @@ try {
     }catch(err){
 
     }
-
+res.redirect("/admin/reports");
 } catch (error) {
   console.error("Error:", error);
   res.status(500).json({ error });

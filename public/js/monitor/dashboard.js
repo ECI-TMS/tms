@@ -1,3 +1,10 @@
+
+function toggleSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  sidebar.classList.toggle("active");
+}
+
+
 const userProfile = document.getElementById("userProfile");
 
 const data = localStorage.getItem("user");

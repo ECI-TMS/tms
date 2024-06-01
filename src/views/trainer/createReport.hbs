@@ -1,5 +1,5 @@
 {{!< monitorDashboard}} <div class="container">
-  <form action="/monitor/reports/{{report.ReportID}}/create" method="POST" class="row g-3 needs-validation mt-5" enctype="multipart/form-data">
+  <form action="/trainer/reports/{{report.ReportID}}/create" method="POST" class="row g-3 needs-validation mt-5" enctype="multipart/form-data">
     <input type="text" hidden name="ReportID" class="form-control input" id="ReportID" value="{{report.ReportID}}"
       required />
     <input type="text" hidden name="UserID" class="form-control input" id="UserID" value="{{user.UserID}}"

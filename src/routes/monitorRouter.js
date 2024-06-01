@@ -2,6 +2,9 @@ import { Router } from "express";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 import { join } from "path";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 
 import prisma from "../lib/db.js";
 import { formatDate } from "../lib/util.js";
@@ -9,7 +12,7 @@ const router = Router();
 
 // Routes
 router.get("/dashboard", (req, res) => {
-  res.render("monitor/dashboard");
+  res.render("monitor/dashboard", {layout: false});
 });
 
 router.get("/assignments", async (req, res) => {
@@ -193,12 +196,14 @@ router.get("/reports", async (req, res) => {
     const userData = jwt.verify(token, process.env.JWT_SECRET);
     const reports = await prisma.report.findMany({
       where: {
+        isForMonitor: true,
         ProgramID: +userData.ProgramID,
         SubmitedReports: {
           none: {},
         },
       },
     });
+    // res.json(reports)
     res.render("monitor/reports", { reports });
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
@@ -216,66 +221,69 @@ router.get("/reports/:id/create", async (req, res) => {
         ReportID: +req.params.id,
       },
     });
-    const sessions = await prisma.trainingsessions.findMany({
-      where: {
-        ProgramID: +userData.ProgramID,
-      },
-    });
+    const user = await prisma.users.findFirst({
+      where:{
+        UserID: userData.UserID
+      }
+    })
 
-    res.render("monitor/createReport", { report, sessions });
+    // console.log(user)
+    res.render("monitor/createReport", { report, user});
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
   }
 });
 
+
 router.post("/reports/:id/create", async (req, res) => {
+  const { ReportID, UserID } = req.body;
+  const file = req.files ? req.files.template : null;
+
+
+  if (!ReportID || !UserID || !file) {
+    return res.status(400).json({ error: "Missing required fields or file" });
+  }
+
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  // Define the reports directory relative to the project root
+  const baseDir = path.join(__dirname, '../../public');
+  const reportsDir = path.join(baseDir, 'uploads', 'uploadReport');
+
+  // Ensure the directory exists, if not, create it
+  if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+  }
+
+  // Define the file path
+  const filePath = path.join(reportsDir, file.name);
+
   try {
-    const { id } = req.params;
-    const { SessionID } = req.body;
-    const {file} = req.files;
+    // Save the file to the directory
+    await file.mv(filePath);
 
-    console.log("🚀 ~ router.post ~ SessionID:", file)
+    // Get the relative file path and prepend a backslash
+    let FilePath = path.relative(baseDir, filePath);
+    FilePath = `\\${FilePath}`;
 
-    const uploadsDirectory = join(process.cwd(), "public", "uploads");
-
-    // Check if the report with the given ID exists
-    const existingReport = await prisma.report.findUnique({
-      where: { ReportID: +id },
-    });
-
-    if (!existingReport) {
-      return res.status(404).json({ error: "Report not found" });
-    }
-
-
-  const sessionDirectory = join(uploadsDirectory, `${SessionID}`);
-
-if (!fs.existsSync(uploadsDirectory)) {
-      fs.mkdirSync(uploadsDirectory, { recursive: true });
-    }
-
-    // Create session directory if it doesn't exist
-    if (!fs.existsSync(sessionDirectory)) {
-      fs.mkdirSync(sessionDirectory, { recursive: true });
-    }
-
-    const FilePath = join(sessionDirectory, file.name);
-      file.mv(FilePath);
-      const path = FilePath.split(process.cwd())[1].replace("\\public", "");
-    // Create and save the submitted report
-    const submittedReport = await prisma.submitedReport.create({
+    // Insert data into the database
+    await prisma.submitedReport.create({
       data: {
-        ReportID: +existingReport.ReportID,
-        SessionID: +SessionID,
-        Value: path,
-      },
+        ReportID: parseInt(ReportID),
+        UserID: parseInt(UserID),
+        FilePath: FilePath,
+      }
     });
 
+    // Redirect after successful file upload and database insertion
     res.redirect("/monitor/reports");
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error });
   }
 });
+
+
 
 export default router;

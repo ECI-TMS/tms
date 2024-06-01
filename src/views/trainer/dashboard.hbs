@@ -24,6 +24,18 @@
       15px; display: flex;justify-content: center;align-items: center; flex:1;}
       .card-lower { padding-inline: 15px; background: #2E5A92; color: white;
       display: flex;height: 30px; justify-content: center; }
+
+      .add-button {
+        display: inline-block;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #2e5a92;
+        color: white;
+        text-decoration: none;
+        margin: 40px;
+      }
     </style>
   </head>
   <body>
@@ -33,6 +45,10 @@
     <img src="/eci.png" alt="ECI Logo" class="logo" />
     <!-- Add this line for the logo -->
   </div>
+  
+  <div>
+            <a href="/trainer/reports" class="add-button" >Reports</a>
+      </div>
     <div class="content">
       <div class="programs-container">
         {{#each sessions}}
