@@ -54,8 +54,8 @@
       <th>ID</th>
       <th>Username</th>
       <th>Name</th>
+      <th>Monitor/Trainer</th>
       <th>File</th>
-      {{!-- <th>Monitor/Trainer</th> --}}
     </tr>
   </thead>
   <tbody>
@@ -64,6 +64,7 @@
       <td>{{this.UserID}}</td>
       <td>{{this.users.Username}}</td>
       <td>{{this.report.Name}}</td>
+      <td>{{this.submitRole}}</td>
       <td><a download="true" class="btn btn-primary" href='{{this.FilePath}}'>Download</a></td>
     </tr>
     {{/each}}

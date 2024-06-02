@@ -1399,7 +1399,7 @@ router.get("/reports", async (req, res) => {
 router.post("/reports/add-report", async (req, res) => {
   const { name, ProgramID, SessionID,isTrainer,isMonitor } = req.body;
   const file = req.files ? req.files.template : null;
-  console.log(file)
+  // console.log(file)
   const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
   
@@ -1486,9 +1486,18 @@ router.get("/allReports", async (req, res) => {
         users: true,  // Assuming 'users' is the related model
       },
     });
-
+    const submittedRole = submittedReports.map(submittedReport => {
+      if (submittedReport.report.isForMonitor) {
+        submittedReport.submitRole = "monitor";
+      } else if (submittedReport.report.isForTrainer) {
+        submittedReport.submitRole = "trainer";
+      } else {
+        submittedReport.submitRole = "Unknown";
+      }
+      return submittedReport;
+    });
     // res.json(submittedReports);
-    res.render("admin/allReports", { allReports: reportsWithRole, submittedReports});
+    res.render("admin/allReports", { allReports: reportsWithRole, submittedReports: submittedRole});
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
   }
