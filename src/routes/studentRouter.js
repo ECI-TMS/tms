@@ -309,8 +309,13 @@ router.get("/upload", async (req, res) => {
 //----------============================------------
 
 router.get("/quizes", async (req, res) => {
+  const { token } = req.cookies;
   try {
+    const userData = jwt.verify(token, process.env.JWT_SECRET);
     const quizes = await prisma.Quiz.findMany({
+      where: {
+        SessionID: +userData.SessionID,
+      },
       include: {
         questions: {
           include: {

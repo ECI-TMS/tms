@@ -1386,7 +1386,7 @@ router.get("/reports", async (req, res) => {
         sessionId: req.params.SessionID
       },
     });
-    console.log(programs)
+    // console.log(programs)
     // res.json(programs);
     res.render("admin/reports", { programs, sessions });
   } catch (error) {
@@ -1436,7 +1436,11 @@ try {
     // Redirect after successful file upload
     // res.redirect("/admin/reports");
   });
-  const FilePath = path.relative(baseDir, filePath);
+  let FilePath = path.relative(baseDir, filePath);
+  if (!FilePath.startsWith('\\')) {
+    FilePath = `\\${FilePath}`;
+  }
+  console.log(FilePath)
     try{
       const report = await prisma.report.create({
         data: {
@@ -1461,91 +1465,139 @@ res.redirect("/admin/reports");
 
 
 
+router.get("/allReports", async (req, res) => {
+  try {
+    
+    const allReports = await prisma.report.findMany();
+
+    // Add a new property to each report to indicate the target role
+    const reportsWithRole = allReports.map(report => {
+      if (report.isForMonitor) {
+        report.targetRole = "monitor";
+      } else if (report.isForTrainer) {
+        report.targetRole = "trainer";
+      }
+      return report;
+    });
+
+    const submittedReports = await prisma.submitedReport.findMany({
+      include: {
+        report: true, // Assuming 'report' is the related model
+        users: true,  // Assuming 'users' is the related model
+      },
+    });
+
+    // res.json(submittedReports);
+    res.render("admin/allReports", { allReports: reportsWithRole, submittedReports});
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+  }
+});
+
+// router.delete("/allReports/:id", async (req, res) => {
+//   const reportId = parseInt(req.params.id, 10);
+//   console.log(`Received delete request for report ID: ${reportId}`);
+//   try {
+//     await prisma.report.delete({
+//       where: {
+//         id: reportId,
+//       },
+//     });
+//     res.status(200).json({ message: "Report deleted successfully" });
+//   } catch (error) {
+//     console.log("🚀 ~ router.delete ~ error:", error);
+//     res.status(500).json({ error: "An error occurred while deleting the report." });
+//   }
+// });
+
+
+
+
 
 
 
 
 // all reports of a program
-router.get("/reports/:id", async (req, res) => {
-  try {
-    const id = +req.params.id; // Convert to number
+// router.get("/reports/:id", async (req, res) => {
+//   try {
+//     const id = +req.params.id; // Convert to number
 
-    // Use `findFirst` to find a single record
-    const program = await prisma.programs.findFirst({
-      where: {
-        ProgramID: id,
-      },
-    });
+//     // Use `findFirst` to find a single record
+//     const program = await prisma.programs.findFirst({
+//       where: {
+//         ProgramID: id,
+//       },
+//     });
 
     
 
-    if (!program) {
-      throw new Error(`Program with ID ${id} not found`);
-    }
+//     if (!program) {
+//       throw new Error(`Program with ID ${id} not found`);
+//     }
 
-    const reports = await prisma.report.findMany({
-      where: {
-        ProgramID: +id,
-      },
-      include: {
-        SubmitedReports: true,
-      },
-    });
+//     const reports = await prisma.report.findMany({
+//       where: {
+//         ProgramID: +id,
+//       },
+//       include: {
+//         SubmitedReports: true,
+//       },
+//     });
 
-    res.render("admin/programReports", { program, reports });
-  } catch (error) {
-    console.error("🚀 ~ router.get ~ error:", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
+//     res.render("admin/programReports", { program, reports });
+//   } catch (error) {
+//     console.error("🚀 ~ router.get ~ error:", error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
 
-// single report
-router.get("/report/:id", async (req, res) => {
-  try {
-    const id = +req.params.id; // Convert to number
-    const report = await prisma.submitedReport.findMany({
-      where: {
-        ReportID: +id,
-      },
-      include: {
-        report: true,
-      },
-    });
+// // single report
+// router.get("/report/:id", async (req, res) => {
+//   try {
+//     const id = +req.params.id; // Convert to number
+//     const report = await prisma.submitedReport.findMany({
+//       where: {
+//         ReportID: +id,
+//       },
+//       include: {
+//         report: true,
+//       },
+//     });
 
-    const mainReport = await prisma.report.findFirst({
-      where: {
-        ReportID: +id,
-      },
-    });
+//     const mainReport = await prisma.report.findFirst({
+//       where: {
+//         ReportID: +id,
+//       },
+//     });
     
 
-    if (!report) {
-      throw new Error(`Program with ID ${id} not found`);
-    }
+//     if (!report) {
+//       throw new Error(`Program with ID ${id} not found`);
+//     }
 
-    res.render("admin/singleReport", {
-      report,
-      mainReport,
-    });
-  } catch (error) {
-    console.error("🚀 ~ router.get ~ error:", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
+//     res.render("admin/singleReport", {
+//       report,
+//       mainReport,
+//     });
+//   } catch (error) {
+//     console.error("🚀 ~ router.get ~ error:", error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
 
-router.get("/reports/:id/create", async (req, res) => {
-  try {
-    const program = await prisma.programs.findFirst({
-      where: {
-        ProgramID: +req.params.id,
-      },
-    });
+// router.get("/reports/:id/create", async (req, res) => {
+//   try {
+//     const program = await prisma.programs.findFirst({
+//       where: {
+//         ProgramID: +req.params.id,
+//       },
+//     });
 
-    // res.json(program);
-    res.render("admin/createReport", { program });
-  } catch (error) {
-    console.log("🚀 ~ router.get ~ error:", error);
-  }
-});
+//     // res.json(program);
+//     res.render("admin/createReport", { program });
+//   } catch (error) {
+//     console.log("🚀 ~ router.get ~ error:", error);
+//   }
+// });
 
 export default router;

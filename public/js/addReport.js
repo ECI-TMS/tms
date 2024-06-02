@@ -49,6 +49,7 @@ function uploadFile(files) {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
+        alert("Reprt Submitted Successfully!");
         return response.json();
       })
      .then((data) => {

@@ -36,6 +36,9 @@ loginForm.addEventListener("submit", (e) => {
     body: JSON.stringify(loginData),
   })
     .then((res) => {
+      if (!res.ok) {
+        alert('Invalid login details');
+      }
       return res.json();
     })
     .then((data) => {
@@ -43,6 +46,7 @@ loginForm.addEventListener("submit", (e) => {
       const userType = data.userData.UserType;
       const user = JSON.stringify(data.userData);
       localStorage.setItem("user", user);
+
 
       if (userType === "ADMIN") {
         window.location.href = "/admin/dashboard";
