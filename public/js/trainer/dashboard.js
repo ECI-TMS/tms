@@ -1,5 +1,10 @@
-const menuToggle = document.getElementById("menuToggle");
-const sidebar = document.querySelector(".sidebar");
+
+
+function toggleSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  sidebar.classList.toggle("active");
+}
+
 
 const data = localStorage.getItem("user");
 if (data) {
@@ -11,13 +16,6 @@ if (data) {
   }
 }
 
-menuToggle.addEventListener("click", () => {
-  if (sidebar.style.left === "-200px") {
-    sidebar.style.left = "0";
-  } else {
-    sidebar.style.left = "-200px";
-  }
-});
 
 const assignmentsData = {
   labels: [

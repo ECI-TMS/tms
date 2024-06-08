@@ -270,4 +270,98 @@ router.post("/reports/:id/create", async (req, res) => {
 });
 
 
+router.get("/deliverables", async (req, res) => {
+
+  try {
+    const deliverables = await prisma.deliverables.findMany();
+    
+    console.log(deliverables);
+    res.render("trainer/deliverables", { deliverables });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+  }
+})
+
+
+router.get("/deliverables/AddDeliverable", async (req, res) => {
+  const { token } = req.cookies;
+  try {
+    const userData = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await prisma.users.findFirst({
+      where:{
+        UserID: userData.UserID
+      }
+    })
+    res.render("trainer/AddDeliverables", { user });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+  }
+});
+
+router.post("/deliverables/AddDeliverable", async (req, res) => {
+  const { Title, UserID } = req.body;
+  const file = req.files ? req.files.template : null;
+  // console.log(file)
+  const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+  console.log("form data: ", req.body)
+try {
+  if (!Title || !file) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  // Define the reports directory relative to the project root
+  // const reportsDir = path.join(__dirname, '../../public/uploads/reports');
+  const baseDir = path.join(__dirname, '../../public');
+    const reportsDir = path.join(baseDir, '/uploads/deliverables');
+
+  // Ensure the directory exists, if not, create it
+  // fs.ensureDirSync(reportsDir);
+  if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+  }
+
+  // Define the file path
+  const filePath = path.join(reportsDir, file.name);
+
+  // Save the file to the directory
+  file.mv(filePath, (err) => {
+    if (err) {
+      console.error("Error saving file:", err);
+      return res.status(500).json({ error: "Error saving file" });
+    }
+    // console.log("File saved to:", filePath);
+    
+    // Redirect after successful file upload
+    // res.redirect("/admin/reports");
+  });
+  let FilePath = path.relative(baseDir, filePath);
+  if (!FilePath.startsWith('\\')) {
+    FilePath = `\\${FilePath}`;
+  }
+  // console.log(FilePath)
+    try{
+      const deliverables = await prisma.deliverables.create({
+        data: {
+          UserID: parseInt(UserID),
+          Title: Title,
+          FilePath: FilePath,
+        }
+      })
+
+    }catch(err){
+      console.log(err)
+    }
+res.redirect("/trainer/deliverables");
+} catch (error) {
+  console.error("Error:", error);
+  res.status(500).json({ error });
+}
+
+
+  
+});
+
+
 export default router;

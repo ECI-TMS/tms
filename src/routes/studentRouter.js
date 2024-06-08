@@ -421,4 +421,17 @@ router.post("/feedbacks/program/:programId/session/:session",authMiddleware,asyn
 
 })
 
+
+router.get("/deliverables", async (req, res) => {
+
+  try {
+    const deliverables = await prisma.deliverables.findMany();
+    
+    console.log(deliverables);
+    res.render("student/deliverables", { deliverables });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+  }
+})
+
 export default router;
