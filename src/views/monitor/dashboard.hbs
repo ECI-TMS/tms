@@ -45,10 +45,11 @@
       >Logout</button>
     </div>
     <div class="sidebar">
-      <button id="closeModal" onclick="toggleSidebar()">X</button>
-      <ul>
-        <li><a href="assignments">Assignments</a></li>
-        <li><a href="/monitor/deliverables">Deliverables</a></li>
+      <i class="fa-solid fa-circle-xmark cursor-pointer" id="closeModal" onclick="toggleSidebar()" style="margin-top: 5px; margin-left: 9px; margin-bottom: 15px;"></i>
+      <ul style="margin-left: -31px;">
+        <li><a href="assignments"><i class="fa-solid fa-file pe-3"></i> Assignments</a></li>
+        <li><a href="/monitor/deliverables"><i class="fa-solid fa-trailer pe-3"></i> Deliverables</a></li>
+        <li class="two_tag_vertically_center"><button class="btn" style="color:#2E5A92; background-color: white;width:100%" id="logout" onclick="localStorage.removeItem('user'); location.href='/'">Logout</button></li>
       </ul>
     </div>
     <div class="content">
@@ -82,5 +83,6 @@
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
+    <script src="https://kit.fontawesome.com/46ede82261.js" crossorigin="anonymous"></script>
   </body>
 </html>

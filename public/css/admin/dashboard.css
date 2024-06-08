@@ -51,7 +51,7 @@ body {
   width: 200px;
   background-color: #2e5a92;
   transition: left 0.3s;
-  padding-top: 60px;
+  padding-top: 10px;
   z-index: 50;
   overflow: hidden;
 }
@@ -70,6 +70,7 @@ body {
 
 .sidebar ul {
   list-style-type: none;
+  margin-top: 45px;
 }
 
 .sidebar ul li {

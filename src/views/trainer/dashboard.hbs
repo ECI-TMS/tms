@@ -7,6 +7,10 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
     />
+
+    <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
     <link rel="stylesheet" href="/css/trainer/dashboard.css" />
     <link rel="stylesheet" href="/css/admin/dashboard.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -46,10 +50,12 @@
     <!-- Add this line for the logo -->
   </div>
   <div class="sidebar">
-      <button id="closeModal" onclick="toggleSidebar()">X</button>
-      <ul>
-        <li><a href="/trainer/reports" >Reports</a></li>
-        <li><a href="/trainer/deliverables">Deliverables</a></li>
+      <i class="fa-solid fa-circle-xmark cursor-pointer" id="closeModal" onclick="toggleSidebar()" style="margin-top: 5px; margin-left: 9px; margin-bottom: 15px;"></i>
+      <ul style=" margin-left: -31px;
+">
+        <li><a href="/trainer/reports" ><i class="fa-solid fa-comment pe-3"></i> Reports</a></li>
+        <li><a href="/trainer/deliverables"><i class="fa-solid fa-trailer pe-3"></i> Deliverables</a></li>
+        <li class="two_tag_vertically_center"><button class="btn" style="color:#2E5A92; background-color: white;width:100%" id="logout" onclick="localStorage.removeItem('user'); location.href='/'">Logout</button></li>
       </ul>
     </div>
   
@@ -78,5 +84,6 @@
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
+     <script src="https://kit.fontawesome.com/46ede82261.js" crossorigin="anonymous"></script>
   </body>
 </html>
