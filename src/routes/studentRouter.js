@@ -34,7 +34,45 @@ const assignments = assignmentsWithDetails.map(assignment => {
 
 
     res.render("student/dashboard", { assignments });
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+
+router.get("/assignments", authMiddleware, async (req, res) => {
+
+  try {
+    const { UserID } = req.user;
+
+const assignmentsWithDetails = await prisma.assignments.findMany({
+  where: {
+    isUploadedByTrainer: true,
+  },
+  include: {
+    student_assignments_cust: true, // Include related student_assignments_cust records
+  },
+});
+
+// Process the results to filter student_assignments_cust based on UserID and transform the array to a single object
+const assignments = assignmentsWithDetails.map(assignment => {
+  const filteredStudentAssignments = assignment.student_assignments_cust.filter(
+    studentAssignment => 
+      studentAssignment.AssignmentID === assignment.AssignmentID &&
+      studentAssignment.ParticipantID === UserID
+  );
+
+  return {
+    ...assignment,
+    student_assignments_cust: filteredStudentAssignments[0] || null // Convert array to a single object or null
+  };
+});
+
+
+    res.render("student/assignments", { assignments });
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 router.get("/documents", async (req, res) => {

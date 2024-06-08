@@ -14,70 +14,24 @@
   background: #2E5A92; color: white; display: flex;height: 30px;
   justify-content: center; }
 
-  body { font-family: 'Poppins', sans-serif; background-color: #fff; color:
-  #000; } .container { display: flex; justify-content: center; } table { width:
-  80%; margin: 50px; table-layout: fixed; border-collapse: collapse; } th, td {
-  padding: 15px; text-align: left; } th { background-color: #2E5A92; color:
-  #fff; } table, th, td { width: 1fr; text-align: center; }
-
-  th, td { width: 25%; } table tbody tr {
-  background-color: white; } table tbody tr:nth-child(odd) { background-color:
-  #f2f2f2; } table thead th { border: none; } th, td { padding: 15px;
-  text-align: left; } th:nth-child(1), td:nth-child(1) { width: 10%; }
-  th:nth-child(2), td:nth-child(2) { width: 50%; } th:nth-child(3),
-  td:nth-child(3) { width: 20%; } th:nth-child(4), td:nth-child(4) { width: 20%;
-  }
-  .upload-btn{
-  border:none
-  }
-  .w_m_f{
-    width: 100%;
-    margin-right: 0;
-    margin-left: 0;
-  }
 
   </style>
 
-  <div class="container">
-    <table class="w_m_f">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Assignment Title </th>
-          <th>Deadline</th>
-          <th>Template</th>
-          <th>Upload</th>
-          <th>status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each assignments}}
-        <td>{{this.AssignmentID}}</td>
-        <td>{{this.Title}}</td>
-        <td>{{this.Deadline}}</td>
-        <td><a class="upload-btn" href="{{this.FilePath}}"><i class="fa-solid fa-download text-success"></i></a>
-        </td>
-
-        <td><button class="upload-btn"
-            onclick="location.href='upload/?title={{this.Title}}&ass_id={{this.AssignmentID}}'"><i
-              class="fa-solid fa-upload text-info"></i></button></td>
-        <td>
-          {{!-- student_assignments_cust --}}
-          {{#when this.student_assignments_cust.status 'eq' true}}
-          <span class="badge text-bg-success">uploaded</span>
-          {{else}}
-          <span class="badge text-bg-danger">not uploaded</span>
-          {{/when}}
-        </td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-
-  </div>
-<div class="container justify-content-start">
+<div class="container justify-content-start" style="margin-top: 80px;">
   <div class="row">
     <div class="col-md-12 d-flex gap-4">
+
+
+     <div class="programs-container">
+      <a href="/student/assignments" style="text-decoration: none;">
+        <div class="program-card">
+          <div class="card-upper">
+            <img src="/icons/participants.png" alt="">
+            <h3>Assignment</h3>
+          </div>
+        </div>
+      </a>
+    </div> 
 
   
     <div class="programs-container">
