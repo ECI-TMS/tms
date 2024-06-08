@@ -953,6 +953,7 @@ router.get("/programs/:programId/courses/:id/session/create", async (req, res) =
 
   
   try {
+    const programId = req.params.programId;
 
     
 
@@ -967,9 +968,14 @@ router.get("/programs/:programId/courses/:id/session/create", async (req, res) =
         UserType: UserType.MONITOR,
       },
     });
-    const courses = await prisma.course.findMany();
+    const courses = await prisma.course.findMany({
+      where: {
+        ProgramID: +programId,
+      },
+
+    });
     const course_id = req.params.id;
-    const programId = req.params.programId;
+    
     
 
     res.render("admin/createSession", { trainers, monitors, centers, courses ,course_id ,programId});

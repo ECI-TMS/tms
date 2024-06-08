@@ -339,6 +339,7 @@ model users {
   ProgramUsers                                       ProgramUsers[]
   Feedback                                           Feedback[]
   FeedbackResponse                                   FeedbackResponse[]
+  deliverables                                       deliverables[]
 }
 
 model client {
@@ -366,4 +367,26 @@ model FeedbackResponse {
   response   String
   users      users    @relation(fields: [UserID], references: [UserID], onDelete: Cascade)
   Feedback   Feedback @relation(fields: [FeedbackID], references: [FeedbackID], onDelete: Cascade)
+}
+
+model deliverables {
+  id                   Int                    @id @default(autoincrement())
+  Title                String                 @db.VarChar(255)
+  FilePath             String?                @db.VarChar(255)
+  UserID               Int
+  createdAt            DateTime               @default(now())
+  user                 users                  @relation(fields: [UserID], references: [UserID], onDelete: Cascade, onUpdate: Restrict)
+  student_deliverables student_deliverables[]
+}
+
+model student_deliverables {
+  id             Int @id @default(autoincrement())
+  deliverable_id Int
+
+  FilePath      String? @db.VarChar(255)
+  ParticipantID Int?
+  status        Boolean @default(false)
+
+  createdAt    DateTime     @default(now())
+  deliverables deliverables @relation(fields: [deliverable_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
 }
