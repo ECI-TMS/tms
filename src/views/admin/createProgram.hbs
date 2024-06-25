@@ -6,8 +6,8 @@
 
 </div>
 
-<div class="container mt-4">
-  <form action="/admin/program/create" method="post" class="row g-3 needs-validation justify-content-center " novalidate>
+<div class="container mt-4 mb-4">
+  <form action="/admin/program/create" method="post" class="row g-3 needs-validation justify-content-center" novalidate>
 
     <div class="col-lg-6 bg-white p-5">
       <div class="row gap-4">
@@ -102,12 +102,12 @@
     </div>
     </div>
     
-    <div class="col-12 d-flex ">
+    <div class="col-12 d-flex flex-wrap">
       {{#each documentType}}
       <div class="form-check form-switch ps-0 pe-4">
-        <input class="" type="checkbox" id="flexSwitchCheckDefault" name="documentTypes[]"
+        <input class="" type="checkbox" id="flexSwitchCheckDefault-{{@index}}" name="documentTypes[]"
           value="{{this.DocumentTypeID}}">
-        <label class="form-check-label" for="flexSwitchCheckDefault">{{this.Name}}</label>
+        <label class="form-check-label" for="flexSwitchCheckDefault-{{@index}}">{{this.Name}}</label>
       </div>
       {{/each}}
     </div>
