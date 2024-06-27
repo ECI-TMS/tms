@@ -1,32 +1,182 @@
-{{!< dashboard}}
-
-<link rel="stylesheet" href="/css/admin/programs.css" />
+{{!
+< dashboard}} <link rel="stylesheet" href="/css/admin/programs.css" />
 
 <style>
-  /* Additional styles specific to the Programs section */ .programs-container {
-  display: flex; flex-wrap: wrap; gap: 20px; padding-block: 20px; }
-  .program-card { border: 2px solid rgba(46, 90, 146,0.3); background-color:
-  #f7f7f7; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width:
-  200px;height: 150px; display: flex; flex-direction:column;justify-content:
-  space-between; overflow: hidden; } .program-card h3 { color: #2E5A92; }
-  .program-card p { color: white; font-weight: 500 } .add-button {
-  background-color: #2E5A92; color: #fff; padding: 10px 15px; border: none;
-  border-radius: 5px; cursor: pointer; } .add-button:hover { background-color:
-  #2E5ABB; } .card-upper { padding: 15px; display: flex;justify-content:
-  center;align-items: center; flex:1;} .card-lower { padding-inline: 15px;
-  background: #2E5A92; color: white; display: flex;height: 30px;
-  justify-content: center; }
-  .card-upper>h3{
+  /* Additional styles specific to the Programs section */
+  .programs-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-block: 20px;
+  }
+
+  .program-card {
+    position: relative;
+    border: 2px solid rgba(46, 90, 146, 0.3);
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 200px;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  .program-card h3 {
+    color: #2E5A92;
+  }
+
+  .program-card p {
+    color: white;
+    font-weight: 500;
+  }
+
+  .add-button {
+    background-color: #2E5A92;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .add-button:hover {
+    background-color: #2E5ABB;
+  }
+
+  .card-upper {
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 116px;
+    flex: 1;
+    text-align: center;
+  }
+
+  .card-lower {
+    padding-inline: 15px;
+    background: #2E5A92;
+    color: white;
+    display: flex;
+    height: 30px;
+    justify-content: center;
+  }
+
+  .card-upper>h3 {
     font-size: 1.2rem;
+  }
+
+  .delete {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: red;
+    width: 35px;
+    height: 35px;
+    border-radius: 20px;
+    justify-content: center;
+    align-items: center;
+    border: none;
+  }
+
+  .edit {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    background-color: #28A745;
+    color: #fff;
+    width: 35px;
+    height: 35px;
+    border-radius: 20px;
+    justify-content: center;
+    align-items: center;
+    border: none;
+  }
+
+  .program-card:hover .edit {
+    display: flex;
+  }
+
+  .delete svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .program-card:hover .delete {
+    display: flex;
+  }
+
+  /* Styles for the overlay */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+  }
+
+  /* Styles for the modal */
+  .modal {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    height: 240px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Center the content */
+    text-align: center;
+  }
+
+  /* Styles for the modal title */
+  .modal h2 {
+    margin-top: 0;
+  }
+
+  /* Styles for the modal footer */
+  .deleteProgramFooter {
+    margin-top: 20px;
+    text-align: right;
+  }
+
+  /* Styles for the modal buttons */
+  .deleteProgramFooter button,
+  .deleteProgramFooter .deleteProgram {
+    padding: 10px 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+  }
+
+  .deleteProgramFooter .deleteProgram {
+    background-color: red;
+    color: white;
   }
 </style>
 
 <div class="content">
-  <button class="add-button"><a
-      style="color:white; text-decoration:none"
-      href="/admin/programs/{{programId}}/courses/{{course.CourseID}}/session/create"
-    >
-      Add Session</a></button>
+  <button class="add-button">
+    <a style="color:white; text-decoration:none"
+      href="/admin/programs/{{programId}}/courses/{{course.CourseID}}/session/create">
+      Add Session
+    </a>
+  </button>
 
   <ol class="breadcrumb">
     <li class="breadcrumb-item" aria-current="page">Home</li>
@@ -34,21 +184,85 @@
     <li class="breadcrumb-item active" aria-current="page">{{course.Name}}</li>
   </ol>
 
-
-
   <div class="programs-container">
     {{#each sessions}}
-      <a
-        href="/admin/program/{{../programId}}/course/{{../courseId}}/sessions/{{this.SessionID}}"
-        style="text-decoration: none;"
-      >
-        <div class="program-card">
-          <div class="card-upper"><h3 
-            >{{this.Center}}-{{this.course.Name}}</h3></div>
-          <div class="card-lower"><p>Program: {{this.programs.Name}}</p></div>
-        </div></a>
+    <div class="program-card">
+
+      <button type="button"
+        onclick="window.location.href='/admin/program/{{../programId}}/course/{{../courseId}}/sessions/{{this.SessionID}}/edit'"
+        class="edit">
+        <svg class="w-[28px] h-[28px] text-gray-800 dark:text-white" aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+        </svg>
+      </button>
+
+      <button type="button" onclick="openModal('modal-{{this.SessionID}}', {{../programId}}, {{../courseId}})"
+        class="delete" data-target="#modal-{{this.SessionID}}">
+        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256">
+          <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
+            stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none"
+            font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
+            <g transform="scale(8.53333,8.53333)">
+              <path
+                d="M14.98438,2.48633c-0.55152,0.00862 -0.99193,0.46214 -0.98437,1.01367v0.5h-5.5c-0.26757,-0.00363 -0.52543,0.10012 -0.71593,0.28805c-0.1905,0.18793 -0.29774,0.44436 -0.29774,0.71195h-1.48633c-0.36064,-0.0051 -0.69608,0.18438 -0.87789,0.49587c-0.18181,0.3115 -0.18181,0.69676 0,1.00825c0.18181,0.3115 0.51725,0.50097 0.87789,0.49587h18c0.36064,0.0051 0.69608,-0.18438 0.87789,-0.49587c0.18181,-0.3115 0.18181,-0.69676 0,-1.00825c-0.18181,-0.3115 -0.51725,-0.50097 -0.87789,-0.49587h-1.48633c0,-0.26759 -0.10724,-0.52403 -0.29774,-0.71195c-0.1905,-0.18793 -0.44836,-0.29168 -0.71593,-0.28805h-5.5v-0.5c0.0037,-0.2703 -0.10218,-0.53059 -0.29351,-0.72155c-0.19133,-0.19097 -0.45182,-0.29634 -0.72212,-0.29212zM6,9l1.79297,15.23438c0.118,1.007 0.97037,1.76563 1.98438,1.76563h10.44531c1.014,0 1.86538,-0.75862 1.98438,-1.76562l1.79297,-15.23437z">
+              </path>
+            </g>
+          </g>
+        </svg>
+      </button>
+      <a href="/admin/program/{{../programId}}/course/{{../courseId}}/sessions/{{this.SessionID}}"
+        style="text-decoration: none;">
+        <div class="card-upper">
+          <h3>{{this.Center}}-{{this.course.Name}}</h3>
+        </div>
+        <div class="card-lower">
+          <p>Program: {{this.programs.Name}}</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- The Modal -->
+    <div class="overlay" id="modal-{{this.SessionID}}">
+      <div class="modal">
+        <h2>Are You Sure?</h2>
+        <p>You are deleting the session "{{this.Center}} - {{this.course.Name}}". This action cannot be undone.</p>
+        <div class="deleteProgramFooter">
+          <button class="deleteProgram"
+            onclick="deleteSession('modal-{{this.SessionID}}', {{../programId}}, {{../courseId}})">Delete</button>
+          <button onclick="closeModal('modal-{{this.SessionID}}')">Cancel</button>
+        </div>
+      </div>
+    </div>
     {{/each}}
   </div>
 </div>
 
-{{! <script src="/js/admin/programs.js"></script> }}
+<script>
+  function openModal(id) {
+    document.getElementById(id).style.display = 'flex';
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+
+  function deleteSession(id, programId, courseId) {
+    const split = id.split('-');
+    const sessionID = split[1];
+
+    fetch(`/admin/program/${programId}/course/${courseId}/sessions/${sessionID}`, { method: 'DELETE' })
+      .then(response => response.json())
+      .then(() => {
+        alert('Successfully deleted!');
+        location.reload();
+      })
+      .catch(error => {
+        console.error('Error deleting session:', error);
+        alert('Failed to delete session.');
+      });
+
+    closeModal(id);
+  }
+</script>

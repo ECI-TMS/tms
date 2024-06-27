@@ -1,123 +1,180 @@
-{{!< dashboard}} 
+{{!< dashboard}}
 <div class="container mt-4">
   <div class="row justify-content-center">
-    <div class="col-lg-6 bg-white p-4 "><h3 class="fw-bold">Add Programm</h3></div>
+    <div class="col-lg-6 bg-white p-4"><h3 class="fw-bold">Add Programm</h3></div>
   </div>
 
 </div>
 
 <div class="container mt-4 mb-4">
-  <form action="/admin/program/create" method="post" class="row g-3 needs-validation justify-content-center" novalidate>
+  <form
+    action="/admin/program/create"
+    method="post"
+    class="row g-3 needs-validation justify-content-center"
+    novalidate
+  >
 
     <div class="col-lg-6 bg-white p-5">
       <div class="row gap-4">
-        
+
         <div class="row">
-    <div class="col-md-6">
-      <label for="validationCustom01" class="form-label">Name</label>
-      <input type="text" name="Name" class="form-control" id="validationCustom01" required />
-      <div class="valid-feedback">
-        Looks good!
-      </div>
-    </div>
-    {{! donor organization }}
-    <div class="col-md-6">
-      <label for="validationCustom04" class="form-label">Donor Organization </label>
-      <select class="form-select" name="DonorOrganization" id="validationCustom04" required>
-        <option selected disabled value="">Choose...</option>
-        {{#each donors}}
-        <option value="{{this.ThirdPartyID}}">{{this.Name}}</option>
-        {{/each}}
-      </select>
-      <div class="invalid-feedback">
-        Please select a valid Organization.
-      </div>
-    </div>
-    </div>
-    {{! start date }}
-    <div class="row">
-    <div class="col-md-6">
-      <label for="validationCustom02" class="form-label">Start Date</label>
-      <input type="date" name="StartDate" class="form-control" id="validationCustom02" value="{{session.StartDate}}"
-        required />
-      <div class="valid-feedback">
-        Looks good!
-      </div>
-    </div>
-    {{! end date }}
-    <div class="col-md-6">
-      <label for="validationCustom02" class="form-label">End Date</label>
-      <input type="date" name="EndDate" class="form-control" id="validationCustom02" value="{{session.EndDate}}"
-        required />
-      <div class="valid-feedback">
-        Looks good!
-      </div>
-    </div>
-    </div>
-    <div class="col-12">
-      <label for="validationCustom03" class="form-label">Description</label>
-      <input type="text" name="Description" class="form-control" id="validationCustom03" required />
-      <div class="invalid-feedback">
-        Please provide a valid Description.
-      </div>
-    </div>
-    {{! Category }}
-    <div class="row">
-    <div class="col-md-6">
-      <label for="validationCustom04" class="form-label">Category</label>
-      <select class="form-select" name="Category" id="validationCustom04" required>
-        <option selected disabled value="">Choose...</option>
-        <option value="Climate-Resilient Livelihoods and Enterprise development">Climate-Resilient Livelihoods and
-          Enterprise development </option>
-        <option value="Youth and gender-based initiatives">Youth and
-          gender-based initiatives
-        </option>
-        <option value="Good Governance and Institutional Strengthening">Good
-          Governance and Institutional Strengthening</option>
-        <option value="Health and Safety">Health and Safety</option>
-        <option value="Technical Advisory Services for Microfinance">Technical
-          Advisory Services for Microfinance</option>
-        <option value="Research Monitoring and Evaluation">Research Monitoring
-          and Evaluation</option>
+          <div class="col-md-6">
+            <label for="validationCustom01" class="form-label">Name</label>
+            <input
+              type="text"
+              name="Name"
+              class="form-control"
+              id="validationCustom01"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          {{! donor organization }}
+          <div class="col-md-6">
+            <label for="validationCustom04" class="form-label">Donor
+              Organization
+            </label>
+            <select
+              class="form-select"
+              name="DonorOrganization"
+              id="validationCustom04"
+              required
+            >
+              <option selected disabled value="">Choose...</option>
+              {{#each donors}}
+                <option value="{{this.ThirdPartyID}}">{{this.Name}}</option>
+              {{/each}}
+            </select>
+            <div class="invalid-feedback">
+              Please select a valid Organization.
+            </div>
+          </div>
+        </div>
+        {{! start date }}
+        <div class="row">
+          <div class="col-md-6">
+            <label for="validationCustom02" class="form-label">Start Date</label>
+            <input
+              type="date"
+              name="StartDate"
+              class="form-control"
+              id="validationCustom02"
+              value="{{session.StartDate}}"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+          {{! end date }}
+          <div class="col-md-6">
+            <label for="validationCustom02" class="form-label">End Date</label>
+            <input
+              type="date"
+              name="EndDate"
+              class="form-control"
+              id="validationCustom02"
+              value="{{session.EndDate}}"
+              required
+            />
+            <div class="valid-feedback">
+              Looks good!
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label for="validationCustom03" class="form-label">Description</label>
+          <textarea
+            name="Description"
+            class="form-control"
+            id="validationCustom03"
+            required
+          ></textarea>
 
-      </select>
-      <div class="invalid-feedback">
-        Please select a valid Organization.
-      </div>
-    </div>
-    {{! manager }}
-    <div class="col-md-6">
-      <label for="validationCustom04" class="form-label">Manager</label>
-      <select class="form-select" name="Manager" id="validationCustom04" required>
-        <option selected disabled value="">Choose...</option>
-        {{#each managers}}
-        <option value={{this.Username}}>{{this.Username}}</option>
-        {{/each}}
+          <div class="invalid-feedback">
+            Please provide a valid Description.
+          </div>
+        </div>
+        {{! Category }}
+        <div class="row">
+          <div class="col-md-6">
+            <label for="validationCustom04" class="form-label">Category</label>
+            <select
+              class="form-select"
+              name="Category"
+              id="validationCustom04"
+              required
+            >
+              <option selected disabled value="">Choose...</option>
+              <option
+                value="Climate-Resilient Livelihoods and Enterprise development"
+              >Climate-Resilient Livelihoods and Enterprise development
+              </option>
+              <option value="Youth and gender-based initiatives">Youth and
+                gender-based initiatives
+              </option>
+              <option
+                value="Good Governance and Institutional Strengthening"
+              >Good Governance and Institutional Strengthening</option>
+              <option value="Health and Safety">Health and Safety</option>
+              <option
+                value="Technical Advisory Services for Microfinance"
+              >Technical Advisory Services for Microfinance</option>
+              <option value="Research Monitoring and Evaluation">Research
+                Monitoring and Evaluation</option>
 
+            </select>
+            <div class="invalid-feedback">
+              Please select a valid Organization.
+            </div>
+          </div>
+          {{! manager }}
+          <div class="col-md-6">
+            <label for="validationCustom04" class="form-label">Manager</label>
+            <select
+              class="form-select"
+              name="Manager"
+              id="validationCustom04"
+              required
+            >
+              <option selected disabled value="">Choose...</option>
+              {{#each managers}}
+                <option value={{this.Username}}>{{this.Username}}</option>
+              {{/each}}
 
-      </select>
-      <div class="invalid-feedback">
-        Please select a valid Organization.
+            </select>
+            <div class="invalid-feedback">
+              Please select a valid Organization.
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 d-flex flex-wrap">
+          {{#each documentType}}
+            <div class="form-check form-switch ps-0 pe-4">
+              <input
+                class=""
+                type="checkbox"
+                id="flexSwitchCheckDefault-{{@index}}"
+                name="documentTypes[]"
+                value="{{this.DocumentTypeID}}"
+              />
+              <label
+                class="form-check-label"
+                for="flexSwitchCheckDefault-{{@index}}"
+              >{{this.Name}}</label>
+            </div>
+          {{/each}}
+        </div>
+        <div class="col-12">
+          <button class="btn btn-primary" type="submit">Submit form</button>
+        </div>
       </div>
     </div>
-    </div>
-    
-    <div class="col-12 d-flex flex-wrap">
-      {{#each documentType}}
-      <div class="form-check form-switch ps-0 pe-4">
-        <input class="" type="checkbox" id="flexSwitchCheckDefault-{{@index}}" name="documentTypes[]"
-          value="{{this.DocumentTypeID}}">
-        <label class="form-check-label" for="flexSwitchCheckDefault-{{@index}}">{{this.Name}}</label>
-      </div>
-      {{/each}}
-    </div>
-    <div class="col-12">
-      <button class="btn btn-primary" type="submit">Submit form</button>
-    </div>
-</div>
-</div>
 
   </form>
-  </div>
+</div>
 
-  <script src="/js/admin/createProgram.js"></script>
+<script src="/js/admin/createProgram.js"></script>

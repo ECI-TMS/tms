@@ -392,6 +392,28 @@ router.get("/programs/:programId/courses/:id", async (req, res) => {
   }
 });
 
+router.delete('/programs/:programId/courses/:id', async (req, res) => {
+  try {
+    const courseId = parseInt(req.params.id, 10);
+
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'Invalid CourseID' });
+    }
+
+    const deletedCourse = await prisma.course.delete({
+      where: {
+        CourseID: courseId,
+      },
+    });
+
+    console.log('Deleted course:', deletedCourse);
+    res.status(200).json({ message: 'Successfully deleted!' });
+  } catch (error) {
+    console.error('Error deleting session:', error);
+    res.status(400).json({ error: 'Failed to delete session.' });
+  }
+});
+
 router.get("/clients/create", async (req, res) => {
   try {
     const organizations = await prisma.thirdparties.findMany();
@@ -565,6 +587,25 @@ router.get("/program/:programId/course/:courseId/sessions/:id", async (req, res)
   }
 });
 
+router.delete('/program/:programId/course/:courseId/sessions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+
+    const deletedSession = await prisma.trainingsessions.delete({
+      where: {
+        SessionID: +id,
+      },
+    });
+
+    console.log('Deleted session:', deletedSession);
+    res.status(200).json({ message: 'Successfully deleted!' });
+  } catch (error) {
+    console.error('Error deleting session:', error);
+    res.status(400).json({ error: 'Failed to delete session.' });
+  }
+});
+
 router.get("/program/:programId/course/:courseId/session/:id/participants", async (req, res) => {
   try {
     const  sessionId  =  +req.params.id;
@@ -684,6 +725,24 @@ router.get("/session/:id/assignments", authMiddleware, async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({ error });
+  }
+});
+
+// New route to handle assignment deletion
+router.delete("/session/:sessionId/assignments/:assignmentId/delete", authMiddleware, async (req, res) => {
+  try {
+    const { sessionId, assignmentId } = req.params;
+
+    await prisma.assignments.delete({
+      where: {
+        AssignmentID: +assignmentId
+      }
+    });
+
+    res.status(200).json({ message: 'Assignment deleted successfully!' });
+  } catch (error) {
+    console.error('Error deleting assignment:', error);
+    res.status(400).json({ error: 'Failed to delete assignment.' });
   }
 });
 
@@ -984,6 +1043,90 @@ router.get("/programs/:programId/courses/:id/session/create", async (req, res) =
   }
 });
 
+router.get("/program/:programId/course/:courseId/sessions/:id/edit", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const programId = +req.params.programId;
+    const courseId = +req.params.courseId;
+
+    const session = await prisma.trainingsessions.findFirst({
+      where: {
+        SessionID: +id,
+      },
+    });
+
+    const centers = await prisma.centers.findMany();
+    const trainers = await prisma.users.findMany({
+      where: {
+        UserType: UserType.TRAINER,
+      },
+    });
+    const monitors = await prisma.users.findMany({
+      where: {
+        UserType: UserType.MONITOR,
+      },
+    });
+    const courses = await prisma.course.findMany({
+      where: {
+        ProgramID: +programId,
+      },
+    });
+
+    if (!session) return res.redirect("/admin/program/:programId/course/:courseId/");
+
+     // Format dates for input fields
+     const formatDate = (date) => {
+      const d = new Date(date);
+      const month = ('0' + (d.getMonth() + 1)).slice(-2);
+      const day = ('0' + d.getDate()).slice(-2);
+      return [d.getFullYear(), month, day].join('-');
+    };
+
+    session.StartDate = formatDate(session.StartDate);
+    session.EndDate = formatDate(session.EndDate);
+
+    res.render("admin/editSession", {
+      session,
+      centers,
+      trainers,
+      monitors,
+      courses,
+      programId,
+      courseId,
+    });
+  } catch (error) {
+    console.log("Error fetching session:", error);
+    res.status(400).json({ error });
+  }
+});
+
+router.post("/program/:programId/course/:courseId/sessions/:id/edit", async (req, res) => {
+  try {
+    const { id, programId, courseId } = req.params;
+    const { Center, StartDate, EndDate, TrainerID, MonitorID, CourseID } = req.body;
+
+     // Update session
+     await prisma.trainingsessions.update({
+      where: { SessionID: +id },
+      data: {
+        Center,
+        StartDate,
+        EndDate,
+        TrainerID: +TrainerID,
+        MonitorID: +MonitorID,
+        CourseID: +CourseID,
+      },
+    });
+
+    res.redirect(`/admin/programs/${programId}/courses/${courseId}`);
+  } catch (error) {
+    console.log("Error updating session:", error);
+    res.status(400).json({ error });
+  }
+});
+
+
+
 router.get("/programss/:id/courses/create", async (req, res) => {
   console.log('calling')
   try {
@@ -1018,6 +1161,25 @@ router.post("/programs/:id/courses/create", async (req, res) => {
     res.status(400).json({ error });
   }
 });
+
+router.post('/programs/:programId/courses/:id/edit', async (req, res) => {
+  try {
+    const courseId = parseInt(req.params.id, 10);
+    const { Name } = req.body;
+
+    const updatedCourse = await prisma.course.update({
+      where: { CourseID: courseId },
+      data: { Name },
+    });
+
+    console.log('Updated course:', updatedCourse);
+    res.redirect(`/admin/programs/${req.params.programId}/courses`);
+  } catch (error) {
+    console.error('Error updating course:', error);
+    res.status(400).json({ error: 'Failed to update course.' });
+  }
+});
+
 
 router.get("/program/:programId/course/:courseId/session/:sessionId/participant", async (req, res) => {
   try {

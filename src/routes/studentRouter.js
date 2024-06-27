@@ -7,7 +7,7 @@ const router = Router();
 // Routes
 router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
-    const { UserID } = req.user;
+    const { UserID, role } = req.user;
 
 const assignmentsWithDetails = await prisma.assignments.findMany({
   where: {
@@ -31,9 +31,23 @@ const assignments = assignmentsWithDetails.map(assignment => {
     student_assignments_cust: filteredStudentAssignments[0] || null // Convert array to a single object or null
   };
 });
+let layout;
+switch (role) {
+  case 'ADMIN':
+    layout = 'dashboard';
+    break;
+  case 'TRAINER':
+    layout = 'trainerDashboard';
+    break;
+  case 'STUDENT':
+    layout = 'studentDashboard';
+    break;
+  default:
+    layout = 'dashboard'; // Default layout
+}
 
 
-    res.render("student/dashboard", { assignments });
+    res.render("student/dashboard", { assignments, layout });
   } catch (error) {
     console.error(error);
   }
@@ -69,7 +83,7 @@ const assignments = assignmentsWithDetails.map(assignment => {
 });
 
 
-    res.render("student/assignments", { assignments });
+    res.render("student/assignments", { assignments  });
   } catch (error) {
     console.error(error);
   }

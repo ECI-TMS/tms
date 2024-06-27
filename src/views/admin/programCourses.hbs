@@ -8,30 +8,26 @@
   }
 
   .program-card {
-  border: 2px solid rgba(46, 90, 146, 0.3);
-  background-color:
-  #f7f7f7;
+  position: relative;
+  border: 2px solid rgba(46, 90, 146,0.3);
+  background-color: #f7f7f7;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width:
-  200px;
+  width: 200px;
   height: 150px;
   display: flex;
-  flex-direction: column;
-  justify-content:
-  space-between;
+  flex-direction:column;
+  justify-content: space-between;
   overflow: hidden;
   }
 
   .program-card h3 {
-  text-align: center;
-  font-size: 18px;
   color: #2E5A92;
   }
 
   .program-card p {
   color: white;
-  font-weight: 500
+  font-weight: 500;
   }
 
   .add-button {
@@ -44,17 +40,17 @@
   }
 
   .add-button:hover {
-  background-color:
-  #2E5ABB;
+  background-color: #2E5ABB;
   }
 
   .card-upper {
   padding: 15px;
   display: flex;
-  justify-content:
-  center;
+  justify-content: center;
   align-items: center;
+  height: 116px;
   flex: 1;
+  text-align: center;
   }
 
   .card-lower {
@@ -65,7 +61,112 @@
   height: 30px;
   justify-content: center;
   }
+
+  .card-upper>h3{
+  font-size: 1.2rem;
+  }
+
+  .delete {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: red;
+  width: 35px;
+  height: 35px;
+  border-radius: 20px;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  }
+
+  .delete svg {
+  width: 20px;
+  height: 20px;
+  }
+
+  .program-card:hover .delete {
+  display: flex;
+  }
+
+  /* Styles for the overlay */
+  .overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  }
+
+  /* Styles for the modal */
+  .modal {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 400px;
+  height: 240px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Center the content */
+  text-align: center;
+  }
+
+  /* Styles for the modal title */
+  .modal h2 {
+  margin-top: 0;
+  }
+
+  /* Styles for the modal footer */
+  .deleteProgramFooter {
+  margin-top: 20px;
+  text-align: right;
+  }
+
+  /* Styles for the modal buttons */
+  .deleteProgramFooter button,
+  .deleteProgramFooter .deleteProgram {
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  }
+
+  .deleteProgramFooter .deleteProgram {
+  background-color: red;
+  color: white;
+  }
+
+  .edit {
+  display: none;
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  background-color: #28A745;
+  color: #fff;
+  width: 35px;
+  height: 35px;
+  border-radius: 20px;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  }
+
+  .program-card:hover .edit {
+  display: flex;
+  }
   </style>
+
   <link rel="stylesheet" href="/css/admin/programs.css" />
 
 
@@ -83,9 +184,31 @@
     </ol>
 
     <div class="programs-container">
+
       {{#each courses}}
-      <a href="/admin/programs/{{program.ProgramID}}/courses/{{this.CourseID}}" style="text-decoration: none;">
-        <div class="program-card">
+      <div class="program-card">
+        <button type="button" onclick="openEditForm('{{this.CourseID}}')" class="edit">
+          <svg class="w-[28px] h-[28px] text-gray-800 dark:text-white" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+          </svg>
+        </button>
+        <button type="button" onclick="openModal('modal-{{this.CourseID}}', {{../programId}})" class="delete"
+          data-target="#modal-{{this.CourseID}}">
+          <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256">
+            <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
+              stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0"
+              font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
+              <g transform="scale(8.53333,8.53333)">
+                <path
+                  d="M14.98438,2.48633c-0.55152,0.00862 -0.99193,0.46214 -0.98437,1.01367v0.5h-5.5c-0.26757,-0.00363 -0.52543,0.10012 -0.71593,0.28805c-0.1905,0.18793 -0.29774,0.44436 -0.29774,0.71195h-1.48633c-0.36064,-0.0051 -0.69608,0.18438 -0.87789,0.49587c-0.18181,0.3115 -0.18181,0.69676 0,1.00825c0.18181,0.3115 0.51725,0.50097 0.87789,0.49587h18c0.36064,0.0051 0.69608,-0.18438 0.87789,-0.49587c0.18181,-0.3115 0.18181,-0.69676 0,-1.00825c-0.18181,-0.3115 -0.51725,-0.50097 -0.87789,-0.49587h-1.48633c0,-0.26759 -0.10724,-0.52403 -0.29774,-0.71195c-0.1905,-0.18793 -0.44836,-0.29168 -0.71593,-0.28805h-5.5v-0.5c0.0037,-0.2703 -0.10218,-0.53059 -0.29351,-0.72155c-0.19133,-0.19097 -0.45182,-0.29634 -0.72212,-0.29212zM6,9l1.79297,15.23438c0.118,1.007 0.97037,1.76563 1.98438,1.76563h10.44531c1.014,0 1.86538,-0.75862 1.98438,-1.76562l1.79297,-15.23437z">
+                </path>
+              </g>
+            </g>
+          </svg>
+        </button>
+        <a href="/admin/programs/{{program.ProgramID}}/courses/{{this.CourseID}}" style="text-decoration: none;">
           <div class="card-upper">
             <h3>{{this.Name}}</h3>
           </div>
@@ -93,12 +216,114 @@
             <p>Sessions:
               {{this.sessions.length}}</p>
           </div>
+        </a>
+      </div>
+
+      <!-- Edit Form -->
+      <div class="overlay fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+        id="edit-form-{{this.CourseID}}" style="display: none;">
+
+        <div class="modal bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <h2 class="text-xl font-bold mb-4">Edit Course</h2>
+          <form id="edit-course-form-{{this.CourseID}}"
+            onsubmit="submitEditForm(event, '{{this.CourseID}}', '{{../program.ProgramID}}')">
+            <div class="mb-4">
+              <label for="courseName" class="flex text-sm font-medium text-gray-700" style="display: flex;">Name</label>
+              <input type="text" name="Name" class="form-control mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                id="courseName-{{this.CourseID}}" value="{{this.Name}}" required />
+            </div>
+            <div class="flex justify-end">
+              <button class="btn btn-primary" type="submit">Update Course</button>
+              <button type="button" class="btn btn-light border"
+                onclick="closeEditForm('{{this.CourseID}}')">Cancel</button>
+            </div>
+          </form>
         </div>
-      </a>
+      </div>
+
+
+      <!-- The Modal -->
+      <div class="overlay" id="modal-{{this.CourseID}}">
+        <div class="modal">
+          <h2>Are You Sure?</h2>
+          <p>You are deleting the Course "{{this.Name}}". This action cannot be undone.</p>
+          <div class="deleteProgramFooter">
+            <button class="deleteProgram"
+              onclick="deleteCourse('{{this.CourseID}}', {{../program.ProgramID}})">Delete</button>
+            <button onclick="closeModal('modal-{{this.CourseID}}')">Cancel</button>
+          </div>
+        </div>
+      </div>
       {{/each}}
     </div>
   </div>
 
+
   {{!
   <script src="/js/admin/programs.js"></script> }}
-  
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function deleteCourse(courseId, programId) {
+      fetch(`/admin/programs/${programId}/courses/${courseId}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(() => {
+          alert('Successfully deleted!');
+          location.reload();
+        })
+        .catch(error => {
+          console.error('Error deleting course:', error);
+          alert('Failed to delete course.');
+        });
+
+      closeModal(id);
+    }
+
+
+    function openEditForm(courseId) {
+      console.log('Opening edit form for course:', courseId);
+      document.getElementById('edit-form-' + courseId).style.display = 'block';
+    }
+
+    function closeEditForm(courseId) {
+      console.log('Closing edit form for course:', courseId);
+      document.getElementById('edit-form-' + courseId).style.display = 'none';
+    }
+
+    function submitEditForm(event, courseId, programId) {
+      event.preventDefault();
+      const form = document.getElementById('edit-course-form-' + courseId);
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+
+      fetch(`/admin/programs/${programId}/courses/${courseId}/edit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+        .then(response => {
+          if (response.ok) {
+            alert('Successfully updated!');
+            location.reload();
+          } else {
+            alert('Failed to update course.');
+          }
+        })
+        .catch(error => {
+          console.error('Error updating course:', error);
+          alert('Failed to update course.');
+        });
+    }
+  </script>

@@ -48,3 +48,32 @@ uploadButton.addEventListener("click", () => {
     uploadFile(fileInput.files);
   }
 });
+
+
+
+
+async function deleteAssignment(sessionID, assignmentID) {
+  console.log('Delete button clicked for assignment:', assignmentID);
+  try {
+    const response = await fetch(`/admin/session/${sessionID}/assignments/${assignmentID}/delete`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      alert('Assignment deleted successfully!');
+      location.reload(); // Reload the page to update the table
+    } else {
+      alert('Failed to delete assignment.');
+    }
+  } catch (error) {
+    console.log('Error deleting assignment:', error);
+    alert('Failed to delete assignment.');
+  }
+}
+
+function confirmDelete(sessionID, assignmentID) {
+  const confirmation = confirm('Do you want to delete the assignment?');
+  if (confirmation) {
+    deleteAssignment(sessionID, assignmentID);
+  }
+}
