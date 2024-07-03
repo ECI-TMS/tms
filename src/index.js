@@ -82,7 +82,14 @@ app.use("/participant", participantRouter);
 app.use("/admin", adminRouter);
 app.use("/manager", managerRouter);
 app.use("/monitor", monitorRouter);
-app.use("/student", studentRouter);
+
+// 
+function setStudentLayout(req, res, next) {
+  res.locals.layout = 'studentDashboard';
+  next();
+}
+app.use("/student",setStudentLayout, studentRouter);
+// 
 app.use("/trainer", trainerRouter);
 
 app.post("/organization/create", async (req, res) => {

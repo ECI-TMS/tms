@@ -5,6 +5,7 @@ import authMiddleware from "../middlewares/authmiddleware.js";
 const router = Router();
 
 // Routes
+
 router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
     const { UserID, role } = req.user;
@@ -47,7 +48,7 @@ switch (role) {
 }
 
 
-    res.render("student/dashboard", { assignments, layout });
+    res.render("student/dashboard", { assignments });
   } catch (error) {
     console.error(error);
   }
