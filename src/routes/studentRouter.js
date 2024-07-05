@@ -121,11 +121,13 @@ router.get("/materials", async (req, res) => {
   try {
     const {token} = req.cookies
     const userData = jwt.verify(token, process.env.JWT_SECRET);
-    
 
     const materials = await prisma.materials.findMany({
       where: { SessionID: +userData.SessionID },
     });
+
+     // Log materials to verify paths
+     console.log("Materials for student:", materials);
     
     res.render("student/materials", {materials});
   } catch (error) {

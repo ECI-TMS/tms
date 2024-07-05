@@ -5,15 +5,17 @@ import { formatDate } from "../lib/util.js";
 import { fileURLToPath } from 'url';
 import fs from "fs";
 import path from 'path';
+import authMiddleware from "../middlewares/authmiddleware.js";
 const router = Router();
 
 // Routes
-router.get("/dashboard", async (req, res) => {
+router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
     const { token } = req.cookies;
+    // const { role } = req.user;
 
     if (!token) res.redirect("/login");
-    const { UserID } = jwt.decode(token);
+    const { UserID, role } = jwt.decode(token);
 
     const sessions = await prisma.trainingsessions.findMany({
       where: {
@@ -24,7 +26,24 @@ router.get("/dashboard", async (req, res) => {
         programs: true,
       },
     });
-    res.render("trainer/dashboard", { sessions ,layout:false});
+
+    let layout;
+    switch (role) {
+      case 'ADMIN':
+        layout = 'dashboard';
+        break;
+      case 'TRAINER':
+        layout = 'trainerDashboard';
+        break;
+      case 'STUDENT':
+        layout = 'studentDashboard';
+        break;
+      default:
+        layout = 'dashboard'; // Default layout
+    }
+
+
+    res.render("trainer/dashboard", { sessions });
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
     res.status(400).json({
@@ -48,7 +67,7 @@ router.get("/profile", async (req, res) => {
     console.log("🚀 ~ router.get ~ error:", error);
   }
 });
-router.get("/:id/assignments", async (req, res) => {
+router.get("/:id/assignments",authMiddleware, async (req, res) => {
   try {
     const  SessionID =  +req.params.id;
     const session = await prisma.trainingsessions.findFirst({
@@ -115,7 +134,7 @@ router.get("/:id/assignments", async (req, res) => {
     if (!session)
       return res.status(400).json({ message: "something went wrong" });
 
-    res.render("trainer/assignments", { session, assignments ,modifiedAssByTrainerData,layout:false});
+    res.render("trainer/assignments", { session, assignments ,modifiedAssByTrainerData});
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -175,7 +194,7 @@ router.post('/assignment/mark',async(req,res)=>{
 
 
 
-router.get("/reports", async (req, res) => {
+router.get("/reports", authMiddleware, async (req, res) => {
   const { token } = req.cookies;
 
   try {
@@ -362,6 +381,30 @@ res.redirect("/trainer/deliverables");
 
   
 });
+
+
+router.get("/materials", authMiddleware, async (req, res) => {
+  try {
+    const userData = req.user; // Use the user data set by the middleware
+
+    const programID = userData.ProgramID;
+
+    if (!programID) {
+      console.log("ProgramID not found in token");
+      return res.status(400).json({ error: "ProgramID not found in token" });
+    }
+
+    const materials = await prisma.materials.findMany({
+      where: { ProgramID: +programID },
+    });
+
+    res.render("trainer/materials", { materials });
+  } catch (error) {
+    console.log("Trainer materials error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 
 export default router;

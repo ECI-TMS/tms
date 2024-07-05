@@ -35,6 +35,8 @@
 "
     ></script>
 
+     <script src="https://kit.fontawesome.com/46ede82261.js" crossorigin="anonymous"></script>
+
   </head>
 
   <body>
@@ -44,24 +46,22 @@
       <img src="/eci.png" alt="ECI Logo" class="logo" />
       <!-- Add this line for the logo -->
     </div>
-    <div class="sidebar">
-      <button id="closeModal" onclick="toggleSidebar()">X</button>
 
-      <ul>
-        <li><a href="/manager/dashboard">Dashboard</a></li>
-        <li><a href="/manager/sessions">Sessions</a></li>
-        <li><a href="/manager/participants">Participants</a></li>
-        <li><a href="/manager/monitors">Monitors</a></li>
-        <li><a href="/manager/trainers">Trainers</a></li>
-        <li><a href="/manager/assignments">Assignments</a></li>
-        <li><a href="/manager/user/create">Create User</a></li>
-        <li><a href="/manager/feedbacks">Feedbacks</a></li>
-        <li><a href="/manager/reports">Reports</a></li>
-        <li><button
-            class="btn"
-            style="color:white;"
-            id="logout"
-          >logout</button></li>
+    <div class="sidebar">
+      <i class="fa-solid fa-circle-xmark cursor-pointer" id="closeModal" onclick="toggleSidebar()"
+        style="margin-top: 0px; margin-left: 9px; margin-bottom: 15px;"></i>
+
+      <ul style="padding-left: 0px;">
+        <li><a href="/manager/dashboard"><i class="fa-solid fa-house pe-3"></i>Dashboard</a></li>
+        <li><a href="/manager/sessions"><i class="fa-solid fa-calendar pe-3"></i>Sessions</a></li>
+        <li><a href="/manager/participants"><i class="fa-solid fa-user pe-3"></i>Participants</a></li>
+        <li><a href="/manager/monitors"><i class="fa-solid fa-circle pe-3"></i>Monitors</a></li>
+        <li><a href="/manager/trainers"><i class="fa-solid fa-trailer pe-3"></i>Trainers</a></li>
+        <li><a href="/manager/assignments"><i class="fa-solid fa-file pe-3"></i>Assignments</a></li>
+        <li><a href="/manager/user/create"><i class="fa-solid fa-user pe-3"></i>Create User</a></li>
+        <li><a href="/manager/feedbacks"><i class="fa-solid fa-comment pe-3"></i>Feedbacks</a></li>
+        <li><a href="/manager/reports"><i class="fa-solid fa-comment-dots pe-3"></i>Reports</a></li>
+         <li class="two_tag_vertically_center"><button class="btn" style="color:#2E5A92; background-color: white;width:100%" id="logout" onclick="localStorage.removeItem('user'); location.href='/'">Logout</button></li>
       </ul>
     </div>
 

@@ -8,11 +8,12 @@ import { fileURLToPath } from 'url';
 
 import prisma from "../lib/db.js";
 import { formatDate } from "../lib/util.js";
+import authMiddleware from "../middlewares/authmiddleware.js";
 const router = Router();
 
 // Routes
-router.get("/dashboard", (req, res) => {
-  res.render("monitor/dashboard", {layout: false});
+router.get("/dashboard", authMiddleware, (req, res) => {
+  res.render("monitor/dashboard");
 });
 
 router.get("/assignments", async (req, res) => {
