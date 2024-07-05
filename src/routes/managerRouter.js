@@ -5,11 +5,12 @@ import { join } from "path";
 
 import prisma from "../lib/db.js";
 import { formatDate } from "../lib/util.js";
+import authMiddleware from "../middlewares/authmiddleware.js";
 
 const router = Router();
 
 // Routes
-router.get("/dashboard", (req, res) => {
+router.get("/dashboard", authMiddleware, (req, res) => {
   res.render("manager/dashboard");
 });
 

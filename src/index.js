@@ -80,17 +80,34 @@ app.use("/program", programRouter);
 app.use("/session", sessionRouter);
 app.use("/participant", participantRouter);
 app.use("/admin", adminRouter);
-app.use("/manager", managerRouter);
-app.use("/monitor", monitorRouter);
 
-// 
+// Manager Dashboard layout
+function setManagerLayout(req, res, next) {
+  res.locals.layout = 'managerDashboard';
+  next();
+}
+app.use("/manager", setManagerLayout, managerRouter);
+
+// Monitor Dashboard Layout
+function setMonitorLayout(req, res, next) {
+  res.locals.layout = 'monitorDashboard';
+  next();
+}
+app.use("/monitor", setMonitorLayout, monitorRouter);
+
+// Student Dashboard layout
 function setStudentLayout(req, res, next) {
   res.locals.layout = 'studentDashboard';
   next();
 }
 app.use("/student",setStudentLayout, studentRouter);
-// 
-app.use("/trainer", trainerRouter);
+
+// Trainer Dashboard Layout
+function setTrainerLayout(req, res, next) {
+  res.locals.layout = 'trainerDashboard';
+  next();
+}
+app.use("/trainer", setTrainerLayout, trainerRouter);
 
 app.post("/organization/create", async (req, res) => {
   const { Name } = req.body;

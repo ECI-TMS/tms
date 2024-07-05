@@ -18,6 +18,8 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <link rel="stylesheet" href="/css/userAvatar.css" />
 
+    <script src="https://kit.fontawesome.com/46ede82261.js" crossorigin="anonymous"></script>
+
     <!-- Added from Admin -->
     <link rel="stylesheet" href="/css/improve_style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +29,7 @@
 
 
   <body>
-    <div class="header">
+    <div class="header" style="margin-top: -1px;">
       <button id="menuToggle" onclick="toggleSidebar()">&#9776;</button>
       <h1>Student Dashboard</h1>
       <div id="userProfile">
@@ -41,13 +43,19 @@
       </div>
     </div>
     <div class="sidebar">
-      <ul>
-        <button id="closeModal" onclick="toggleSidebar()">X</button>
-        <li><a href="/student/dashboard">Dashboard</a></li>
-        <li><a href="/student/documents">Documents</a></li>
-        <li><a href="/student/materials">Materials</a></li>
-        <li><a href="/student/quizes">Quizes</a></li>
-        <li><a href="/student/feedbacks">Feedbacks</a></li>
+      <i class="fa-solid fa-circle-xmark cursor-pointer" id="closeModal" onclick="toggleSidebar()"
+        style="margin-top: 11px; margin-left: 20px; margin-bottom: 15px;"></i>
+      <ul style=" margin-left: -31px;">
+        <li><a href="/student/dashboard"> <i class="fa-solid fa-house pe-3"></i> Dashboard</a></li>
+        <li><a href="/student/deliverables"><i class="fa-solid fa-trailer pe-3"></i> Deliverables</a></li>
+        <li><a href="/student/documents"><i class="fa-solid fa-comment pe-3"></i> Documents</a></li>
+        <li><a href="/student/materials"><i class="fa-solid fa-trailer pe-3"></i> Materials</a></li>
+
+        <li><a href="/student/assignments"><i class="fa-solid fa-file pe-4" aria-hidden="true"></i> Assignment</a></li>
+
+        <li><a href="/student/quizes"><i class="fa-solid fa-list-check pe-3"></i></i> Quizes</a></li>
+        <li><a href="/student/feedbacks"><i class="fa-solid fa-comment-dots pe-3"></i> Feedbacks</a></li>
+        <li class="two_tag_vertically_center"><button class="btn" style="color:#2E5A92; background-color: white;width:100%" id="logout" onclick="localStorage.removeItem('user'); location.href='/'">Logout</button></li>
       </ul>
     </div>
 

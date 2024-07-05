@@ -1,4 +1,4 @@
-{{!< studentDashboard}}
+{{!< trainerDashboard}}
 
 <style>
 
@@ -36,13 +36,13 @@
           <td>{{this.Title}}</td>
           <td>{{this.DocumentType}}</td>
           <td><a
-              download="materials"
+               download="materials"
               href='{{this.FilePath}}'
-            ><i class="fa-solid fa-download text-success" aria-hidden="true"></a></td>
+            ><i class="fa-solid fa-download text-success" aria-hidden="true"></i></a></td>
         </tr>
       {{/each}}
     </tbody>
   </table>
 </div>
 
-<script src="/js/student/dashboard.js"></script>
+{{!-- <script src="/js/student/dashboard.js"></script> --}}
