@@ -43,16 +43,18 @@
         </div>
       </a>
       {{! trainers }}
-      <a href="/admin/session/{{session.SessionID}}/documents" style="text-decoration: none;">
-        <div class="program-card">
-          <div class="card-upper"><img src="/icons/trainer.png" alt="" />
-            <h3>Documents</h3>
-          </div>
-          <div class="card-lower">
-            <p>Total: {{documents}}</p>
-          </div>
-        </div>
-      </a>
+<a href="/admin/session/{{session.SessionID}}/documents" style="text-decoration: none;" title="Docs will be uploaded by participants">
+  <div class="program-card">
+    <div class="card-upper">
+      <img src="/icons/trainer.png" alt="" />
+      <h3>Documents</h3>
+    </div>
+    <div class="card-lower">
+      <p>Total: {{documents}}</p>
+    </div>
+  </div>
+</a>
+
       {{! participants }}
       <a href="/admin/session/{{session.SessionID}}/quizes" style="text-decoration: none;">
         <div class="program-card">

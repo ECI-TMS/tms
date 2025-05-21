@@ -926,11 +926,18 @@ router.delete("/document/:id", async (req, res) => {
       },
     });
 
-    res.status(200).json({ message: "deleted succesfully" });
+    res.status(200).json({ message: "deleted successfully" });
+
   } catch (error) {
-    res.status(400).json({ error });
+    if (error.code === 'P2003') { // Foreign key constraint failed
+      res.status(409).json({ message: "This document is already attached with a program." });
+    } else {
+      console.error("Unexpected error:", error);
+      res.status(500).json({ message: "Unexpected server error." });
+    }
   }
 });
+
 
 router.get("/quiz/:id", async (req, res) => {
   try {
@@ -1201,17 +1208,38 @@ router.get("/program/:programId/course/:courseId/session/:sessionId/participant"
 
 router.get("/monitors", async (req, res) => {
   try {
+    // 1. Get all monitors
     const monitors = await prisma.users.findMany({
-      where: {
-        UserType: UserType.MONITOR,
-      },
+      where: { UserType: "MONITOR" },
     });
 
-    res.render("admin/monitors", { monitors });
+    // 2. For each monitor, fetch the related program using ProgramID
+    const monitorsWithPrograms = await Promise.all(
+      monitors.map(async (monitor) => {
+        let program = null;
+
+        if (monitor.ProgramID) {
+          program = await prisma.programs.findUnique({
+            where: { ProgramID: +monitor.ProgramID },
+          });
+        }
+
+        return {
+          ...monitor,
+          program, // may be null if not found
+        };
+      })
+    );
+
+    // 3. Render with program info
+    res.render("admin/monitors", { monitors: monitorsWithPrograms });
   } catch (error) {
-    res.status(400).json({ error });
+    console.error("Error fetching monitors:", error);
+    res.status(500).json({ error: "Failed to fetch monitors." });
   }
 });
+
+
 
 router.get("/centers", async (req, res) => {
   try {
@@ -1240,6 +1268,7 @@ router.get("/trainers", async (req, res) => {
         UserType: UserType.TRAINER,
       },
     });
+    // console.log(trainers);
 
     let allTrainers = [];
 
@@ -1253,11 +1282,14 @@ router.get("/trainers", async (req, res) => {
 
       let programName;
       if (sessions.length) {
+        
         let program = await prisma.trainingsessions.findFirst({
           where: {
             ProgramID: +sessions[0].ProgramID,
           },
         });
+
+
         programName = program.Name;
       }
       let count = sessions.length;
@@ -1266,10 +1298,29 @@ router.get("/trainers", async (req, res) => {
         sessionsCompleted: count,
         programName,
       };
+      
+      // console.log(data)
       allTrainers.push(data);
     }
+    for (let i = 0; i < allTrainers.length; i++) {
+  const trainer = allTrainers[i];
 
-    res.render("admin/trainers", { trainers: allTrainers });
+  if (trainer.ProgramID && !isNaN(+trainer.ProgramID)) {
+    const program = await prisma.programs.findFirst({
+      where: {
+        ProgramID: +trainer.ProgramID,
+      },
+      select: {
+        Name: true,
+      },
+    });
+
+    trainer.programName = program?.Name || undefined;
+  }
+}
+
+
+    res.render("admin/trainers", { var_trainers: allTrainers });
   } catch (error) {
     
   }
@@ -1461,20 +1512,20 @@ router.get("/program/create", async (_, res) => {
 });
 
 router.post("/program/create", async (req, res) => {
-  const { Name, StartDate, EndDate, DonorOrganization, Description, Category,documentTypes } =
-    req.body;
+  const { Name, StartDate, EndDate, DonorOrganization, Description, Category, documentTypes } = req.body;
+  console.log(documentTypes);
 
-    
+  if (!documentTypes || documentTypes.length < 1) {
+    return res.status(400).json({
+      status: false,
+      error: "Missing fields",
+      message: "Create / select  at least 1 Document"
+    });
+  }
+
   try {
-    if (
-      !Name ||
-      !EndDate ||
-      !StartDate ||
-      !DonorOrganization ||
-      !Description ||
-      !Category
-    ) {
-      return res.status(400).json({ error: "Missing fields" });
+    if (!Name || !EndDate || !StartDate || !DonorOrganization || !Description || !Category) {
+      return res.status(400).json({ status: false, error: "Missing fields", message: "Missing fields" });
     }
 
     const startDate = new Date(StartDate).toLocaleDateString();
@@ -1496,12 +1547,17 @@ router.post("/program/create", async (req, res) => {
       },
     });
 
-    if (!data) return res.status(400).json({ error: "Missing fields" });
-    res.redirect("/admin/programs");
+    if (!data) {
+      return res.status(400).json({ status: false, error: "Failed to create program" });
+    }
+
+    // Respond with success JSON instead of redirect
+    return res.status(201).json({ status: true, message: "Program created successfully" });
   } catch (error) {
-    res.status(500).json({ error });
+    return res.status(500).json({ status: false, error: error.message || error });
   }
 });
+
 
 router.post("/center/create", async (req, res) => {
   const {

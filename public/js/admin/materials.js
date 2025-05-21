@@ -29,6 +29,7 @@ function uploadFile(files) {
       .then((data) => {
         if (data.redirectTo) {
           location.reload();
+          alert('training material uploaded')
         }
         // Handle success as needed
       })

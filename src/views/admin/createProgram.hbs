@@ -10,8 +10,10 @@
   <form
     action="/admin/program/create"
     method="post"
+    id="programForm"
     class="row g-3 needs-validation justify-content-center"
-    novalidate
+    
+
   >
 
     <div class="col-lg-6 bg-white p-5">
@@ -176,5 +178,62 @@
 
   </form>
 </div>
+
+
+<script>
+  const form = document.getElementById("programForm");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = {
+      Name: form.elements["Name"].value,
+      StartDate: form.elements["StartDate"].value,
+      EndDate: form.elements["EndDate"].value,
+      DonorOrganization: form.elements["DonorOrganization"].value,
+      Description: form.elements["Description"].value,
+      Category: form.elements["Category"].value,
+      Manager: form.elements["Manager"]?.value || null, // if used in backend later
+      documentTypes: []
+    };
+
+    const checkboxes = form.querySelectorAll('input[name="documentTypes[]"]');
+    checkboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        formData.documentTypes.push(checkbox.value);
+      }
+    });
+
+    // Ensure documentTypes is always present, even if empty
+    if (!formData.documentTypes.length) {
+      formData.documentTypes = undefined; // Let the backend handle validation
+    }
+
+    try {
+      const res = await fetch("/admin/program/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.status) {
+        alert(data.message || "Program created successfully!");
+        form.reset();
+            window.location.href = "/admin/programs";
+      } else {
+        alert(data.message || "Failed to create program. Please check your input.");
+      }
+    } catch (error) {
+      alert("An unexpected error occurred. Please try again.");
+      console.error("Fetch error:", error);
+    }
+  });
+</script>
+
+
 
 <script src="/js/admin/createProgram.js"></script>

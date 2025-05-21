@@ -4,7 +4,7 @@
 
 <style>
   /* Additional styles specific to the Programs section */ .programs-container {
-  display: flex; flex-wrap: wrap; gap: 20px; padding-block: 20px; }
+  display: flex;   flex-wrap: wrap; gap: 20px; padding-block: 20px; }
   .program-card { border: 2px solid rgba(46, 90, 146,0.3); background-color:
   #f7f7f7; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width:
   200px;height: 150px; display: flex; flex-direction:column;justify-content:
@@ -59,6 +59,7 @@ tr:hover {
 </style>
 
 <div class="content">
+  
   <button
     class="add-button"
     onclick="window.location.href='/admin/quiz/{{session.SessionID}}/create'"

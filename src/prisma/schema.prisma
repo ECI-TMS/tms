@@ -292,7 +292,7 @@ model trainingsessions {
   thirdpartytracking thirdpartytracking[]
   programs           programs?            @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Restrict)
 
-  users_trainingsessions_TrainerIDTousers users?         @relation("trainingsessions_TrainerIDTousers", fields: [TrainerID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
+  users_trainingsessions_TrainerIDTousers users?         @relation("trainingsessions_TrainerIDTousers", fields: [TrainerID], references: [UserID], onDelete: Cascade, onUpdate: Restrict)
   users_trainingsessions_MonitorIDTousers users?         @relation("trainingsessions_MonitorIDTousers", fields: [MonitorID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
   // A TrainingSession can have multiple quizzes
   quizzes                                 Quiz[]

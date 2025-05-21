@@ -122,6 +122,14 @@ app.post("/organization/create", async (req, res) => {
 
 app.post("/user/create", async (req, res) => {
   const { Email, Password, UserType, Username, ProgramID } = req.body;
+  console.log(ProgramID);
+
+  if(UserType == 'TRAINER' && !ProgramID){
+    return res.status(400).json({
+      message: "please select progam for trainer",
+      success: false
+    })
+  }
   const ProfilePicture = req.files?.ProfilePicture;
   const existingUser = await prisma.users.findFirst({
     where: {
