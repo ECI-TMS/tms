@@ -1358,30 +1358,78 @@ router.get("/feedbacks", async (req, res) => {
   }
 });
 
-router.get("/feedbacks/program/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
+// router.get("/feedbacks/program/:id", async (req, res) => {
+//   try {
+//     const id = req.params.id;
 
     
 
+//     const sessions = await prisma.trainingsessions.findMany({
+//       where: {
+//         ProgramID: +req.params.id,
+        
+//       },
+//       include: {
+//         programs: true,
+//         users_trainingsessions_TrainerIDTousers: true,
+//         users_trainingsessions_MonitorIDTousers:true
+//       },
+//     });
+//     console.log(`=====================`)
+//      console.log(sessions)
+//     console.log(`=====================`)
+
+
+    
+    
+//     res.render("admin/programFeedback", { id ,sessions});
+//   } catch (error) {
+//     console.log("🚀 ~ router.get ~ error:", error);
+//   }
+// });
+
+
+router.get("/feedbacks/program/:id", async (req, res) => {
+  try {
+    const programId = +req.params.id;
+
+    // Fetch all sessions for the given program
     const sessions = await prisma.trainingsessions.findMany({
       where: {
-        ProgramID: +req.params.id,
-        
+        ProgramID: programId,
       },
       include: {
         programs: true,
         users_trainingsessions_TrainerIDTousers: true,
-        users_trainingsessions_MonitorIDTousers:true
+        users_trainingsessions_MonitorIDTousers: true,
       },
     });
-    
 
-    
-    
-    res.render("admin/programFeedback", { id ,sessions});
+    // Fetch all feedbacks for those sessions
+    const feedbacks = await prisma.feedback.findMany({
+      where: {
+        ProgramID: programId,
+      },
+      select: {
+        SessionID: true,
+      },
+    });
+
+    // Create a Set of session IDs that have feedback
+    const feedbackSessionIds = new Set(feedbacks.map(fb => fb.SessionID));
+
+    // Add uploaded_status to each session
+    const enrichedSessions = sessions.map(session => ({
+      ...session,
+      uploaded_status: feedbackSessionIds.has(session.SessionID),
+    }));
+    console.log(enrichedSessions);
+
+    res.render("admin/programFeedback", { id: programId, sessions: enrichedSessions });
+
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 

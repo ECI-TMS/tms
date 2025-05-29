@@ -158,13 +158,17 @@
             </div>
 
             <div class="container mt-4">
-              <div class="row">
-                <div class="col-md-12">
-                  <button type="submit" class="btn btn-dark">Add </button>
+  <div class="row">
+    <div class="col-md-12">
+      {{#if this.uploaded_status}}
+        <span class="badge text-bg-success">Feedback Already Added</span>
+      {{else}}
+        <button type="submit" class="btn btn-dark">Add</button>
+      {{/if}}
+    </div>
+  </div>
+</div>
 
-                </div>
-              </div>
-            </div>
 
           </form>
         </div>
