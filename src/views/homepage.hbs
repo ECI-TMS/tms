@@ -1,27 +1,179 @@
 <style>
-  
-  body { font-family: 'Poppins', sans-serif; background-color: #fff; color:
-  #000; display: flex; justify-content: center; align-items: center; height:
-  100vh; margin: 0; } .login-container { display: flex; flex-direction: column;
-  align-items: center; background-color: #2E5A92; padding: 30px; border-radius:
-  5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25); } h1 { color: #fff;
-  margin-bottom: 20px; } input[type="text"], input[type="password"] { width:
-  100%; padding: 10px; margin: 5px 0; border: none; background-color: #f2f2f2;
-  border-radius: 4px; } .user-role { display: flex; justify-content:
-  space-between; margin: 10px 0; } label { color: #fff; font-size: 14px; }
-  .login-btn { background-color: #2E5A92; color: white; border: none; padding:
-  10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top:
-  10px; } .login-btn:hover { background-color: white; color: #2E5A92; }
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 10px;
+  }
+
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #2E5A92;
+    padding: 30px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+    width: 60%;
+    max-width: 600px;
+    min-width: 300px;
+  }
+
+  h1 {
+    color: #fff;
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    background-color: #f2f2f2;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .input-group {
+    position: relative;
+    width: 100%;
+  }
+
+  #togglePassword {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+  }
+
+  .login-btn {
+    background-color: #2E5A92;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .login-btn:hover {
+    background-color: white;
+    color: #2E5A92;
+  }
+
+  @media (max-width: 768px) {
+    .login-container {
+      width: 90%;
+    }
+  }
 </style>
 
 <div class="login-container">
   <h1>Login</h1>
   <form id="loginForm">
-    <input type="text" id="email" placeholder="email" required />
-    <input type="password" id="password" placeholder="Password" required />
+    <input type="text" id="email" placeholder="Email" required />
+
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="button" id="togglePassword">
+        <i class="fa-solid fa-eye-slash"></i>
+      </button>
+    </div>
 
     <button class="login-btn" type="submit">Login</button>
   </form>
 </div>
 
-<script src="/js/login.js"></script>
+<script src="https://kit.fontawesome.com/46ede82261.js" crossorigin="anonymous"></script>
+<script>
+  const loginForm = document.getElementById("loginForm");
+  const emailField = document.getElementById("email");
+  const passwordField = document.getElementById("password");
+  const togglePasswordBtn = document.getElementById("togglePassword");
+
+  const data = localStorage.getItem("user");
+
+  if (data) {
+    let userData = JSON.parse(data);
+    let userType = userData.UserType;
+
+    if (userType === "ADMIN") {
+      window.location.href = "/admin/dashboard";
+    } else if (userType === "TRAINER") {
+      window.location.href = "/trainer/dashboard";
+    } else if (userType === "STUDENT") {
+      window.location.href = "/student/dashboard";
+    }
+  }
+
+  togglePasswordBtn.addEventListener("click", () => {
+    const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+    passwordField.setAttribute("type", type);
+
+    togglePasswordBtn.innerHTML = type === "password"
+      ? '<i class="fa-solid fa-eye-slash"></i>'
+      : '<i class="fa-solid fa-eye"></i>';
+  });
+
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const Email = emailField.value;
+    const Password = passwordField.value;
+
+    const loginData = {
+      Email,
+      Password,
+    };
+
+    fetch("/login", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(loginData),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          alert("Invalid login details");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("🚀 ~ .then ~ data:", data);
+        const userType = data.userData.UserType;
+        const user = JSON.stringify(data.userData);
+        localStorage.setItem("user", user);
+
+        if (userType === "ADMIN") {
+          window.location.href = "/admin/dashboard";
+        } else if (userType === "TRAINER") {
+          window.location.href = "/trainer/dashboard";
+        } else if (userType === "STUDENT") {
+          window.location.href = "/student/dashboard";
+        } else if (userType === "MONITOR") {
+          window.location.href = "/monitor/dashboard";
+        } else if (userType === "MANAGER") {
+          window.location.href = "/manager/dashboard";
+        }
+      });
+  });
+</script>
+{{!-- no need for js file login.js --}}

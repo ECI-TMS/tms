@@ -1,6 +1,7 @@
 const loginForm = document.getElementById("loginForm");
 const emailField = document.getElementById("email");
 const passwordField = document.getElementById("password");
+const togglePasswordBtn = document.getElementById("togglePassword");
 
 const data = localStorage.getItem("user");
 
@@ -17,10 +18,15 @@ if (data) {
   }
 }
 
+togglePasswordBtn.addEventListener("click", () => {
+  const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+  passwordField.setAttribute("type", type);
+  togglePasswordBtn.textContent = type === "password" ? "👁️" : "🙈";
+});
+
 loginForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const Email = emailField.value;
-
   const Password = passwordField.value;
 
   const loginData = {
@@ -37,7 +43,7 @@ loginForm.addEventListener("submit", (e) => {
   })
     .then((res) => {
       if (!res.ok) {
-        alert('Invalid login details');
+        alert("Invalid login details");
       }
       return res.json();
     })
@@ -46,7 +52,6 @@ loginForm.addEventListener("submit", (e) => {
       const userType = data.userData.UserType;
       const user = JSON.stringify(data.userData);
       localStorage.setItem("user", user);
-
 
       if (userType === "ADMIN") {
         window.location.href = "/admin/dashboard";
