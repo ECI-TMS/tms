@@ -194,22 +194,67 @@ router.post('/assignment/mark',async(req,res)=>{
 
 
 
+// router.get("/reports", authMiddleware, async (req, res) => {
+//   const { token } = req.cookies;
+
+//   try {
+//     const userData = jwt.verify(token, process.env.JWT_SECRET);
+//     const reports = await prisma.report.findMany({
+//       where: {
+//         isForTrainer: true,
+//         ProgramID: +userData.ProgramID,
+//         SubmitedReports: {
+//           none: {},
+//         },
+//       },
+//     });
+//     console.log(`=============================`);
+//     console.log(reports)
+//     console.log(`=============================`);
+
+//     // res.json(reports)
+//     res.render("trainer/reports", { reports });
+//   } catch (error) {
+//     console.log("🚀 ~ router.get ~ error:", error);
+//   }
+// });
+
+
+
+
 router.get("/reports", authMiddleware, async (req, res) => {
   const { token } = req.cookies;
 
   try {
     const userData = jwt.verify(token, process.env.JWT_SECRET);
+
     const reports = await prisma.report.findMany({
       where: {
         isForTrainer: true,
         ProgramID: +userData.ProgramID,
+      },
+      include: {
         SubmitedReports: {
-          none: {},
+          where: {
+            UserID: userData.UserID,
+          },
+          select: {
+            SubmitedReportID: true,
+          },
         },
       },
     });
-    // res.json(reports)
-    res.render("trainer/reports", { reports });
+
+    const reportsWithStatus = reports.map((report) => ({
+      ...report,
+      uploaded_status: report.SubmitedReports.length > 0,
+    }));
+
+    console.log("=============================");
+    console.log(reportsWithStatus);
+    console.log("=============================");
+
+    res.render("trainer/reports", { reports: reportsWithStatus });
   } catch (error) {
     console.log("🚀 ~ router.get ~ error:", error);
   }

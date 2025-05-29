@@ -30,6 +30,7 @@
       <th>ID</th>
       <th>Name</th>
       <th>Monitor/Trainer</th>
+      <th>File</th>
       {{!-- <th>Actions</th> --}}
     </tr>
   </thead>
@@ -39,6 +40,7 @@
       <td>{{this.ReportID}}</td>
       <td>{{this.Name}}</td>
       <td>{{this.targetRole}}</td>
+      <td><a download="true" class="btn btn-primary" href='{{this.FilePath}}'>Download</a></td>
       {{!-- <td>
         <button class="btn btn-danger delete-report">Delete</button>
       </td> --}}
