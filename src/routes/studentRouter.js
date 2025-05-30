@@ -188,6 +188,8 @@ router.get("/feedbacks", async (req, res) => {
       program: groupedByProgramID[key].program,
       programs: groupedByProgramID[key].programs,
     }));
+
+
     
     
     res.render("student/feedbacks", { userPrograms:userProgramsArray });
@@ -245,75 +247,146 @@ router.post("/feedback/create", async (req, res) => {
 //     console.log("🚀 ~ router.get ~ error:", error);
 //   }
 // });
-router.get("/feedback/program/:programId", async (req, res) => {
+// router.get("/feedback/program/:programId", async (req, res) => {
+//   try {
+//     const programId = +req.params.programId;
+
+// const feedbacks = await prisma.feedback.findMany({
+//   where: {
+//     ProgramID: programId,
+//   },
+//   include: {
+//     Inputs: true,
+//     users: true,
+//   },
+// });
+
+// const groupedBySessionID = feedbacks.reduce((acc, curr) => {
+//   const { SessionID, users } = curr;
+//   if (!acc[SessionID]) {
+//     acc[SessionID] = { SessionID, feedbacks: [], trainer: null, monitor: null };
+//   }
+//   acc[SessionID].feedbacks.push(curr);
+
+//   // Assign trainer or monitor at the group level
+//   if (users.UserType === 'TRAINER') {
+//     acc[SessionID].trainer = users;
+//     acc[SessionID].trainer.FeedbackID = curr.FeedbackID; // Assign FeedbackID to trainer
+//   } else if (users.UserType === 'MONITOR') {
+//     acc[SessionID].monitor = users;
+//     acc[SessionID].monitor.FeedbackID = curr.FeedbackID; // Assign FeedbackID to monitor
+//   }
+
+//   return acc;
+// }, {});
+
+// // Convert the grouped object into an array format
+// const feedbacksArray = Object.values(groupedBySessionID);
+
+// // Ensure Inputs array exists for trainer and monitor
+// feedbacksArray.forEach(session => {
+//   if (!session.trainer.Inputs) {
+//     session.trainer.Inputs = [];
+//   }
+//   if (!session.monitor.Inputs) {
+//     session.monitor.Inputs = [];
+//   }
+
+//   // Iterate through each feedback in the session
+//   session.feedbacks.forEach(feedback => {
+//     // Check if the feedback user is a trainer or monitor and add the inputs
+//     if (feedback.users.UserType === 'TRAINER') {
+//       session.trainer.Inputs.push(...feedback.Inputs);
+//     } else if (feedback.users.UserType === 'MONITOR') {
+//       session.monitor.Inputs.push(...feedback.Inputs);
+//     }
+//   });
+// });
+
+// // console.log(feedbacksArray);
+
+    
+//     console.log(JSON.stringify(feedbacksArray, null, 2));
+//     // console.log(feedbacksArray);
+    
+    
+
+//     res.render("student/singleFeedback",{feedbacksArray,programId});
+//   } catch (error) {
+    
+//   }
+// });
+
+
+router.get("/feedback/program/:programId",authMiddleware, async (req, res) => {
   try {
     const programId = +req.params.programId;
+    const currentUserId = +req.user.UserID; // Replace with actual user ID source
 
-const feedbacks = await prisma.feedback.findMany({
-  where: {
-    ProgramID: programId,
-  },
-  include: {
-    Inputs: true,
-    users: true,
-  },
-});
+    const feedbacks = await prisma.feedback.findMany({
+      where: { ProgramID: programId },
+      include: {
+        Inputs: true,
+        users: true,
+        FeedbackResponse: true,
+      },
+    });
 
-const groupedBySessionID = feedbacks.reduce((acc, curr) => {
-  const { SessionID, users } = curr;
-  if (!acc[SessionID]) {
-    acc[SessionID] = { SessionID, feedbacks: [], trainer: null, monitor: null };
-  }
-  acc[SessionID].feedbacks.push(curr);
+    const groupedBySessionID = feedbacks.reduce((acc, curr) => {
+      const { SessionID, users } = curr;
+      if (!acc[SessionID]) {
+        acc[SessionID] = {
+          SessionID,
+          feedbacks: [],
+          trainer: null,
+          monitor: null,
+          uploaded_status: false, // default
+        };
+      }
 
-  // Assign trainer or monitor at the group level
-  if (users.UserType === 'TRAINER') {
-    acc[SessionID].trainer = users;
-    acc[SessionID].trainer.FeedbackID = curr.FeedbackID; // Assign FeedbackID to trainer
-  } else if (users.UserType === 'MONITOR') {
-    acc[SessionID].monitor = users;
-    acc[SessionID].monitor.FeedbackID = curr.FeedbackID; // Assign FeedbackID to monitor
-  }
+      acc[SessionID].feedbacks.push(curr);
 
-  return acc;
-}, {});
+      if (users.UserType === 'TRAINER') {
+        acc[SessionID].trainer = users;
+        acc[SessionID].trainer.FeedbackID = curr.FeedbackID;
+      } else if (users.UserType === 'MONITOR') {
+        acc[SessionID].monitor = users;
+        acc[SessionID].monitor.FeedbackID = curr.FeedbackID;
+      }
 
-// Convert the grouped object into an array format
-const feedbacksArray = Object.values(groupedBySessionID);
+      return acc;
+    }, {});
 
-// Ensure Inputs array exists for trainer and monitor
-feedbacksArray.forEach(session => {
-  if (!session.trainer.Inputs) {
-    session.trainer.Inputs = [];
-  }
-  if (!session.monitor.Inputs) {
-    session.monitor.Inputs = [];
-  }
+    const feedbacksArray = Object.values(groupedBySessionID);
 
-  // Iterate through each feedback in the session
-  session.feedbacks.forEach(feedback => {
-    // Check if the feedback user is a trainer or monitor and add the inputs
-    if (feedback.users.UserType === 'TRAINER') {
-      session.trainer.Inputs.push(...feedback.Inputs);
-    } else if (feedback.users.UserType === 'MONITOR') {
-      session.monitor.Inputs.push(...feedback.Inputs);
-    }
-  });
-});
+    // Assign Inputs
+    feedbacksArray.forEach(session => {
+      if (!session.trainer?.Inputs) session.trainer.Inputs = [];
+      if (!session.monitor?.Inputs) session.monitor.Inputs = [];
 
-// console.log(feedbacksArray);
+      session.feedbacks.forEach(feedback => {
+        if (feedback.users.UserType === 'TRAINER') {
+          session.trainer.Inputs.push(...feedback.Inputs);
+        } else if (feedback.users.UserType === 'MONITOR') {
+          session.monitor.Inputs.push(...feedback.Inputs);
+        }
+      });
 
-    
-    // console.log(JSON.stringify(feedbacksArray, null, 2));
-    console.log(feedbacksArray);
-    
-    
+      // Check if current user has responded to any feedback in this session
+      const hasResponded = session.feedbacks.some(feedback =>
+        feedback.FeedbackResponse.some(response => response.UserID === currentUserId)
+      );
+      session.uploaded_status = hasResponded;
+    });
 
-    res.render("student/singleFeedback",{feedbacksArray,programId});
+    console.log(JSON.stringify(feedbacksArray, null, 2));
+    res.render("student/singleFeedback", { feedbacksArray, programId });
   } catch (error) {
-    
+    console.error("Error fetching feedbacks:", error);
+    res.status(500).send("Server error");
   }
 });
+
 
 router.get("/upload", async (req, res) => {
   try {
