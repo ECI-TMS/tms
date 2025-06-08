@@ -30,3 +30,7 @@ function deleteAction(id) {
     
     
 // });
+
+  $(document).ready(function () {
+    $('#programsTable').DataTable();
+  });
