@@ -34,3 +34,7 @@
 
         });
 
+
+        $(document).ready(function () {
+    $('#trainer_table').DataTable();
+  });
