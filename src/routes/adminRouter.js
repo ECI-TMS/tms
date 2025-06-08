@@ -184,6 +184,22 @@ router.get("/organizations", async (req, res) => {
   }
 });
 
+router.delete("/organizations/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.thirdparties.delete({
+      where: {
+        ThirdPartyID: parseInt(id),
+      },
+    });
+    res.status(200).json({ message: "Client deleted successfully." });
+  } catch (error) {
+    console.error("Failed to delete client:", error);
+    res.status(500).json({ error: "Failed to delete client." });
+  }
+});
+
+
 router.get("/clients", async (req, res) => {
   try {
     const data = await prisma.client.findMany();
