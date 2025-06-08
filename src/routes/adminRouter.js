@@ -1275,6 +1275,15 @@ router.get("/centers", async (req, res) => {
     res.status(400).json({ error });
   }
 });
+router.delete("/center/delete/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    await prisma.centers.delete({ where: { CenterID: id } });
+    res.status(200).json({ message: "Center deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete center" });
+  }
+});
 
 router.get("/trainers", async (req, res) => {
   try {
