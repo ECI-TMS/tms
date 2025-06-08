@@ -22,6 +22,7 @@ import uploadRouter from "./routes/uploadData.js";
 import userRouter from "./routes/userRouter.js";
 import exphbs from   "express-handlebars";
 import { hbsHelpers } from './helpers/handlebar.js';
+import path from 'path';
 
 import authMiddleware from "./middlewares/authmiddleware.js";
 
@@ -35,6 +36,8 @@ import authMiddleware from "./middlewares/authmiddleware.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+
 
 const publicPath = resolve(__dirname, "views");
 
@@ -52,12 +55,15 @@ handlebars.handlebars.registerHelper('eq', handlebarsEqual);
 handlebars.handlebars.registerHelper('incrementIndex', function(index) {
   return index + 1;
 });
+// app.use('/documents', express.static(path.join(__dirname, 'public', 'documents')));
 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload());
 app.use(express.json());
 app.use(express.static("public"));
+app.use('/documents', express.static(path.join(process.cwd(), 'public', 'documents')));
+console.log('111111111111111111111111111111111111111111111')
 
 // app.engine(
 //   "hbs",

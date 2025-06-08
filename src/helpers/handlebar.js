@@ -50,7 +50,25 @@ export function hbsHelpers() {
                 } else {
                     return options.inverse(this); // Execute the else block
                 }
-            }
+            },
+            getFilename: function(filepath) {
+    if (!filepath) return '';
+    
+    const fileName = filepath.split('/').pop(); // Get the filename only
+    
+    // Filename format: "timestamp-randomnumber-originalfilename.ext"
+    // Split by '-' and remove the first two parts (timestamp and random number)
+    const parts = fileName.split('-');
+    
+    if(parts.length < 3) {
+        // If format unexpected, return full filename
+        return fileName;
+    }
+    
+    // Join back the rest parts (original filename could contain dashes)
+    return parts.slice(2).join('-');
+}
+
 
         }
     });

@@ -126,6 +126,7 @@ enum Gender {
 model documentType {
   DocumentTypeID Int                   @id @default(autoincrement())
   Name           String                @db.VarChar(255)
+  file           String?
   programs       documentTypeProgram[]
 }
 

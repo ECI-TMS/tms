@@ -143,20 +143,28 @@
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>File</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{#each documents}}
-                    <tr>
-                        <td>{{this.Name}}</td>
-                        <td>
-                            <button type="button" onclick="deleteAction({{this.DocumentTypeID}})"
-                                class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
-                    {{/each}}
-                </tbody>
+  {{#each documents}}
+  <tr>
+    <td>{{this.Name}}</td>
+    <td>
+      {{#if this.file}}
+        <a href="{{this.file}}" download>{{getFilename this.file}}</a>
+      {{else}}
+        No File
+      {{/if}}
+      
+    </td>
+    <td><button type="button" onclick="deleteAction({{this.DocumentTypeID}})"
+        class="btn btn-danger btn-sm">Delete</button></td>
+  </tr>
+  {{/each}}
+</tbody>
+
             </table>
         </div>
     </div>
@@ -187,25 +195,30 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/admin/document/create" method="post" class="row g-3 needs-validation">
-                        {{! Name }}
-                        <div class="col-12">
-                            <label for="documentName" class="form-label">Name</label>
-                            <input type="text" name="Name" class="form-control" id="documentName" required />
-                            <div class="valid-feedback">
-                                Looks good!
-                            </div>
-                        </div>
+                <form action="/admin/document/create" method="post" enctype="multipart/form-data" class="row g-3 needs-validation">
+    <div class="col-12">
+        <label for="documentName" class="form-label">Name</label>
+        <input type="text" name="Name" class="form-control" id="documentName" required />
+        <div class="valid-feedback">Looks good!</div>
+    </div>
 
-                        <div class="col-12 mt-4">
-                            <button class="btn btn-primary" id="uploadButton">Submit Document</button>
-                        </div>
-                    </form>
+    <div class="col-12">
+        <label for="documentFile" class="form-label">Upload File</label>
+        <input type="file" name="file" class="form-control" id="documentFile" required />
+        <div class="valid-feedback">Looks good!</div>
+    </div>
+
+    <div class="col-12 mt-4">
+        <button class="btn btn-primary" id="uploadButton">Submit Document</button>
+    </div>
+</form>
+
                 </div>
             </div>
         </div>
     </div>
 
+<script defer src="/js/admin/document.js"></script>
     <script>
         function deleteAction(id) {
             document.body.style.cursor = "wait";
@@ -234,3 +247,4 @@
                 });
         }
     </script>
+

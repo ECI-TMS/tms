@@ -5,10 +5,37 @@ import prisma from "../lib/db.js";
 import authMiddleware from "../middlewares/authmiddleware.js";
 import fs from 'fs-extra';
 import path from 'path';
+
 import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { log } from "console";
+import multer from 'multer';
 
 const router = Router();
+
+
+const uploadPath = path.join(process.cwd(), 'public', 'documents');
+// const storage = multer.diskStorage({
+//   destination: (_, __, cb) => cb(null, uploadPath),
+//   filename: (_, file, cb) => {
+//     const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+//     cb(null, `${unique}-${file.originalname}`);
+//   },
+// });
+
+// const upload = multer({ storage });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadPath)
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, file.fieldname + '-' + uniqueSuffix)
+  }
+})
+
+const upload = multer({ storage: storage })
 
 
 // Routes
@@ -895,64 +922,79 @@ router.get("/session/:id/quizes/:quizId", async (req, res) => {
 
 
 
-router.get("/documents", async (req, res) => {
+router.get('/documents', async (req, res) => {
   try {
     const documents = await prisma.documentType.findMany();
-
-    res.render("admin/documents", {
-      documents
-    });
+    res.render('admin/documents', { documents });
   } catch (error) {
     res.status(400).json({ error });
   }
 });
 
-router.post("/document/create", async (req, res) => {
-  const {Name} = req.body
+router.post('/document/create', async (req, res) => {
+  const { Name } = req.body;
+  const file = req.files?.file;
+
+  // Ensure upload directory exists
+  if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true });
+  }
 
   try {
-    const documentExist = await prisma.documentType.findFirst({
-      where: {
-        Name
-      }
-    });
+    if (!Name || !file) {
+      return res.status(400).json({ message: 'Name and file are required' });
+    }
+
+    const documentExist = await prisma.documentType.findFirst({ where: { Name } });
 
     if (documentExist) {
-      return res.status(400).json({
-        message: `Document ${Name} already exists`
-      })
+      return res.status(400).json({ message: `Document ${Name} already exists` });
     }
+
+    // Save file with unique name
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${file.name}`;
+    const filePath = path.join(uploadPath, uniqueName);
+
+    await file.mv(filePath);
+    const relativePath = `/documents/${uniqueName}`;
 
     const newDocument = await prisma.documentType.create({
       data: {
-        Name
-      }
-    })
-    res.redirect("/admin/documents");
-  } catch (error) {
-    res.status(400).json({ error });
-  }
-});
-
-router.delete("/document/:id", async (req, res) => {
-  try {
-    const document = await prisma.documentType.delete({
-      where: {
-        DocumentTypeID: +req.params.id,
+        Name,
+        file: relativePath,
       },
     });
 
-    res.status(200).json({ message: "deleted successfully" });
-
+    res.redirect('/admin/documents');
   } catch (error) {
-    if (error.code === 'P2003') { // Foreign key constraint failed
-      res.status(409).json({ message: "This document is already attached with a program." });
-    } else {
-      console.error("Unexpected error:", error);
-      res.status(500).json({ message: "Unexpected server error." });
-    }
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+router.delete('/document/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const doc = await prisma.documentType.findUnique({ where: { DocumentTypeID: id } });
+
+    if (!doc) return res.status(404).json({ message: 'Document not found' });
+
+    const fileName = path.basename(doc.file);
+    const filePath = path.join(uploadPath, fileName);
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    await prisma.documentType.delete({ where: { DocumentTypeID: id } });
+
+    res.status(200).json({ message: 'Document deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 router.get("/quiz/:id", async (req, res) => {
