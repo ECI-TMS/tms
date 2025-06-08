@@ -1,49 +1,88 @@
-{{!< dashboard}} <style>
-  .pending { color: black; background-color: yellow; } body { font-family:
-  'Poppins', sans-serif; background-color: #fff; color: #000; } .container {
-  display: flex; justify-content: center; } table { width: 100%; margin-block:
-  20px; table-layout: fixed; border-collapse: collapse; } th, td { padding:
-  15px; text-align: left; } th { background-color: #2E5A92; color: #fff; }
-  table, th, td { width: 1fr; text-align: center; } .upload-btn {
-  background-color: white; color: #2E5A92; border-radius: 4px; cursor: pointer;
-  padding: 2px; border: 1px solid #2E5A92; } .upload-btn:hover {
-  background-color: #2E5A92; color: #fff; } th, td { width: 25%; } table tbody
-  tr { background-color: white; } table tbody tr:nth-child(odd) {
-  background-color: #f2f2f2; } table thead th { border: none; } th, td {
-  padding: 15px; text-align: left; } th:nth-child(1), td:nth-child(1) { width:
-  5%; } th:nth-child(2), td:nth-child(2) { width: 15%; } th:nth-child(3),
-  td:nth-child(3) { width: 8%; } th:nth-child(4), td:nth-child(4) { width: 12%;
-  } th:nth-child(5), td:nth-child(5) { width: 10%; } th:nth-child(6),
-  td:nth-child(6) { width: 10%; } th:nth-child(7), td:nth-child(7) { width: 10%;
-  } th:nth-child(8), td:nth-child(8) { width: 10%; } th:nth-child(9),
-  td:nth-child(9) { width: 8%; } th:nth-child(10), td:nth-child(10) { width:
-  10%; } th:nth-child(11), td:nth-child(11) { width: 10%; }
-  </style>
-  <link rel="stylesheet" href="/css/admin/programs.css" />
+{{!< dashboard}}
 
-  <div class="content">
-
-    <table id="monitors">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Program</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each monitors}}
-        <tr>
-          <td>{{this.UserID}}</td>
-          <td>{{this.Username}}</td>
-         <td>{{this.program.Name}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-  </div>
+<link rel="stylesheet" href="/css/admin/programs.css" />
 
 
-  <script defer>
-    new DataTable('#monitors');
-  </script>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    color: #000;
+  }
+
+  h2.section-heading {
+    color: #2E5A92;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    margin: 30px 0 20px;
+    border-bottom: 2px solid #2E5A92;
+    display: inline-block;
+    padding-bottom: 5px;
+  }
+
+  table {
+    width: 100%;
+    margin: 0 auto 40px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  thead {
+    background-color: #2E5A92;
+    color: white;
+  }
+
+  th, td {
+    padding: 15px;
+    text-align: center;
+  }
+
+  tbody tr:nth-child(odd) {
+    background-color: #f2f2f2;
+  }
+
+  .action-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .action-btn:hover {
+    background-color: darkred;
+  }
+</style>
+
+<div class="content">
+  <h2 class="section-heading">Manage Monitors</h2>
+
+  <table id="monitors">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Program</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each monitors}}
+      <tr>
+        <td>{{this.UserID}}</td>
+        <td>{{this.Username}}</td>
+        <td>{{#if this.program}}{{this.program.Name}}{{else}}—{{/if}}</td>
+        <td>
+          <button class="action-btn" onclick="deleteMonitor('{{this.UserID}}', '{{this.Username}}')">Delete</button>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
+
+<script defer src="/js/admin/monitor.js"></script>
+

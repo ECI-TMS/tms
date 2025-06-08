@@ -1239,6 +1239,21 @@ router.get("/monitors", async (req, res) => {
   }
 });
 
+router.delete("/monitors/:id", async (req, res) => {
+  try {
+    const id = +req.params.id;
+    const deleted = await prisma.users.delete({
+      where: { UserID: id },
+    });
+
+    res.json({ success: true, message: "Monitor deleted." });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ error: "Failed to delete monitor." });
+  }
+});
+
+
 
 
 router.get("/centers", async (req, res) => {
