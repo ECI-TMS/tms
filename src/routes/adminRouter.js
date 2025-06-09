@@ -72,8 +72,39 @@ router.get("/dashboard/data", async (req, res) => {
 });
 
 router.get("/dashboard", async (req, res) => {
-  res.render("admin/dashboard");
+  try {
+    const programsCount = await prisma.programs.count();
+
+    const trainersCount = await prisma.users.count({
+      where: { UserType: "TRAINER" },
+    });
+
+    const monitorsCount = await prisma.users.count({
+      where: { UserType: "MONITOR" },
+    });
+
+    const participantsCount = await prisma.participant.count();
+
+    const trainingSessionsCount = await prisma.trainingsessions.count();
+
+    const coursesCount = await prisma.course.count();
+
+    res.render("admin/dashboard", {
+      counts: {
+        programs: programsCount,
+        trainers: trainersCount,
+        monitors: monitorsCount,
+        participants: participantsCount,
+        trainingsessions: trainingSessionsCount,
+        courses: coursesCount,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard counts:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
+
 
 router.get("/programs/data", async (req, res) => {
   try {
