@@ -1857,6 +1857,28 @@ router.get("/allReports", async (req, res) => {
   }
 });
 
+router.delete("/allReports/:id", async (req, res) => {
+  try {
+    const reportId = parseInt(req.params.id);
+    await prisma.report.delete({ where: { ReportID: reportId } });
+    res.status(200).json({ message: "Report deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting report:", error);
+    res.status(500).json({ message: "Failed to delete report" });
+  }
+});
+router.delete("/submittedReports/:id", async (req, res) => {
+  try {
+    const submittedId = parseInt(req.params.id);
+    await prisma.submitedReport.delete({ where: { SubmitedReportID: submittedId } });
+    res.status(200).json({ message: "Submitted report deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting submitted report:", error);
+    res.status(500).json({ message: "Failed to delete submitted report" });
+  }
+});
+
+
 // router.delete("/allReports/:id", async (req, res) => {
 //   const reportId = parseInt(req.params.id, 10);
 //   console.log(`Received delete request for report ID: ${reportId}`);

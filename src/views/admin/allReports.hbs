@@ -106,6 +106,21 @@
     justify-content: center;
     padding: 10px 0;
   }
+  button.delete-uploaded-report,
+button.delete-submitted-report {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: red !important;
+  margin-left: 8px;
+}
+
+button.delete-uploaded-report:hover,
+button.delete-submitted-report:hover {
+  color: darkred;
+}
+
 </style>
 
 <link rel="stylesheet" href="/css/admin/programs.css" />
@@ -122,17 +137,33 @@
       </tr>
     </thead>
     <tbody>
-      {{#each allReports}}
-      <tr data-report-id="{{this.ReportID}}">
-        <td>{{this.ReportID}}</td>
-        <td>{{this.Name}}</td>
-        <td>{{this.targetRole}}</td>
-        <td>
-          <a download="true" class="btn btn-primary" href='{{this.FilePath}}'>Download</a>
-        </td>
-      </tr>
-      {{/each}}
-    </tbody>
+  {{#each allReports}}
+  <tr data-report-id="{{this.ReportID}}">
+    <td>{{this.ReportID}}</td>
+    <td>{{this.Name}}</td>
+    <td>{{this.targetRole}}</td>
+    <td>
+      <a download="true" class="btn btn-primary" href='{{this.FilePath}}'>Download</a>
+<button class="delete-uploaded-report" title="Delete">
+  <svg xmlns="http://www.w3.org/2000/svg"
+       width="30"
+       height="30"
+       fill="none"
+       viewBox="0 0 24 24"
+       stroke="red"
+       stroke-width="2">
+    <path stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M6 7h12M9 7V4h6v3m1 0v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7h10z"/>
+  </svg>
+</button>
+
+
+    </td>
+  </tr>
+  {{/each}}
+</tbody>
+
   </table>
 
   <h3 class="text-dark">Submitted Reports</h3>
@@ -147,18 +178,33 @@
       </tr>
     </thead>
     <tbody>
-      {{#each submittedReports}}
-      <tr data-report-id="{{this.ReportID}}">
-        <td>{{this.UserID}}</td>
-        <td>{{this.users.Username}}</td>
-        <td>{{this.report.Name}}</td>
-        <td>{{this.submitRole}}</td>
-        <td>
-          <a download="true" class="btn btn-primary" href='{{this.FilePath}}'>Download</a>
-        </td>
-      </tr>
-      {{/each}}
-    </tbody>
+  {{#each submittedReports}}
+  <tr data-submitted-id="{{this.SubmitedReportID}}">
+    <td>{{this.UserID}}</td>
+    <td>{{this.users.Username}}</td>
+    <td>{{this.report.Name}}</td>
+    <td>{{this.submitRole}}</td>
+    <td>
+      <a download="true" class="btn btn-primary" href='{{this.FilePath}}'>Download</a>
+      <button class="delete-submitted-report" title="Delete">
+  <svg xmlns="http://www.w3.org/2000/svg"
+       width="30"
+       height="30"
+       fill="none"
+       viewBox="0 0 24 24"
+       stroke="red"
+       stroke-width="2">
+    <path stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M6 7h12M9 7V4h6v3m1 0v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7h10z"/>
+  </svg>
+</button>
+
+    </td>
+  </tr>
+  {{/each}}
+</tbody>
+
   </table>
 </div>
 
@@ -166,33 +212,51 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const deleteButtons = document.querySelectorAll('.delete-report');
-
-    deleteButtons.forEach(button => {
+    // Delete uploaded report
+    document.querySelectorAll('.delete-uploaded-report').forEach(button => {
       button.addEventListener('click', async function () {
-        const reportRow = button.closest('tr');
-        const reportId = reportRow.getAttribute('data-report-id');
+        const row = this.closest('tr');
+        const reportId = row.getAttribute('data-report-id');
 
-        const confirmation = confirm('Are you sure you want to delete this report?');
-        if (confirmation) {
-          try {
-            const response = await fetch(`/allReports/${reportId}`, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
+        const confirmDelete = confirm('Are you sure you want to delete this uploaded report?');
+        if (!confirmDelete) return;
 
-            if (response.ok) {
-              reportRow.remove();
-              alert('Report deleted successfully');
-            } else {
-              alert('Failed to delete report');
-            }
-          } catch (error) {
-            console.error('Error deleting report:', error);
-            alert('An error occurred while deleting the report.');
+        try {
+          const response = await fetch(`/admin/allReports/${reportId}`, { method: 'DELETE' });
+          if (response.ok) {
+            row.remove();
+            alert('Uploaded report deleted successfully.');
+          } else {
+            alert('Failed to delete uploaded report.');
           }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred while deleting the uploaded report.');
+        }
+      });
+    });
+
+    // Delete submitted report
+    document.querySelectorAll('.delete-submitted-report').forEach(button => {
+      button.addEventListener('click', async function () {
+        const row = this.closest('tr');
+        const submittedId = row.getAttribute('data-submitted-id');
+        
+
+        const confirmDelete = confirm('Are you sure you want to delete this submitted report?');
+        if (!confirmDelete) return;
+
+        try {
+          const response = await fetch(`/admin/submittedReports/${submittedId}`, { method: 'DELETE' });
+          if (response.ok) {
+            row.remove();
+            alert('Submitted report deleted successfully.');
+          } else {
+            alert('Failed to delete submitted report.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred while deleting the submitted report.');
         }
       });
     });
