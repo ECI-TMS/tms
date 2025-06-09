@@ -402,38 +402,46 @@ router.get("/programs/:id/participants", async (req, res) => {
 });
 
 router.get("/programs/:programId/courses/:id", async (req, res) => {
-  const programId =  req.params.programId;
-  const courseId =   +req.params.id;
-  
+  const programId = +req.params.programId;
+  const courseId = +req.params.id;
 
   try {
     const course = await prisma.course.findFirst({
       where: {
-        CourseID: +req.params.id,
+        CourseID: courseId,
       },
     });
 
     const sessions = await prisma.trainingsessions.findMany({
       where: {
-        CourseID: +req.params.id,
+        CourseID: courseId,
       },
       include: {
         course: true,
         programs: true,
       },
     });
-    
 
+    // ✅ Fetch the program
+    const program = await prisma.programs.findFirst({
+      where: {
+        ProgramID: programId,
+      },
+    });
+
+    // ✅ Pass program to the view
     res.render("admin/singleCourse", {
       sessions,
       course,
       programId,
-      courseId
+      courseId,
+      program, // 👈 new
     });
   } catch (error) {
     res.status(400).json({ error });
   }
 });
+
 
 router.delete('/programs/:programId/courses/:id', async (req, res) => {
   try {

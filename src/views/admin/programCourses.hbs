@@ -1,329 +1,552 @@
 {{!< dashboard}} <style>
-  /* Additional styles specific to the Programs section */
-  .programs-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  padding-block: 20px;
+  :root {
+    --primary-color: #2E5A92;
+    --primary-hover: #1e3a5f;
+    --primary-light: rgba(46, 90, 146, 0.1);
+    --success-color: #28a745;
+    --danger-color: #dc3545;
   }
 
-  .program-card {
-  position: relative;
-  border: 2px solid rgba(46, 90, 146,0.3);
-  background-color: #f7f7f7;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 200px;
-  height: 150px;
-  display: flex;
-  flex-direction:column;
-  justify-content: space-between;
-  overflow: hidden;
+  /* Professional DataTable Styling */
+  .courses-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin-top: 20px;
   }
 
-  .program-card h3 {
-  color: #2E5A92;
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--primary-light);
   }
 
-  .program-card p {
-  color: white;
-  font-weight: 500;
+  .table-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
   }
 
   .add-button {
-  background-color: #2E5A92;
-  color: #fff;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: #fff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
   }
 
   .add-button:hover {
-  background-color: #2E5ABB;
+    background: linear-gradient(135deg, var(--primary-hover), var(--primary-color));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 90, 146, 0.3);
   }
 
-  .card-upper {
-  padding: 15px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 116px;
-  flex: 1;
-  text-align: center;
+  .courses-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
   }
 
-  .card-lower {
-  padding-inline: 15px;
-  background: #2E5A92;
-  color: white;
-  display: flex;
-  height: 30px;
-  justify-content: center;
+  .courses-table thead {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: white;
   }
 
-  .card-upper>h3{
-  font-size: 1.2rem;
+  .courses-table thead th {
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: none;
+    position: relative;
   }
 
-  .delete {
-  display: none;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: red;
-  width: 35px;
-  height: 35px;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
-  border: none;
+  .courses-table tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: all 0.3s ease;
   }
 
-  .delete svg {
-  width: 20px;
-  height: 20px;
+  .courses-table tbody tr:hover {
+    background-color: var(--primary-light);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(46, 90, 146, 0.1);
   }
 
-  .program-card:hover .delete {
-  display: flex;
+  .courses-table tbody td {
+    padding: 15px 12px;
+    vertical-align: middle;
+    border: none;
   }
 
-  /* Styles for the overlay */
+  .course-name {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+  }
+
+  .course-name-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .course-name-link:hover {
+    color: var(--primary-hover);
+    text-decoration: none;
+  }
+
+  .sessions-badge {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn-action {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  .btn-edit {
+    background-color: var(--success-color);
+    color: white;
+  }
+
+  .btn-edit:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  }
+
+  .btn-delete {
+    background-color: var(--danger-color);
+    color: white;
+  }
+
+  .btn-view {
+    background-color: #17a2b8;
+    color: white;
+  }
+
+  .btn-view:hover {
+    background-color: #138496;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+  }
+
+  /* DataTable Custom Styling */
+  .dataTables_wrapper {
+    font-family: inherit;
+  }
+
+  .dataTables_length select,
+  .dataTables_filter input {
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 0 5px;
+  }
+
+  .dataTables_filter input:focus,
+  .dataTables_length select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(46, 90, 146, 0.1);
+  }
+
+  .dataTables_paginate .paginate_button {
+    padding: 8px 12px !important;
+    margin: 0 2px !important;
+    border-radius: 6px !important;
+    border: 1px solid #e9ecef !important;
+    background: white !important;
+    color: var(--primary-color) !important;
+  }
+
+  .dataTables_paginate .paginate_button:hover {
+    background: var(--primary-light) !important;
+    border-color: var(--primary-color) !important;
+  }
+
+  .dataTables_paginate .paginate_button.current {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+  }
+
+  /* Breadcrumb Styling */
+  .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+
+  .breadcrumb-item {
+    color: #6c757d;
+  }
+
+  .breadcrumb-item.active {
+    color: var(--primary-color);
+    font-weight: 500;
+  }
+
+  /* Modal Styles - keeping original functionality */
   .overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
   }
 
-  /* Styles for the modal */
   .modal {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 5px;
-  max-width: 400px;
-  height: 240px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* Center the content */
-  text-align: center;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 450px;
+    width: 90%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    min-height: auto;
+    height: auto;
   }
 
-  /* Styles for the modal title */
   .modal h2 {
-  margin-top: 0;
+    margin-top: 0;
+    color: var(--primary-color);
+    font-weight: 600;
   }
 
-  /* Styles for the modal footer */
   .deleteProgramFooter {
-  margin-top: 20px;
-  text-align: right;
+    margin-top: 25px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
   }
 
-  /* Styles for the modal buttons */
   .deleteProgramFooter button,
   .deleteProgramFooter .deleteProgram {
-  padding: 10px 20px;
-  margin-left: 10px;
-  cursor: pointer;
-  border: none;
-  border-radius: 10px;
+    padding: 12px 24px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
   }
 
   .deleteProgramFooter .deleteProgram {
-  background-color: red;
-  color: white;
+    background-color: var(--danger-color);
+    color: white;
   }
 
-  .edit {
-  display: none;
-  position: absolute;
-  top: 60px;
-  right: 10px;
-  background-color: #28A745;
+  .deleteProgramFooter .deleteProgram:hover {
+    background-color: #c82333;
+  }
+
+  .deleteProgramFooter button:not(.deleteProgram) {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+  }
+
+  .deleteProgramFooter button:not(.deleteProgram):hover {
+    background-color: #e9ecef;
+  }
+
+  /* Edit Form Styles */
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-control:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(46, 90, 146, 0.1);
+  }
+
+  .btn-primary {
+    background: var(--primary-color);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-hover);
+  }
+
+  .btn-light {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: #6c757d;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-light:hover {
+    background: #e9ecef;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .courses-table-container {
+      padding: 15px;
+      margin: 10px;
+    }
+    
+    .table-header {
+      flex-direction: column;
+      gap: 15px;
+      align-items: stretch;
+    }
+    
+    .action-buttons {
+      justify-content: center;
+    }
+  }
+  .btn-view-sessions {
+  display: inline-block;
+  background-color: #2E5A92;
   color: #fff;
-  width: 35px;
-  height: 35px;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
+  padding: 6px 14px;
   border: none;
-  }
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
 
-  .program-card:hover .edit {
-  display: flex;
-  }
-  </style>
+.btn-view-sessions:hover {
+  background-color: #23466e;
+}
 
-  <link rel="stylesheet" href="/css/admin/programs.css" />
+</style>
+
+<link rel="stylesheet" href="/css/admin/programs.css" />
+
+<div class="content">
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">
+    <a href="/admin/programs">Programs</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="/admin/programs/{{ program.ProgramID }}">{{ program.Name }}</a>
+  </li>
+  <li class="breadcrumb-item active" aria-current="page">
+    Courses
+  </li>
+</ol>
 
 
-
-  <div class="content">
-    <button class="add-button"><a style="color:white; text-decoration:none"
-        href="/admin/programss/{{program.ProgramID}}/courses/create">
-        Add Course </a></button>
-
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item" aria-current="page">Home</li>
-      <li class="breadcrumb-item" aria-current="page">Programs</li>
-      <li class="breadcrumb-item" aria-current="page">{{program.Name}}</li>
-      <li class="breadcrumb-item active" aria-current="page">Courses</li>
-    </ol>
-
-    <div class="programs-container">
-
-      {{#each courses}}
-      <div class="program-card">
-        <button type="button" onclick="openEditForm('{{this.CourseID}}')" class="edit">
-          <svg class="w-[28px] h-[28px] text-gray-800 dark:text-white" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
-          </svg>
-        </button>
-        <button type="button" onclick="openModal('modal-{{this.CourseID}}', {{../programId}})" class="delete"
-          data-target="#modal-{{this.CourseID}}">
-          <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256">
-            <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
-              stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0"
-              font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
-              <g transform="scale(8.53333,8.53333)">
-                <path
-                  d="M14.98438,2.48633c-0.55152,0.00862 -0.99193,0.46214 -0.98437,1.01367v0.5h-5.5c-0.26757,-0.00363 -0.52543,0.10012 -0.71593,0.28805c-0.1905,0.18793 -0.29774,0.44436 -0.29774,0.71195h-1.48633c-0.36064,-0.0051 -0.69608,0.18438 -0.87789,0.49587c-0.18181,0.3115 -0.18181,0.69676 0,1.00825c0.18181,0.3115 0.51725,0.50097 0.87789,0.49587h18c0.36064,0.0051 0.69608,-0.18438 0.87789,-0.49587c0.18181,-0.3115 0.18181,-0.69676 0,-1.00825c-0.18181,-0.3115 -0.51725,-0.50097 -0.87789,-0.49587h-1.48633c0,-0.26759 -0.10724,-0.52403 -0.29774,-0.71195c-0.1905,-0.18793 -0.44836,-0.29168 -0.71593,-0.28805h-5.5v-0.5c0.0037,-0.2703 -0.10218,-0.53059 -0.29351,-0.72155c-0.19133,-0.19097 -0.45182,-0.29634 -0.72212,-0.29212zM6,9l1.79297,15.23438c0.118,1.007 0.97037,1.76563 1.98438,1.76563h10.44531c1.014,0 1.86538,-0.75862 1.98438,-1.76562l1.79297,-15.23437z">
-                </path>
-              </g>
-            </g>
-          </svg>
-        </button>
-        <a href="/admin/programs/{{program.ProgramID}}/courses/{{this.CourseID}}" style="text-decoration: none;">
-          <div class="card-upper">
-            <h3>{{this.Name}}</h3>
-          </div>
-          <div class="card-lower">
-            <p>Sessions:
-              {{this.sessions.length}}</p>
-          </div>
+  <div class="courses-table-container">
+    <div class="table-header">
+      <h2 class="table-title">Course Management</h2>
+      <button class="add-button">
+        <i class="fas fa-plus"></i>
+        <a style="color:white; text-decoration:none" href="/admin/programss/{{program.ProgramID}}/courses/create">
+          Add Course
         </a>
-      </div>
+      </button>
+    </div>
 
-      <!-- Edit Form -->
-      <div class="overlay fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-        id="edit-form-{{this.CourseID}}" style="display: none;">
+    <table class="courses-table" id="coursesTable">
+      <thead>
+        <tr>
+          <th>Course Name</th>
+          <th>Sessions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each courses}}
+        <tr>
+          <td>
+            <a href="/admin/programs/{{../program.ProgramID}}/courses/{{this.CourseID}}" class="course-name-link">
+              <div class="course-name">{{this.Name}}</div>
+            </a>
+          </td>
+          <td>
+            <span class="sessions-badge">
+              <i class="fas fa-calendar-alt"></i>
+              {{this.sessions.length}}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <a href="/admin/programs/{{../program.ProgramID}}/courses/{{this.CourseID}}" class="btn-view-sessions" title="View Sessions">
+  View Sessions
+</a>
 
-        <div class="modal bg-white p-6 rounded-lg shadow-lg w-1/3">
-          <h2 class="text-xl font-bold mb-4">Edit Course</h2>
-          <form id="edit-course-form-{{this.CourseID}}"
-            onsubmit="submitEditForm(event, '{{this.CourseID}}', '{{../program.ProgramID}}')">
-            <div class="mb-4">
-              <label for="courseName" class="flex text-sm font-medium text-gray-700" style="display: flex;">Name</label>
-              <input type="text" name="Name" class="form-control mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                id="courseName-{{this.CourseID}}" value="{{this.Name}}" required />
+
+
+              <button type="button" onclick="openEditForm('{{this.CourseID}}')" class="btn-action btn-edit" title="Edit Course">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" onclick="openModal('modal-{{this.CourseID}}', {{../programId}})" class="btn-action btn-delete" title="Delete Course">
+                <i class="fas fa-trash"></i>
+              </button>
             </div>
-            <div class="flex justify-end">
-              <button class="btn btn-primary" type="submit">Update Course</button>
-              <button type="button" class="btn btn-light border"
-                onclick="closeEditForm('{{this.CourseID}}')">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
+          </td>
+        </tr>
 
-
-      <!-- The Modal -->
-      <div class="overlay" id="modal-{{this.CourseID}}">
-        <div class="modal">
-          <h2>Are You Sure?</h2>
-          <p>You are deleting the Course "{{this.Name}}". This action cannot be undone.</p>
-          <div class="deleteProgramFooter">
-            <button class="deleteProgram"
-              onclick="deleteCourse('{{this.CourseID}}', {{../program.ProgramID}})">Delete</button>
-            <button onclick="closeModal('modal-{{this.CourseID}}')">Cancel</button>
+        <!-- Edit Form Modal -->
+        <div class="overlay" id="edit-form-{{this.CourseID}}" style="display: none;">
+          <div class="modal">
+            <h2>Edit Course</h2>
+            <form id="edit-course-form-{{this.CourseID}}" onsubmit="submitEditForm(event, '{{this.CourseID}}', '{{../program.ProgramID}}')" style="width: 100%;">
+              <div style="margin-bottom: 20px; text-align: left;">
+                <label for="courseName-{{this.CourseID}}" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Course Name</label>
+                <input type="text" name="Name" class="form-control" id="courseName-{{this.CourseID}}" value="{{this.Name}}" required />
+              </div>
+              <div class="deleteProgramFooter">
+                <button class="btn-primary" type="submit">Update Course</button>
+                <button type="button" class="btn-light" onclick="closeEditForm('{{this.CourseID}}')">Cancel</button>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
-      {{/each}}
-    </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="overlay" id="modal-{{this.CourseID}}">
+          <div class="modal">
+            <h2>Are You Sure?</h2>
+            <p>You are deleting the Course "{{this.Name}}". This action cannot be undone.</p>
+            <div class="deleteProgramFooter">
+              <button class="deleteProgram" onclick="deleteCourse('{{this.CourseID}}', {{../program.ProgramID}})">Delete</button>
+              <button onclick="closeModal('modal-{{this.CourseID}}')">Cancel</button>
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </tbody>
+    </table>
   </div>
+</div>
+<script defer src="/js/admin/sinlgeProgramCourses.js"></script>
 
 
-  {{!
-  <script src="/js/admin/programs.js"></script> }}
+<script>
+  // Initialize DataTable
+  
 
-  <script>
-    function openModal(id) {
-      document.getElementById(id).style.display = 'flex';
-    }
+  // Original JavaScript functions - keeping all functionality intact
+  function openModal(id) {
+    document.getElementById(id).style.display = 'flex';
+  }
 
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
+  function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
 
-    function deleteCourse(courseId, programId) {
-      fetch(`/admin/programs/${programId}/courses/${courseId}`, { method: 'DELETE' })
-        .then(response => response.json())
-        .then(() => {
-          alert('Successfully deleted!');
-          location.reload();
-        })
-        .catch(error => {
-          console.error('Error deleting course:', error);
-          alert('Failed to delete course.');
-        });
-
-      closeModal(id);
-    }
-
-
-    function openEditForm(courseId) {
-      console.log('Opening edit form for course:', courseId);
-      document.getElementById('edit-form-' + courseId).style.display = 'block';
-    }
-
-    function closeEditForm(courseId) {
-      console.log('Closing edit form for course:', courseId);
-      document.getElementById('edit-form-' + courseId).style.display = 'none';
-    }
-
-    function submitEditForm(event, courseId, programId) {
-      event.preventDefault();
-      const form = document.getElementById('edit-course-form-' + courseId);
-      const formData = new FormData(form);
-      const data = {};
-      formData.forEach((value, key) => {
-        data[key] = value;
+  function deleteCourse(courseId, programId) {
+    fetch(`/admin/programs/${programId}/courses/${courseId}`, { method: 'DELETE' })
+      .then(response => response.json())
+      .then(() => {
+        alert('Successfully deleted!');
+        location.reload();
+      })
+      .catch(error => {
+        console.error('Error deleting course:', error);
+        alert('Failed to delete course.');
       });
 
-      fetch(`/admin/programs/${programId}/courses/${courseId}/edit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-        .then(response => {
-          if (response.ok) {
-            alert('Successfully updated!');
-            location.reload();
-          } else {
-            alert('Failed to update course.');
-          }
-        })
-        .catch(error => {
-          console.error('Error updating course:', error);
+    closeModal(`modal-${courseId}`);
+  }
+
+  function openEditForm(courseId) {
+    console.log('Opening edit form for course:', courseId);
+    document.getElementById('edit-form-' + courseId).style.display = 'flex';
+  }
+
+  function closeEditForm(courseId) {
+    console.log('Closing edit form for course:', courseId);
+    document.getElementById('edit-form-' + courseId).style.display = 'none';
+  }
+
+  function submitEditForm(event, courseId, programId) {
+    event.preventDefault();
+    const form = document.getElementById('edit-course-form-' + courseId);
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+
+    fetch(`/admin/programs/${programId}/courses/${courseId}/edit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(response => {
+        if (response.ok) {
+          alert('Successfully updated!');
+          location.reload();
+        } else {
           alert('Failed to update course.');
-        });
-    }
-  </script>
+        }
+      })
+      .catch(error => {
+        console.error('Error updating course:', error);
+        alert('Failed to update course.');
+      });
+  }
+</script>
