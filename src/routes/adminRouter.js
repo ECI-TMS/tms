@@ -1410,6 +1410,7 @@ router.get("/trainers", async (req, res) => {
 }
 
 
+
     res.render("admin/trainers", { var_trainers: allTrainers });
   } catch (error) {
     
