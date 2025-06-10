@@ -151,4 +151,66 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+
+// DELETE route for deleting a participant
+router.delete("/deleteParticipant/:id", async (req, res) => {
+  try {
+    const participantId = req.params.id;
+
+    // First check if the participant exists
+    const existingParticipant = await prisma.participant.findUnique({
+      where: {
+        id: +participantId,
+      },
+    });
+
+    if (!existingParticipant) {
+      return res.status(404).json({ 
+        message: "Participant not found",
+        success: false 
+      });
+    }
+
+    // Delete the participant
+    const deletedParticipant = await prisma.participant.delete({
+      where: {
+        id: +participantId,
+      },
+    });
+
+    // Return success response
+    res.status(200).json({
+      message: "Participant deleted successfully",
+      success: true,
+      deletedParticipant: deletedParticipant
+    });
+
+  } catch (error) {
+    console.error("Error deleting participant:", error);
+    
+    // Handle specific Prisma errors
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        message: "Participant not found or already deleted",
+        success: false
+      });
+    }
+
+    // Handle foreign key constraint errors (if participant is referenced elsewhere)
+    if (error.code === 'P2003') {
+      return res.status(400).json({
+        message: "Cannot delete participant: participant is referenced in other records",
+        success: false
+      });
+    }
+
+    // Generic error response
+    res.status(500).json({
+      message: "Internal server error while deleting participant",
+      success: false,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 export default router;
