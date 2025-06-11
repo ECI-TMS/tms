@@ -13,17 +13,14 @@ body {
 }
 
 .header {
-  overflow: auto;
-  position: relative;
-  width: 100%;
-  background-color: #2e5a92;
-  padding: 5px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  border: 1px solid transparent;
-  z-index: 50;
-  color: #fff;
+  align-items: center;
+  padding: 1rem;
+  background-color: #2e5a92;
+  color: white;
+  position: relative;
+  overflow: visible;
 }
 
 .header h1 {
@@ -138,4 +135,93 @@ body {
 .logo {
   height: 40px; /* Set the height of the logo according to your design */
   margin-right: 20px;
+}
+
+.profile-dropdown {
+  position: relative;
+  z-index: 1000;
+  min-width: 280px;
+}
+
+.profile-dropdown .dropdown-menu {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  min-width: 280px;
+  padding: 8px 0;
+  background: #2e5a92;
+  border: 2px solid rgba(255, 255, 255, 0.33);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 0;
+}
+
+.btn.dropdown-toggle {
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+  background: transparent !important;
+  border: 2px solid rgba(255, 255, 255, 0.33) !important;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn.dropdown-toggle .d-flex {
+  flex: 1;
+}
+
+.btn.dropdown-toggle .username {
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.btn.dropdown-toggle small {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  color: white !important;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.33);
+  margin: 0.5rem 0;
+}
+
+.dropdown-toggle::after {
+  color: white;
+  margin-left: 12px;
+  border-top: 0.3em solid;
+  border-right: 0.3em solid transparent;
+  border-bottom: 0;
+  border-left: 0.3em solid transparent;
+  vertical-align: middle;
+}
+
+/* Animation for dropdown */
+.dropdown-menu.show {
+  animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

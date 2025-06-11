@@ -79,6 +79,7 @@
       <tr>
         <th>ID</th>
         <th>Name</th>
+        <th>Email</th>
         <th>Program</th>
         <th>Actions</th>
       </tr>
@@ -88,6 +89,7 @@
       <tr>
         <td>{{this.UserID}}</td>
         <td>{{this.Username}}</td>
+        <td>{{this.Email}}</td>
         <td>{{#if this.program}}{{this.program.Name}}{{else}}—{{/if}}</td>
         <td>
           <button class="action-btn" onclick="deleteMonitor('{{this.UserID}}', '{{this.Username}}')">Delete</button>

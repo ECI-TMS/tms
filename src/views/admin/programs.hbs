@@ -121,6 +121,9 @@
         <th>Program ID</th>
         <th>Name</th>
         <th>Donor</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Category</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -134,6 +137,10 @@
           </a>
         </td>
         <td>{{this.thirdparty.Name}}</td>
+        <td>{{this.Startdate}}</td>
+        <td>{{this.EndDate}}</td>
+        <td>{{this.Category}}</td>
+
         <td>
           <div class="action-btns">
             <a href="/admin/programs/{{this.ProgramID}}">View Courses</a>

@@ -8,12 +8,39 @@
 //     window.location.href = "/";
 //   }
 // }
-const button = document
-  .getElementById("logout")
-  .addEventListener("click", () => {
-    localStorage.removeItem("user");
-    window.location.href = "/";
+
+// Get user data from localStorage
+const userData = JSON.parse(localStorage.getItem('user'));
+
+// Update profile information
+if (userData) {
+  // Update username
+  const userDisplayName = document.getElementById('userDisplayName');
+  if (userDisplayName) {
+    userDisplayName.textContent = userData.Username;
+  }
+
+  // Update email
+  const userEmail = document.getElementById('userEmail');
+  if (userEmail) {
+    userEmail.textContent = userData.Email;
+  }
+
+  // Update profile picture if exists
+  const userProfilePic = document.getElementById('userProfilePic');
+  if (userProfilePic && userData.ProfilePicture) {
+    userProfilePic.src = userData.ProfilePicture;
+  }
+}
+
+// Handle logout
+const logoutButton = document.getElementById('logout');
+if (logoutButton) {
+  logoutButton.addEventListener('click', () => {
+    localStorage.removeItem('user');
+    window.location.href = '/';
   });
+}
 
 function toggleSidebar() {
   const sidebar = document.querySelector(".sidebar");
