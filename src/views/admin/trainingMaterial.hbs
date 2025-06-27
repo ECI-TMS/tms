@@ -23,7 +23,7 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Type</th>
+            <th>Name</th>
             <th>File</th>
           </tr>
         </thead>
@@ -31,8 +31,11 @@
           {{#each materials}}
           <tr>
             <td>{{this.MaterialID}}</td>
-            <td>{{this.DocumentType}}</td>
-            <td><a download="true" href="{{this.FilePath}}"><i class="fa-solid fa-download text-success" aria-hidden="true"></a></td>
+            <td>{{this.Title}}</td>
+            <td><a download="{{this.Title}}" href="{{this.FilePath}}">
+  <i class="fa-solid fa-download text-success" aria-hidden="true"></i>
+</a>
+</td>
           </tr>
           {{/each}}
         </tbody>

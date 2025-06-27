@@ -162,9 +162,7 @@ router.post("/upload/documents", async (req, res) => {
 });
 
 router.post("/session/:id/materials/create", async (req, res) => {
-  
   const id = req.params.id
-
   // Get the file from the request
   const files = req.files;
 
@@ -174,7 +172,7 @@ router.post("/session/:id/materials/create", async (req, res) => {
 
   try {
     const {programId}  = req.body
-    
+        
     // Create the program-specific directory if it doesn't exist
     const materialsDirectory = join(uploadsDirectory, "materials");
     const sessionDirectory = join(materialsDirectory, `${id}`);
@@ -192,22 +190,30 @@ router.post("/session/:id/materials/create", async (req, res) => {
     if (!fs.existsSync(sessionDirectory)) {
       fs.mkdirSync(sessionDirectory, { recursive: true });
     }
+      
+    let file = files.file
+    console.log("🚀 ~ router.post ~ file:", files.file)
+    
+    const FilePath = join(sessionDirectory, file.name);
+    file.mv(FilePath);
+    const path = FilePath.split(process.cwd())[1].replace("\\public", "");
+    console.log(`=====================================`);
+    console.log(path)
+    console.log(`=====================================`);
 
-      let file = files.file
-      console.log("🚀 ~ router.post ~ file:", files.file)
-      const FilePath = join(sessionDirectory, file.name);
-      file.mv(FilePath);
-      const path = FilePath.split(process.cwd())[1].replace("\\public", "");
-const title = file.name.split(".")[0]
-      const data = await prisma.materials.create({
-        data: {
-          FilePath: path,
-          SessionID: +id,
-          ProgramID:+programId,
-          DocumentType: file.mimetype,
-          Title: title
-        },
-      });
+    // Extract the file extension from the path
+    const extension = path.split('.').pop();
+    const title = file.name.split(".")[0] + '.' + extension;
+
+    const data = await prisma.materials.create({
+      data: {
+        FilePath: path,
+        SessionID: +id,
+        ProgramID: +programId,
+        DocumentType: file.mimetype,
+        Title: title
+      },
+    });
 
     res.json({ redirectTo: `/admin/session/${id}/materials` });
   } catch (error) {
