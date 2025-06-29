@@ -162,6 +162,7 @@ model programs {
   ProgramUsers         ProgramUsers[]
   Feedback             Feedback[]
   materials            materials[]
+  adminDocs            admin_docs[]
 }
 
 model report {
@@ -292,6 +293,7 @@ model trainingsessions {
   progresstracking   progresstracking[]
   thirdpartytracking thirdpartytracking[]
   programs           programs?            @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Restrict)
+  adminDocs          admin_docs[]
 
   users_trainingsessions_TrainerIDTousers users?         @relation("trainingsessions_TrainerIDTousers", fields: [TrainerID], references: [UserID], onDelete: Cascade, onUpdate: Restrict)
   users_trainingsessions_MonitorIDTousers users?         @relation("trainingsessions_MonitorIDTousers", fields: [MonitorID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
@@ -390,4 +392,15 @@ model student_deliverables {
 
   createdAt    DateTime     @default(now())
   deliverables deliverables @relation(fields: [deliverable_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+}
+
+model admin_docs {
+  id         Int               @id @default(autoincrement())
+  sessionId  Int
+  programId  Int
+  filename   String            @db.VarChar(255)
+  filepath   String?           @db.VarChar(255)
+  createdAt  DateTime          @default(now())
+  session    trainingsessions  @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
+  program    programs          @relation(fields: [programId], references: [ProgramID], onDelete: Cascade)
 }
