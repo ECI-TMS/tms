@@ -851,6 +851,161 @@ router.get("/session/:id/documents", async (req, res) => {
   }
 });
 
+// New route to handle file uploads for session documents
+router.post("/session/:sessionId/documents/upload", async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const { programId } = req.body;
+    const file = req.files?.file;
+
+    // Validate required fields
+    if (!file || !programId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "File and program ID are required" 
+      });
+    }
+
+    // Get session to validate it exists
+    const session = await prisma.trainingsessions.findFirst({
+      where: {
+        SessionID: +sessionId,
+      },
+    });
+
+    if (!session) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Session not found" 
+      });
+    }
+
+    // Create adminDocs directory if it doesn't exist
+    const adminDocsPath = path.join(process.cwd(), 'public', 'adminDocs');
+    if (!fs.existsSync(adminDocsPath)) {
+      fs.mkdirSync(adminDocsPath, { recursive: true });
+    }
+
+    // Generate unique filename
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const originalName = file.name;
+    const fileExtension = path.extname(originalName);
+    const fileName = `admin-doc-${uniqueSuffix}${fileExtension}`;
+    
+    // Save file to adminDocs folder
+    const filePath = path.join(adminDocsPath, fileName);
+    await file.mv(filePath);
+
+    // Create relative path for database storage
+    const relativePath = `/adminDocs/${fileName}`;
+
+    // Save document info to database
+    const savedDocument = await prisma.admin_docs.create({
+      data: {
+        sessionId: +sessionId,
+        programId: +programId,
+        filename: originalName,
+        filepath: relativePath,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "File uploaded successfully",
+      document: {
+        id: savedDocument.id,
+        filename: savedDocument.filename,
+        filepath: savedDocument.filepath,
+        createdAt: savedDocument.createdAt
+      }
+    });
+
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error",
+      error: error.message 
+    });
+  }
+});
+
+// Route to get all admin documents for a session
+router.get("/session/:sessionId/documents/admin", async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    const adminDocuments = await prisma.admin_docs.findMany({
+      where: {
+        sessionId: +sessionId,
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    res.json({
+      success: true,
+      documents: adminDocuments
+    });
+
+  } catch (error) {
+    console.error("Error fetching admin documents:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error",
+      error: error.message 
+    });
+  }
+});
+
+// Route to delete admin document
+router.delete("/session/:sessionId/documents/admin/:documentId", async (req, res) => {
+  try {
+    const { documentId } = req.params;
+    
+    // Get document info before deletion
+    const document = await prisma.admin_docs.findUnique({
+      where: {
+        id: +documentId
+      }
+    });
+
+    if (!document) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Document not found" 
+      });
+    }
+
+    // Delete file from filesystem
+    const filePath = path.join(process.cwd(), 'public', document.filepath);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    // Delete from database
+    await prisma.admin_docs.delete({
+      where: {
+        id: +documentId
+      }
+    });
+
+    res.json({
+      success: true,
+      message: "Document deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error",
+      error: error.message 
+    });
+  }
+});
+
 router.get("/program/:programId/course/:courseId/session/:id/materials", async (req, res) => {
   try {
     const materials = await prisma.materials.findMany({
