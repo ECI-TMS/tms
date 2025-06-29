@@ -630,9 +630,9 @@ router.get("/program/:programId/course/:courseId/sessions/:id", async (req, res)
       },
     });
 
-    const documents = await prisma.documents.count({
+    const documents = await prisma.admin_docs.count({
       where: {
-        SessionID: +id,
+        sessionId: +id,
       },
     });
     const quizes = await prisma.Quiz.count({
