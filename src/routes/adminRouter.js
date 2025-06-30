@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { log } from "console";
 import multer from 'multer';
+import xlsx from "xlsx";
 
 const router = Router();
 
@@ -1455,6 +1456,48 @@ router.get("/program/:programId/course/:courseId/session/:sessionId/participant"
     res.render("admin/participants", { participants: data, sessions,programId,courseId,sessionId });
   } catch (error) {
     res.status(400).json({ error });
+  }
+});
+
+router.post("/participant/bulk", async (req, res) => {
+  try {
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ error: 'No files were uploaded.' });
+    }
+
+    const excelFile = req.files.file;
+    const workbook = xlsx.read(excelFile.data, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const participantsData = xlsx.utils.sheet_to_json(sheet);
+
+    const participantsToCreate = participantsData.map(row => {
+      if(!row.name || !row.cnic || !row.email || !row.contact || !row.sessionId || !row.program_id) {
+        throw new Error('Excel file is missing required columns: name, cnic, email, contact, sessionId, program_id');
+      }
+      return {
+          name: row.name,
+          cnic: String(row.cnic),
+          email: row.email,
+          contact: String(row.contact),
+          sessionId: +row.sessionId,
+          program_id: +row.program_id,
+      }
+    });
+
+    if (participantsToCreate.length === 0) {
+      return res.status(400).json({ error: "No participants found in the Excel file." });
+    }
+
+    await prisma.participant.createMany({
+      data: participantsToCreate,
+      skipDuplicates: true, 
+    });
+
+    res.status(200).json({ message: `${participantsToCreate.length} participants imported successfully!` });
+  } catch (error) {
+    console.error("Error creating bulk participants:", error);
+    res.status(500).json({ error: error.message || "Failed to create participants in bulk." });
   }
 });
 
