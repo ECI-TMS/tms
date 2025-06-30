@@ -1523,7 +1523,7 @@ router.post("/participant/bulk", async (req, res) => {
       createdCount++;
     }
 
-    res.status(200).json({ message: `Import complete. ${createdCount} participants imported, ${skippedCount} skipped.` });
+    res.status(200).json({ message: `Import complete. ${createdCount} participants imported, ${skippedCount} duplicate entry  skipped.` });
   } catch (error) {
     console.error("Error creating bulk participants:", error);
     res.status(500).json({ error: error.message || "Failed to create participants in bulk." });
