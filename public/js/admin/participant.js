@@ -73,7 +73,7 @@ $(document).ready(function() {
         const result = await response.json();
   
         if (response.ok) {
-          alert('participant imported successfully');
+          alert(result.message);
           $('#fileDialog').modal('hide');
           location.reload();
         } else {

@@ -1471,30 +1471,59 @@ router.post("/participant/bulk", async (req, res) => {
     const sheet = workbook.Sheets[sheetName];
     const participantsData = xlsx.utils.sheet_to_json(sheet);
 
-    const participantsToCreate = participantsData.map(row => {
-      if(!row.name || !row.cnic || !row.email || !row.contact || !row.sessionId || !row.program_id) {
-        throw new Error('Excel file is missing required columns: name, cnic, email, contact, sessionId, program_id');
-      }
-      return {
-          name: row.name,
-          cnic: String(row.cnic),
-          email: row.email,
-          contact: String(row.contact),
-          sessionId: +row.sessionId,
-          program_id: +row.program_id,
-      }
-    });
+    let createdCount = 0;
+    let skippedCount = 0;
 
-    if (participantsToCreate.length === 0) {
-      return res.status(400).json({ error: "No participants found in the Excel file." });
+    for (const row of participantsData) {
+      if(!row.name || !row.cnic || !row.email || !row.contact || !row.sessionId || !row.program_id) {
+        skippedCount++;
+        continue;
+      }
+      
+      const trimmedEmail = row.email.trim().toLowerCase();
+      const existingUsers = await prisma.$queryRaw`SELECT * FROM users WHERE LOWER(Email) = ${trimmedEmail}`;
+      const existingUser = existingUsers[0] || null;
+
+      if (existingUser) {
+        skippedCount++;
+        continue; 
+      }
+
+      const hashedPassword = await hash(String(row.cnic), 10);
+      const newUser = await prisma.users.create({
+        data: {
+          Username: row.name,
+          Password: hashedPassword,
+          Email: row.email,
+          UserType: UserType.STUDENT,
+          SessionID: String(row.sessionId),
+          ProgramID: String(row.program_id)
+        },
+      });
+
+      await prisma.participant.create({
+        data: {
+            name: row.name,
+            cnic: String(row.cnic),
+            email: row.email,
+            contact: String(row.contact),
+            sessionId: +row.sessionId,
+            program_id: +row.program_id,
+        }
+      });
+
+      await prisma.programUsers.create({
+        data: {
+          UserID: newUser.UserID,
+          ProgramID: +row.program_id,
+          SessionID: +row.sessionId,
+        },
+      });
+
+      createdCount++;
     }
 
-    await prisma.participant.createMany({
-      data: participantsToCreate,
-      skipDuplicates: true, 
-    });
-
-    res.status(200).json({ message: `${participantsToCreate.length} participants imported successfully!` });
+    res.status(200).json({ message: `Import complete. ${createdCount} participants imported, ${skippedCount} skipped.` });
   } catch (error) {
     console.error("Error creating bulk participants:", error);
     res.status(500).json({ error: error.message || "Failed to create participants in bulk." });
