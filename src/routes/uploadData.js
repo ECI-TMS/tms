@@ -175,7 +175,7 @@ router.post("/session/:id/materials/create", async (req, res) => {
         
     // Create the program-specific directory if it doesn't exist
     const materialsDirectory = join(uploadsDirectory, "materials");
-    const sessionDirectory = join(materialsDirectory, `${id}`);
+    const sessionDirectory = join(materialsDirectory, `folder_${id}`);
 
     if (!fs.existsSync(uploadsDirectory)) {
       fs.mkdirSync(uploadsDirectory, { recursive: true });
