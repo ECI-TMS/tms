@@ -175,7 +175,7 @@ router.post("/session/:id/materials/create", async (req, res) => {
         
     // Create the program-specific directory if it doesn't exist
     const materialsDirectory = join(uploadsDirectory, "materials");
-    const sessionDirectory = join(materialsDirectory, `folder_${id}`);
+    const sessionDirectory = join(materialsDirectory, `${id}`);
 
     if (!fs.existsSync(uploadsDirectory)) {
       fs.mkdirSync(uploadsDirectory, { recursive: true });
@@ -196,7 +196,15 @@ router.post("/session/:id/materials/create", async (req, res) => {
     
     const FilePath = join(sessionDirectory, file.name);
     file.mv(FilePath);
-    const path = FilePath.split(process.cwd())[1].replace("\\public", "");
+    // Ensure the path uses forward slashes and starts with /uploads/materials/...
+    let path = FilePath.split(process.cwd())[1].replace(/\\/g, "/");
+    if (!path.startsWith("/uploads/materials/")) {
+      // Ensure path starts with /uploads/materials/
+      const idx = path.indexOf("/uploads/materials/");
+      if (idx !== -1) {
+        path = path.substring(idx);
+      }
+    }
     console.log(`=====================================`);
     console.log(path)
     console.log(`=====================================`);
