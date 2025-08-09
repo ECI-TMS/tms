@@ -207,6 +207,7 @@ model Participant {
   program_id Int
   session    trainingsessions @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
   program    programs         @relation(fields: [program_id], references: [ProgramID], onDelete: Cascade)
+  user       users?
 }
 
 model Quiz {
@@ -294,8 +295,9 @@ model trainingsessions {
   thirdpartytracking thirdpartytracking[]
   programs           programs?            @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Restrict)
   adminDocs          admin_docs[]
+  users              users[]
 
-  users_trainingsessions_TrainerIDTousers users?         @relation("trainingsessions_TrainerIDTousers", fields: [TrainerID], references: [UserID], onDelete: Cascade, onUpdate: Restrict)
+  users_trainingsessions_TrainerIDTousers users?         @relation("trainingsessions_TrainerIDTousers", fields: [TrainerID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
   users_trainingsessions_MonitorIDTousers users?         @relation("trainingsessions_MonitorIDTousers", fields: [MonitorID], references: [UserID], onDelete: Restrict, onUpdate: Restrict)
   // A TrainingSession can have multiple quizzes
   quizzes                                 Quiz[]
@@ -324,12 +326,13 @@ model users {
   Email            String             @db.VarChar(255)
   FirstName        String?            @db.VarChar(255)
   userData         String?            @db.VarChar(255)
-  SessionID        String?            @db.VarChar(255)
+  SessionID        Int?
   ProgramID        String?            @db.VarChar(255)
   LastName         String?            @db.VarChar(255)
   ProfilePicture   String?            @db.VarChar(255)
   ContactNumber    String?            @db.VarChar(255)
   UserType         UserType           @default(STUDENT)
+  ParticipantID    Int?               @unique
   documents        documents[]
   marks            marks[]
   notifications    notifications[]
@@ -337,12 +340,14 @@ model users {
 
   trainingsessions_trainingsessions_TrainerIDTousers trainingsessions[] @relation("trainingsessions_TrainerIDTousers")
   trainingsessions_trainingsessions_MonitorIDTousers trainingsessions[] @relation("trainingsessions_MonitorIDTousers")
+  session                                            trainingsessions?  @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade)
   client                                             client?
   submitedReport                                     submitedReport[]
   ProgramUsers                                       ProgramUsers[]
   Feedback                                           Feedback[]
   FeedbackResponse                                   FeedbackResponse[]
   deliverables                                       deliverables[]
+  participant                                        Participant?       @relation(fields: [ParticipantID], references: [id], onDelete: Cascade, onUpdate: Restrict)
 }
 
 model client {
@@ -358,7 +363,7 @@ model ProgramUsers {
   UserID    Int
   program   programs         @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade)
   session   trainingsessions @relation(fields: [SessionID], references: [SessionID], onDelete: Cascade)
-  user      users            @relation(fields: [UserID], references: [UserID])
+  user      users            @relation(fields: [UserID], references: [UserID], onDelete: Cascade)
 
   @@id([ProgramID, UserID, SessionID])
 }
@@ -395,12 +400,12 @@ model student_deliverables {
 }
 
 model admin_docs {
-  id         Int               @id @default(autoincrement())
-  sessionId  Int
-  programId  Int
-  filename   String            @db.VarChar(255)
-  filepath   String?           @db.VarChar(255)
-  createdAt  DateTime          @default(now())
-  session    trainingsessions  @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
-  program    programs          @relation(fields: [programId], references: [ProgramID], onDelete: Cascade)
+  id        Int              @id @default(autoincrement())
+  sessionId Int
+  programId Int
+  filename  String           @db.VarChar(255)
+  filepath  String?          @db.VarChar(255)
+  createdAt DateTime         @default(now())
+  session   trainingsessions @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
+  program   programs         @relation(fields: [programId], references: [ProgramID], onDelete: Cascade)
 }

@@ -112,13 +112,14 @@
 
 <div class="content">
   <button class="add-button">
-    <a style="color:white; text-decoration:none" href="/admin/program/create">Add Project</a>
+    <a style="color:white; text-decoration:none" href="/admin/program/create">Add Project </a>
   </button>
 
   <table id="programsTable">
     <thead>
       <tr>
-        <th>Project ID</th>
+        <th>S NO</th>
+        {{!-- <th>Project ID</th> --}}
         <th>Name</th>
         <th>Donor</th>
         <th>Start Date</th>
@@ -130,7 +131,8 @@
     <tbody>
       {{#each programs}}
       <tr>
-        <td>{{this.ProgramID}}</td>
+        <td>{{incrementIndex @index}}</td>
+        {{!-- <td>{{this.ProgramID}}</td> --}}
         <td>
           <a href="/admin/programs/{{this.ProgramID}}" style="color: #2E5A92; text-decoration: none; font-weight: bold;">
             {{this.Name}}

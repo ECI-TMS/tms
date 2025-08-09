@@ -1496,12 +1496,13 @@ router.post("/participant/bulk", async (req, res) => {
           Password: hashedPassword,
           Email: row.email,
           UserType: UserType.STUDENT,
-          SessionID: String(row.sessionId),
-          ProgramID: String(row.program_id)
+          SessionID: +row.sessionId,
+          ProgramID: String(row.program_id),
+          
         },
       });
 
-      await prisma.participant.create({
+       const participantData = await prisma.participant.create({
         data: {
             name: row.name,
             cnic: String(row.cnic),
@@ -1510,6 +1511,11 @@ router.post("/participant/bulk", async (req, res) => {
             sessionId: +row.sessionId,
             program_id: +row.program_id,
         }
+      });
+
+      await prisma.users.update({
+        where: { UserID: newUser.UserID },
+        data: { ParticipantID: participantData.id }
       });
 
       await prisma.programUsers.create({

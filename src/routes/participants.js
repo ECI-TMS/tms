@@ -8,7 +8,7 @@ import { existsSync, unlinkSync } from "fs";
 import prisma from "../lib/db.js";
 
 const router = Router();
-
+// ================================================>
 router.post("/create", async (req, res) => {
   const { name, cnic, email, contact, sessionId ,program_id,course_id } = req.body;
 
@@ -50,8 +50,9 @@ router.post("/create", async (req, res) => {
         Password: hashedPassword,
         Email: email,
         UserType: UserType.STUDENT,
-        SessionID: sessionId,
-        ProgramID: `${program.ProgramID}`
+        SessionID: +sessionId,
+        ProgramID: `${program.ProgramID}`,
+        ParticipantID: +data.id
       },
     });
 
@@ -102,7 +103,7 @@ router.post("/create-bulk", async (req, res) => {
         });
 
         result.Sheet1.map(async (item) => {
-          await prisma.Participant.create({
+         let participantData = await prisma.Participant.create({
             data: {
               name: item.name,
               cnic: String(item.cnic),
@@ -118,6 +119,7 @@ router.post("/create-bulk", async (req, res) => {
               Password: hashedPassword,
               Email: item.email,
               SessionID: +item.sessiod,
+              ParticipantID: +participantData.id 
             },
           });
         });
