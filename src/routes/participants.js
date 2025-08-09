@@ -171,6 +171,17 @@ router.delete("/deleteParticipant/:id", async (req, res) => {
       });
     }
 
+    // Delete the user by matching email with participant email
+    const user = await prisma.users.findFirst({
+      where: { Email: existingParticipant.email },
+    });
+
+    if (user) {
+      // Clean ProgramUsers first to satisfy FK constraint, then delete the user
+      await prisma.programUsers.deleteMany({ where: { UserID: user.UserID } });
+      await prisma.users.delete({ where: { UserID: user.UserID } });
+    }
+
     // Delete the participant
     const deletedParticipant = await prisma.participant.delete({
       where: {
