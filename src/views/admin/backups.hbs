@@ -1,0 +1,522 @@
+{{!< dashboard}}
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px;
+  }
+
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(46, 90, 146, 0.1);
+    border-left: 5px solid #2E5A92;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2E5A92;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .title-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+  }
+
+  .generate-button {
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(46, 90, 146, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .generate-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 90, 146, 0.4);
+    background: linear-gradient(135deg, #4a7bc8, #2E5A92);
+  }
+
+  .generate-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(46, 90, 146, 0.1);
+    border: 1px solid rgba(46, 90, 146, 0.1);
+  }
+
+  .table-header {
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    padding: 20px 25px;
+    color: white;
+  }
+
+  .table-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .table-subtitle {
+    opacity: 0.9;
+    font-size: 14px;
+  }
+
+  #backupsTable {
+    width: 100% !important;
+    border-collapse: collapse;
+    background: white;
+    margin: 0 !important;
+  }
+
+  #backupsTable thead {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  }
+
+  #backupsTable th {
+    padding: 18px 20px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    color: #2E5A92 !important;
+    font-size: 14px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(46, 90, 146, 0.1) !important;
+    background: none !important;
+  }
+
+  #backupsTable td {
+    padding: 16px 20px !important;
+    border-bottom: 1px solid #f1f3f4 !important;
+    color: #495057 !important;
+    font-size: 14px !important;
+    vertical-align: middle !important;
+  }
+
+  #backupsTable tbody tr {
+    transition: all 0.2s ease;
+    background: white !important;
+  }
+
+  #backupsTable tbody tr:nth-child(odd) {
+    background: #f8f9fa !important;
+  }
+
+  #backupsTable tbody tr:hover {
+    background: rgba(46, 90, 146, 0.05) !important;
+    transform: scale(1.001);
+  }
+
+  .backup-id {
+    font-weight: 600;
+    color: #2E5A92;
+    background: rgba(46, 90, 146, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  .backup-filename {
+    font-weight: 600;
+    color: #2E5A92;
+  }
+
+  .backup-description {
+    font-size: 13px;
+    color: #6c757d;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .backup-size {
+    font-weight: 600;
+    color: #495057;
+  }
+
+  .backup-date {
+    font-size: 13px;
+    color: #6c757d;
+  }
+
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .status-completed {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+  }
+
+  .status-pending {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+    color: white;
+  }
+
+  .status-failed {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+    color: white;
+  }
+
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+    margin-right: 5px;
+  }
+
+  .download-btn {
+    background: rgba(46, 90, 146, 0.1);
+    color: #2E5A92;
+    border: 1px solid rgba(46, 90, 146, 0.2);
+  }
+
+  .download-btn:hover {
+    background: #2E5A92;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(46, 90, 146, 0.3);
+  }
+
+  .delete-btn {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+  }
+
+  .delete-btn:hover {
+    background: #dc3545;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  }
+
+  /* Modal Styles */
+  .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    color: white;
+    padding: 20px 25px;
+    border-bottom: none;
+  }
+
+  .modal-title {
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .btn-close {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    opacity: 1;
+  }
+
+  .btn-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .modal-body {
+    padding: 30px;
+    background: #f8f9fa;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #2E5A92;
+    margin-bottom: 8px;
+  }
+
+  .form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .form-control:focus {
+    border-color: #2E5A92;
+    box-shadow: 0 0 0 3px rgba(46, 90, 146, 0.1);
+    outline: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(46, 90, 146, 0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 90, 146, 0.4);
+    background: linear-gradient(135deg, #4a7bc8, #2E5A92);
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+  }
+
+  /* Loading animation */
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* DataTables Custom Styling */
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate {
+    padding: 20px 25px;
+  }
+
+  .dataTables_wrapper .dataTables_filter input {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-left: 10px;
+  }
+
+  .dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #2E5A92;
+    outline: none;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #495057;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 0 2px;
+    transition: all 0.2s ease;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button:hover,
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #2E5A92 !important;
+    color: white !important;
+    border-color: #2E5A92 !important;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 15px;
+    }
+    
+    .header-section {
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
+    
+    .generate-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<div class="container">
+  <div class="header-section">
+    <div class="page-title">
+      <div class="title-icon">💾</div>
+      Backup Management
+    </div>
+    <button
+      class="generate-button"
+      data-bs-toggle="modal"
+      data-bs-target="#generateBackupModal"
+      id="generateBtn"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+      </svg>
+      Generate Backup
+    </button>
+  </div>
+
+  <div class="table-container">
+    <div class="table-header">
+      <div class="table-title">System Backups</div>
+      <div class="table-subtitle">Database and file backups for disaster recovery</div>
+    </div>
+
+    <table id="backupsTable" class="table table-striped">
+      <thead>
+        <tr>
+          <th>S NO</th>
+          <th>Backup ID</th>
+          <th>Filename</th>
+          <th>Description</th>
+          <th>Size</th>
+          <th>Created</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each backups}}
+          <tr data-backup-id="{{id}}">
+            <td>{{incrementIndex @index}}</td>
+            <td><span class="backup-id">#{{id}}</span></td>
+            <td><span class="backup-filename">{{filename}}</span></td>
+            <td><span class="backup-description" title="{{description}}">{{description}}</span></td>
+            <td><span class="backup-size">{{formatFileSize filesize}}</span></td>
+            <td><span class="backup-date">{{formatDate createdAt}}</span></td>
+            <td><span class="status-badge status-{{status}}">{{status}}</span></td>
+            <td>
+              <button class="action-btn download-btn" title="Download Backup" onclick="downloadBackup({{id}})">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                </svg>
+              </button>
+              <button class="action-btn delete-btn" title="Delete Backup" onclick="deleteBackup({{id}})">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Generate Backup Modal -->
+<div class="modal fade" id="generateBackupModal" tabindex="-1" aria-labelledby="generateBackupModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="generateBackupModalLabel">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+          </svg>
+          Generate New Backup
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="generateBackupForm">
+          <div class="mb-3">
+            <label for="backupDescription" class="form-label">Backup Description (Optional)</label>
+            <textarea
+              class="form-control"
+              id="backupDescription"
+              name="description"
+              rows="3"
+              placeholder="Enter a description for this backup..."
+            ></textarea>
+          </div>
+          
+          <div class="alert alert-info">
+            <strong>What will be included:</strong>
+            <ul class="mb-0 mt-2">
+              <li>Complete database export (SQL)</li>
+              <li>All public folder contents</li>
+              <li>Compressed ZIP archive</li>
+            </ul>
+          </div>
+
+          <div class="d-flex justify-content-end gap-3 mt-4">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="generateSubmitBtn">
+              <span id="generateBtnText">Generate Backup</span>
+              <span id="generateBtnSpinner" class="loading-spinner" style="display: none;"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script defer src="/js/admin/backups.js"></script>

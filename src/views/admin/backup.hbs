@@ -1,0 +1,100 @@
+{{!< dashboard}}
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    color: #000;
+  }
+
+  .add-button {
+    background-color: #2E5A92;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 20px 0;
+  }
+
+  .add-button:hover {
+    background-color: #2E5ABB;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+
+  th {
+    background-color: #2E5A92;
+    color: white;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .action-btn svg:hover {
+    fill: red;
+  }
+  .add-button {
+  background-color: #2E5A92;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px; /* increase from 20px to 30px */
+  display: inline-block;
+}
+
+</style>
+
+<div class="content">
+  <div style="margin-bottom: 30px;">
+  <a class="add-button" href="/admin/organizations/create">Add Client </a>
+</div>
+
+
+  <table id="clientsTable">
+    <thead>
+      <tr>
+        <th>S NO</th>
+        <th>Client Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each clients}}
+      <tr data-id="{{this.ThirdPartyID}}">
+        {{!-- <td>{{this.ThirdPartyID}}</td> --}}
+        <td>{{incrementIndex @index}}</td>
+        <td>{{this.Name}}</td>
+        <td>
+          <button class="action-btn delete-btn" title="Delete">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" fill="red" viewBox="0 0 24 24">
+              <path d="M9 3v1H4v2h1v12a2 2 0 002 2h10a2 2 0 002-2V6h1V4h-5V3H9zm2 3h2v12h-2V6z"/>
+            </svg>
+          </button>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
+<script defer src="/js/admin/organizations.js"></script>

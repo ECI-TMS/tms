@@ -67,7 +67,28 @@ export function hbsHelpers() {
     
     // Join back the rest parts (original filename could contain dashes)
     return parts.slice(2).join('-');
-}
+},
+            formatFileSize: function(bytes) {
+                if (!bytes || bytes === 0) return '0 Bytes';
+                
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(Number(bytes)) / Math.log(k));
+                
+                return parseFloat((Number(bytes) / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            },
+            formatDate: function(dateString) {
+                if (!dateString) return '';
+                
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
 
 
         }

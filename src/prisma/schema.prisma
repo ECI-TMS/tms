@@ -409,3 +409,14 @@ model admin_docs {
   session   trainingsessions @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
   program   programs         @relation(fields: [programId], references: [ProgramID], onDelete: Cascade)
 }
+
+model Backup {
+  id          Int      @id @default(autoincrement())
+  filename    String   @db.VarChar(255)
+  filepath    String   @db.VarChar(500)
+  filesize    BigInt   @db.BigInt
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  createdBy   String   @db.VarChar(100)
+  status      String   @db.VarChar(50) @default("completed") // pending, completed, failed
+}
