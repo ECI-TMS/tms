@@ -1451,6 +1451,7 @@ router.get("/program/:programId/course/:courseId/session/:sessionId/participant"
         sessionId: sessionId
       }
     });
+    
 
     const sessions = await prisma.trainingsessions.findMany();
     res.render("admin/participants", { participants: data, sessions,programId,courseId,sessionId });

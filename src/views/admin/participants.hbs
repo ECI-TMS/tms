@@ -461,7 +461,7 @@
   <div class="header-section">
     <div class="page-title">
       <div class="title-icon">👥</div>
-      Participants Management
+      Participants Management 
     </div>
     <div class="action-buttons">
       <button
@@ -496,7 +496,7 @@
     <table id="example" class="table table-striped">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>S NO</th>
           <th>Name</th>
           <th>Session</th>
           <th>CNIC</th>
@@ -508,7 +508,8 @@
       <tbody>
         {{#each participants}}
           <tr data-participant-id="{{id}}">
-            <td><span class="participant-id">#{{id}}</span></td>
+            {{!-- <td><span class="participant-id">#{{id}}</span></td> --}}
+            <td>{{incrementIndex @index}}</td>
             <td><span class="participant-name">{{name}}</span></td>
             <td><span class="session-badge">{{sessionId}}</span></td>
             <td>{{cnic}}</td>

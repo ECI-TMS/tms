@@ -128,7 +128,7 @@
                     <table id="trainer_table">
                         <thead>
                             <tr>
-                                <th>ID </th>
+                                <th>S NO </th>
                                 <th>Name</th>
                                 
                                 <th>Email</th>
@@ -142,7 +142,8 @@
                         <tbody>
                             {{#each var_trainers}}
                             <tr>
-                                <td>{{UserID}}</td>
+                                {{!-- <td>{{UserID}}</td> --}}
+                                <td>{{incrementIndex @index}}</td>
                                 <td>{{Username}}</td>
                                 
                                 <td>{{Email}}</td>

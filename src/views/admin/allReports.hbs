@@ -130,7 +130,7 @@ button.delete-submitted-report:hover {
   <table id="monitors">
     <thead>
       <tr>
-        <th>ID</th>
+        <th>S NO</th>
         <th>Name</th>
         <th>Monitor/Trainer</th>
         <th>File</th>
@@ -139,7 +139,8 @@ button.delete-submitted-report:hover {
     <tbody>
   {{#each allReports}}
   <tr data-report-id="{{this.ReportID}}">
-    <td>{{this.ReportID}}</td>
+    {{!-- <td>{{this.ReportID}}</td> --}}
+    <td>{{incrementIndex @index}}</td>
     <td>{{this.Name}}</td>
     <td>{{this.targetRole}}</td>
     <td>
@@ -170,7 +171,7 @@ button.delete-submitted-report:hover {
   <table id="submitted_reports">
     <thead>
       <tr>
-        <th>ID</th>
+        <th>S NO</th>
         <th>Username</th>
         <th>Name</th>
         <th>Monitor/Trainer</th>
@@ -180,7 +181,8 @@ button.delete-submitted-report:hover {
     <tbody>
   {{#each submittedReports}}
   <tr data-submitted-id="{{this.SubmitedReportID}}">
-    <td>{{this.UserID}}</td>
+    {{!-- <td>{{this.UserID}}</td> --}}
+    <td>{{incrementIndex @index}}</td>
     <td>{{this.users.Username}}</td>
     <td>{{this.report.Name}}</td>
     <td>{{this.submitRole}}</td>

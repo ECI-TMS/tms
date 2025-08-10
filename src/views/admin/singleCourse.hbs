@@ -263,6 +263,7 @@
     <table id="sessionsTable" class="display">
       <thead>
         <tr>
+          <th>S NO</th>
           <th>Batch Name</th>
           <th>Center</th>
           <th>Training  Course</th>
@@ -273,6 +274,7 @@
       <tbody>
         {{#each sessions}}
         <tr>
+          <td>{{incrementIndex @index}}</td>
           <td>
             <a href="/admin/program/{{../programId}}/course/{{../courseId}}/sessions/{{this.SessionID}}"
                class="session-link">

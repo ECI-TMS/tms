@@ -66,14 +66,14 @@
 
 <div class="content">
   <div style="margin-bottom: 30px;">
-  <a class="add-button" href="/admin/organizations/create">Add Client</a>
+  <a class="add-button" href="/admin/organizations/create">Add Client </a>
 </div>
 
 
   <table id="clientsTable">
     <thead>
       <tr>
-        <th>ID</th>
+        <th>S NO</th>
         <th>Client Name</th>
         <th>Actions</th>
       </tr>
@@ -81,7 +81,8 @@
     <tbody>
       {{#each clients}}
       <tr data-id="{{this.ThirdPartyID}}">
-        <td>{{this.ThirdPartyID}}</td>
+        {{!-- <td>{{this.ThirdPartyID}}</td> --}}
+        <td>{{incrementIndex @index}}</td>
         <td>{{this.Name}}</td>
         <td>
           <button class="action-btn delete-btn" title="Delete">

@@ -2,7 +2,7 @@ $(document).ready(function() {
     $('#example').DataTable({
       responsive: true,
       pageLength: 10,
-      order: [[0, 'desc']],
+      order: [[0, 'asc']],
       language: {
         search: "Search participants:",
         lengthMenu: "Show _MENU_ participants per page",

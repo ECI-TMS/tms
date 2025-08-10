@@ -401,7 +401,7 @@
       <button class="add-button">
         <i class="fas fa-plus"></i>
         <a style="color:white; text-decoration:none" href="/admin/programss/{{program.ProgramID}}/courses/create">
-          Add Course
+          Add Course 
         </a>
       </button>
     </div>
@@ -409,6 +409,8 @@
     <table class="courses-table" id="coursesTable">
       <thead>
         <tr>
+
+          <th>S NO</th>
           <th>Course Name</th>
           <th>Sessions</th>
           <th>Actions</th>
@@ -417,6 +419,7 @@
       <tbody>
         {{#each courses}}
         <tr>
+          <td>{{incrementIndex @index}}</td>
           <td>
             <a href="/admin/programs/{{../program.ProgramID}}/courses/{{this.CourseID}}" class="course-name-link">
               <div class="course-name">{{this.Name}}</div>

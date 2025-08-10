@@ -119,7 +119,7 @@
     <thead>
       <tr>
         <th>S NO</th>
-        {{!-- <th>Project ID</th> --}}
+        <th>Project ID</th>
         <th>Name</th>
         <th>Donor</th>
         <th>Start Date</th>
@@ -132,7 +132,7 @@
       {{#each programs}}
       <tr>
         <td>{{incrementIndex @index}}</td>
-        {{!-- <td>{{this.ProgramID}}</td> --}}
+        <td>{{this.ProgramID}}</td>
         <td>
           <a href="/admin/programs/{{this.ProgramID}}" style="color: #2E5A92; text-decoration: none; font-weight: bold;">
             {{this.Name}}

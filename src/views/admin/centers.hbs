@@ -28,7 +28,7 @@
     <table id="sessions">
   <thead>
     <tr>
-      <th>ID</th>
+      <th>S NO</th>
       <th>Name</th>
       <th>City</th>
       <th>Focal Person</th>
@@ -40,7 +40,8 @@
   <tbody>
     {{#each centers}}
     <tr data-id="{{this.CenterID}}">
-      <td>{{this.CenterID}}</td>
+      {{!-- <td>{{this.CenterID}}</td> --}}
+      <td>{{incrementIndex @index}}</td>
       <td>{{this.Name}}</td>
       <td>{{this.City}}</td>
       <td>{{this.FocalPerson}}</td>

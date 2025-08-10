@@ -22,7 +22,7 @@
       <table id="participantTable">
         <thead>
           <tr>
-            <th>ID</th>
+            <th>S NO</th>
             <th>Name</th>
             <th>File</th>
           </tr>
@@ -30,7 +30,9 @@
         <tbody>
           {{#each materials}}
           <tr>
-            <td>{{this.MaterialID}}</td>
+            {{!-- <td>{{this.MaterialID}}</td> --}}
+            <td>{{incrementIndex @index}}</td>
+
             <td>{{this.Title}}</td>
             <td><a download="{{this.Title}}" href="{{this.FilePath}}">
   <i class="fa-solid fa-download text-success" aria-hidden="true"></i>

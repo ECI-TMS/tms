@@ -446,7 +446,7 @@
       <thead>
         <tr>
           <th>Participant</th>
-          <th>ID</th>
+          {{!-- <th>ID</th> --}}
           <th>cnic</th>
           <th>email</th>
           <th>contact</th>
@@ -461,11 +461,12 @@
               <img class="participant-avatar" src="/placeholder-user.jpg" alt="{{this.name}}" />
               <div>
                 <div class="participant-name">{{this.name}}</div>
-                <div class="participant-id">#{{this.id}}</div>
+                <div class="participant-id">#{{ incrementIndex @index}}</div>
               </div>
             </div>
           </td>
-          <td><strong>{{this.id}}</strong></td>
+
+          {{!-- <td><strong>{{this.id}}</strong></td> --}}
           <td>
             <span class="status-badge status-active">{{this.cnic}}</span>
           </td>
