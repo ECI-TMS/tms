@@ -613,6 +613,51 @@ router.get("/sessions", async (req, res) => {
   }
 });
 
+router.get("/program/:programId/course/:courseId/session/:id/duplicates", async (req, res) => {
+  try {
+    const sessionId = +req.params.id;
+    const programId = +req.params.programId;
+    const courseId = +req.params.courseId;
+    
+    console.log('Fetching duplicate participants for sessionId:', sessionId);
+    
+    const duplicateParticipants = await prisma.duplicateParticipant.findMany({
+      where: {
+        sessionId: sessionId,
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    console.log('Found duplicate participants:', duplicateParticipants.length);
+
+    const session = await prisma.trainingsessions.findFirst({
+      where: {
+        SessionID: sessionId,
+      },
+    });
+
+    console.log('Found session:', session ? session.SessionID : 'null');
+
+    res.render(`admin/duplicateParticipants`, {
+      duplicateParticipants,
+      session,
+      sessionId,
+      programId,
+      courseId
+    });
+  } catch (error) {
+    console.error('Error in duplicates route:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      error: error.message || 'An error occurred while fetching duplicate participants',
+      details: error.toString()
+    });
+  }
+});
+
 router.get("/program/:programId/course/:courseId/sessions/:id", async (req, res) => {
   try {
     const id = req.params.id;  // course id
@@ -722,6 +767,23 @@ router.get("/program/:programId/course/:courseId/session/:id/participants", asyn
     });
   } catch (error) {
     res.status(400).json({ error });
+  }
+});
+
+router.delete("/duplicate-participant/:id", async (req, res) => {
+  try {
+    const duplicateId = +req.params.id;
+    
+    await prisma.duplicateParticipant.delete({
+      where: {
+        id: duplicateId
+      }
+    });
+
+    res.status(200).json({ message: 'Duplicate participant deleted successfully!' });
+  } catch (error) {
+    console.error('Error deleting duplicate participant:', error);
+    res.status(500).json({ error: 'Failed to delete duplicate participant.' });
   }
 });
 
@@ -1483,6 +1545,18 @@ router.post("/participant/bulk", async (req, res) => {
 
     for (const row of participantsData) {
       if(!row.name || !row.cnic || !row.email || !row.contact || !row.sessionId || !row.program_id) {
+        // Save as duplicate with reason
+        await prisma.duplicateParticipant.create({
+          data: {
+            name: row.name || 'N/A',
+            cnic: String(row.cnic || 'N/A'),
+            email: row.email || 'N/A',
+            contact: String(row.contact || 'N/A'),
+            sessionId: +row.sessionId,
+            program_id: +row.program_id,
+            reason: 'Missing required fields'
+          }
+        });
         skippedCount++;
         continue;
       }
@@ -1492,6 +1566,18 @@ router.post("/participant/bulk", async (req, res) => {
       const existingUser = existingUsers[0] || null;
 
       if (existingUser) {
+        // Save as duplicate with reason
+        await prisma.duplicateParticipant.create({
+          data: {
+            name: row.name,
+            cnic: String(row.cnic),
+            email: row.email,
+            contact: String(row.contact),
+            sessionId: +row.sessionId,
+            program_id: +row.program_id,
+            reason: 'Email already exists in system'
+          }
+        });
         skippedCount++;
         continue; 
       }
@@ -1536,7 +1622,7 @@ router.post("/participant/bulk", async (req, res) => {
       createdCount++;
     }
 
-    res.status(200).json({ message: `Import complete. ${createdCount} participants imported, ${skippedCount} duplicate entry  skipped.` });
+    res.status(200).json({ message: `Import complete. ${createdCount} participants imported, ${skippedCount} duplicate entries saved to history.` });
   } catch (error) {
     console.error("Error creating bulk participants:", error);
     res.status(500).json({ error: error.message || "Failed to create participants in bulk." });

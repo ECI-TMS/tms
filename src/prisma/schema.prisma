@@ -159,6 +159,7 @@ model programs {
   thirdparty           thirdparties?         @relation(fields: [DonorOrganizationID], references: [ThirdPartyID], onDelete: Cascade)
   reports              report[]
   Participant          Participant[]
+  duplicateParticipants duplicateParticipant[] @relation("duplicate_participants")
   ProgramUsers         ProgramUsers[]
   Feedback             Feedback[]
   materials            materials[]
@@ -208,6 +209,20 @@ model Participant {
   session    trainingsessions @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
   program    programs         @relation(fields: [program_id], references: [ProgramID], onDelete: Cascade)
   user       users?
+}
+
+model duplicateParticipant {
+  id         Int              @id @default(autoincrement())
+  name       String
+  cnic       String
+  email      String
+  contact    String
+  sessionId  Int
+  program_id Int
+  reason     String           @db.VarChar(255) // Reason for duplication (e.g., "Email already exists", "CNIC already exists")
+  createdAt  DateTime         @default(now())
+  session    trainingsessions @relation("duplicate_participants", fields: [sessionId], references: [SessionID], onDelete: Cascade)
+  program    programs         @relation("duplicate_participants", fields: [program_id], references: [ProgramID], onDelete: Cascade)
 }
 
 model Quiz {
@@ -291,6 +306,7 @@ model trainingsessions {
   assignments        assignments[]
   documents          documents[]
   participants       Participant[]
+  duplicateParticipants duplicateParticipant[] @relation("duplicate_participants")
   progresstracking   progresstracking[]
   thirdpartytracking thirdpartytracking[]
   programs           programs?            @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Restrict)
