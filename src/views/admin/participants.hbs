@@ -434,6 +434,34 @@
     margin-top: 4px;
   }
 
+  /* Loading Spinner Styles */
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.2em;
+  }
+
+  .btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .btn.loading {
+    position: relative;
+    pointer-events: none;
+  }
+
+  .btn.loading #uploadIcon,
+  .btn.loading #uploadText {
+    opacity: 0;
+  }
+
+  .btn.loading #uploadSpinner {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
   @media (max-width: 768px) {
     .container {
       padding: 15px;
@@ -538,7 +566,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
             <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
           </svg>
-          Bulk Import Participants
+          Bulk Import Participants 
         </h5>
         <button
           type="button"
@@ -575,10 +603,16 @@
   
           <div class="d-flex justify-content-end mt-4">
             <button type="submit" class="btn btn-primary" id="uploadButton">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;" id="uploadIcon">
                 <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
               </svg>
-              Upload & Import
+              <span id="uploadText">Upload & Import</span>
+              <div id="uploadSpinner" style="display: none;">
+                <div class="spinner-border spinner-border-sm" role="status" style="margin-right: 8px;">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <span>Processing...</span>
+              </div>
             </button>
           </div>
         </form>

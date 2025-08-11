@@ -61,6 +61,16 @@ $(document).ready(function() {
         return;
       }
   
+      // Get the upload button and show loading state
+      const uploadButton = document.getElementById('uploadButton');
+      const uploadIcon = document.getElementById('uploadIcon');
+      const uploadText = document.getElementById('uploadText');
+      const uploadSpinner = document.getElementById('uploadSpinner');
+  
+      // Show loading state
+      uploadButton.classList.add('loading');
+      uploadButton.disabled = true;
+  
       const formData = new FormData();
       formData.append('file', file);
   
@@ -81,6 +91,10 @@ $(document).ready(function() {
         }
       } catch (error) {
         alert('An error occurred during upload.');
+      } finally {
+        // Hide loading state
+        uploadButton.classList.remove('loading');
+        uploadButton.disabled = false;
       }
     });
   });
