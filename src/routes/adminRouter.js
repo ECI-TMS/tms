@@ -2378,8 +2378,8 @@ router.post("/backups/generate", async (req, res) => {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupName = `backup-${timestamp}`;
     
-    // Create backup directory
-    const backupDir = path.join(process.cwd(), 'public', 'db_backup');
+    // Create backup directory inside uploads
+    const backupDir = path.join(process.cwd(), 'public', 'uploads', 'db_backup');
     await fs.ensureDir(backupDir);
 
     // Create a simple database backup file (since mysqldump might not be available)
@@ -2395,7 +2395,7 @@ router.post("/backups/generate", async (req, res) => {
 
 -- This backup includes:
 -- 1. Database schema and data (via Prisma introspection)
--- 2. All public folder contents
+-- 2. All public/uploads folder contents (excluding db_backup to prevent recursion)
 -- 3. System configuration
 
 -- Backup Metadata:
@@ -2461,7 +2461,7 @@ router.post("/backups/generate", async (req, res) => {
         const backup = await prisma.backup.create({
           data: {
             filename: `${backupName}.zip`,
-            filepath: `/db_backup/${backupName}.zip`,
+            filepath: `/uploads/db_backup/${backupName}.zip`,
             filesize: BigInt(stats.size),
             description: description || `Backup generated on ${new Date().toLocaleString()}`,
             createdBy: 'Admin',
@@ -2497,13 +2497,33 @@ router.post("/backups/generate", async (req, res) => {
     // Add SQL file to archive
     archive.file(sqlFilePath, { name: `${backupName}.sql` });
 
-    // Add specific folders to archive
+    // Add specific folders to archive (EXCLUDE db_backup to prevent recursion)
     const publicPath = path.join(process.cwd(), 'public');
     
-    // Add uploads folder if it exists
-    const uploadsPath = path.join(publicPath, 'uploads');
-    if (fs.existsSync(uploadsPath)) {
-      archive.directory(uploadsPath, 'uploads');
+    // Add all folders inside public/uploads (EXCLUDE db_backup to prevent recursion)
+    const uploadsPath = path.join(process.cwd(), 'public', 'uploads');
+    
+    // Check if uploads directory exists
+    if (await fs.pathExists(uploadsPath)) {
+      // Get all directories in uploads folder
+      const uploadsContents = await fs.readdir(uploadsPath, { withFileTypes: true });
+      
+      for (const item of uploadsContents) {
+        if (item.isDirectory() && item.name !== 'db_backup') {
+          const itemPath = path.join(uploadsPath, item.name);
+          
+          // Add directory to archive
+          archive.directory(itemPath, `uploads/${item.name}`);
+          console.log(`Added directory to backup: uploads/${item.name}`);
+        } else if (item.isFile()) {
+          // Add individual files in uploads root (if any)
+          const filePath = path.join(uploadsPath, item.name);
+          archive.file(filePath, { name: `uploads/${item.name}` });
+          console.log(`Added file to backup: uploads/${item.name}`);
+        }
+      }
+    } else {
+      console.log('Uploads directory does not exist');
     }
 
     await archive.finalize();
