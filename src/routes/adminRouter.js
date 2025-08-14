@@ -2500,26 +2500,10 @@ router.post("/backups/generate", async (req, res) => {
     // Add specific folders to archive
     const publicPath = path.join(process.cwd(), 'public');
     
-    // Add uploads folder if it exists (excluding db_backup and integer-named folders)
+    // Add uploads folder if it exists
     const uploadsPath = path.join(publicPath, 'uploads');
     if (fs.existsSync(uploadsPath)) {
-      archive.directory(uploadsPath, 'uploads', {
-        filter: (entry) => {
-          // Exclude db_backup folder and its contents
-          if (entry.name.includes('db_backup')) {
-            return false;
-          }
-          
-          // Exclude folders with integer names (like 1, 2, 3)
-          // Check if the entry name (without path) is a pure integer
-          const entryName = path.basename(entry.name);
-          if (/^\d+$/.test(entryName)) {
-            return false;
-          }
-          
-          return true;
-        }
-      });
+      archive.directory(uploadsPath, 'uploads');
     }
 
     await archive.finalize();
