@@ -21,7 +21,7 @@ const execAsync = promisify(exec);
 const router = Router();
 
 
-const uploadPath = path.join(process.cwd(), 'public', 'documents');
+const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'documents');
 // const storage = multer.diskStorage({
 //   destination: (_, __, cb) => cb(null, uploadPath),
 //   filename: (_, file, cb) => {
@@ -949,8 +949,8 @@ router.post("/session/:sessionId/documents/upload", async (req, res) => {
       });
     }
 
-    // Create adminDocs directory if it doesn't exist
-    const adminDocsPath = path.join(process.cwd(), 'public', 'adminDocs');
+    // Create adminDocs directory inside uploads folder if it doesn't exist
+    const adminDocsPath = path.join(process.cwd(), 'public', 'uploads', 'adminDocs');
     if (!fs.existsSync(adminDocsPath)) {
       fs.mkdirSync(adminDocsPath, { recursive: true });
     }
@@ -966,7 +966,7 @@ router.post("/session/:sessionId/documents/upload", async (req, res) => {
     await file.mv(filePath);
 
     // Create relative path for database storage
-    const relativePath = `/adminDocs/${fileName}`;
+    const relativePath = `/uploads/adminDocs/${fileName}`;
 
     // Save document info to database
     const savedDocument = await prisma.admin_docs.create({
@@ -1219,7 +1219,7 @@ router.post('/document/create', async (req, res) => {
     const filePath = path.join(uploadPath, uniqueName);
 
     await file.mv(filePath);
-    const relativePath = `/documents/${uniqueName}`;
+    const relativePath = `/uploads/documents/${uniqueName}`;
 
     const newDocument = await prisma.documentType.create({
       data: {
@@ -2500,22 +2500,26 @@ router.post("/backups/generate", async (req, res) => {
     // Add specific folders to archive
     const publicPath = path.join(process.cwd(), 'public');
     
-    // Add adminDocs folder if it exists
-    const adminDocsPath = path.join(publicPath, 'adminDocs');
-    if (fs.existsSync(adminDocsPath)) {
-      archive.directory(adminDocsPath, 'adminDocs');
-    }
-    
-    // Add documents folder if it exists
-    const documentsPath = path.join(publicPath, 'documents');
-    if (fs.existsSync(documentsPath)) {
-      archive.directory(documentsPath, 'documents');
-    }
-    
-    // Add uploads folder if it exists
+    // Add uploads folder if it exists (excluding db_backup and integer-named folders)
     const uploadsPath = path.join(publicPath, 'uploads');
     if (fs.existsSync(uploadsPath)) {
-      archive.directory(uploadsPath, 'uploads');
+      archive.directory(uploadsPath, 'uploads', {
+        filter: (entry) => {
+          // Exclude db_backup folder and its contents
+          if (entry.name.includes('db_backup')) {
+            return false;
+          }
+          
+          // Exclude folders with integer names (like 1, 2, 3)
+          // Check if the entry name (without path) is a pure integer
+          const entryName = path.basename(entry.name);
+          if (/^\d+$/.test(entryName)) {
+            return false;
+          }
+          
+          return true;
+        }
+      });
     }
 
     await archive.finalize();
