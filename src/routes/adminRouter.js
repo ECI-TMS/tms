@@ -1793,6 +1793,69 @@ router.delete("/center/delete/:id", async (req, res) => {
   }
 });
 
+router.get("/center/edit/:id", async (req, res) => {
+  try {
+    const centerId = +req.params.id;
+    
+    // Get the center
+    const center = await prisma.centers.findFirst({
+      where: {
+        CenterID: centerId
+      },
+    });
+
+    if (!center) {
+      return res.status(404).json({ message: "Center not found" });
+    }
+
+    res.render("admin/editCenter", { 
+      center 
+    });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+    res.status(500).json({ error: "Failed to fetch center for editing" });
+  }
+});
+
+router.post("/center/update/:id", async (req, res) => {
+  try {
+    const centerId = +req.params.id;
+    const { Name, City, FocalPerson, SeatingCapacity, haveComputerLab } = req.body;
+
+    // Validate required fields
+    if (!Name || !City || !FocalPerson || !SeatingCapacity || !haveComputerLab) {
+      return res.status(400).json({ 
+        status: false, 
+        error: "Missing fields", 
+        message: "All fields are required" 
+      });
+    }
+
+    // Update the center
+    const updatedCenter = await prisma.centers.update({
+      where: {
+        CenterID: centerId,
+      },
+      data: {
+        Name,
+        City,
+        FocalPerson,
+        SeatingCapacity: +SeatingCapacity,
+        haveComputerLab: haveComputerLab === 'true',
+      },
+    });
+
+    if (!updatedCenter) {
+      return res.status(400).json({ status: false, error: "Failed to update center" });
+    }
+
+    // Respond with success JSON
+    return res.status(200).json({ status: true, message: "Center updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, error: error.message || error });
+  }
+});
+
 router.get("/trainers", async (req, res) => {
   try {
     let trainers = await prisma.users.findMany({
