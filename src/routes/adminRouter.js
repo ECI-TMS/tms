@@ -2792,6 +2792,235 @@ router.delete("/submittedReports/:id", async (req, res) => {
   }
 });
 
+// Edit routes for reports
+router.get("/report/edit/:id", async (req, res) => {
+  try {
+    const reportId = +req.params.id;
+    
+    // Get the report
+    const report = await prisma.report.findFirst({
+      where: {
+        ReportID: reportId
+      },
+    });
+
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    // Get all programs with their training sessions
+    const programs = await prisma.programs.findMany({
+      include: {
+        trainingsessions: true,
+      },
+    });
+
+    res.render("admin/editReport", { 
+      report,
+      programs
+    });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+    res.status(500).json({ error: "Failed to fetch report for editing" });
+  }
+});
+
+router.post("/report/update/:id", async (req, res) => {
+  try {
+    const reportId = +req.params.id;
+    const { name, ProgramID, SessionID, targetRole } = req.body;
+    const file = req.files?.template;
+
+    // Validate required fields
+    if (!name || !ProgramID || !SessionID) {
+      return res.status(400).json({ 
+        status: false, 
+        error: "Missing fields", 
+        message: "Name, Program ID, and Session ID are required" 
+      });
+    }
+
+    // Get the existing report
+    const existingReport = await prisma.report.findFirst({
+      where: {
+        ReportID: reportId
+      },
+    });
+
+    if (!existingReport) {
+      return res.status(404).json({ 
+        status: false, 
+        error: "Report not found" 
+      });
+    }
+
+    let filePath = existingReport.FilePath; // Keep existing file if no new file uploaded
+
+    // If a new file is uploaded, save it and update the file path
+    if (file) {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const baseDir = path.join(__dirname, '../../public');
+      const reportsDir = path.join(baseDir, '/uploads/reports');
+
+      // Ensure the directory exists
+      fs.ensureDirSync(reportsDir);
+
+      // Delete the old file if it exists
+      if (existingReport.FilePath) {
+        const oldFilePath = path.join(baseDir, existingReport.FilePath.replace(/\\/g, '/'));
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+
+      // Save new file
+      const newFilePath = path.join(reportsDir, file.name);
+      await file.mv(newFilePath);
+      
+      filePath = path.relative(baseDir, newFilePath);
+      if (!filePath.startsWith('\\')) {
+        filePath = `\\${filePath}`;
+      }
+    }
+
+    // Update the report
+    const updatedReport = await prisma.report.update({
+      where: {
+        ReportID: reportId,
+      },
+      data: {
+        Name: name,
+        ProgramID: parseInt(ProgramID),
+        SessionID: parseInt(SessionID),
+        FilePath: filePath,
+        isForTrainer: targetRole === 'trainer' ? true : false,
+        isForMonitor: targetRole === 'monitor' ? true : false,
+      },
+    });
+
+    if (!updatedReport) {
+      return res.status(400).json({ status: false, error: "Failed to update report" });
+    }
+
+    // Respond with success JSON
+    return res.status(200).json({ status: true, message: "Report updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, error: error.message || error });
+  }
+});
+
+// Edit routes for submitted reports
+router.get("/submittedReport/edit/:id", async (req, res) => {
+  try {
+    const submittedReportId = +req.params.id;
+    
+    // Get the submitted report with related data
+    const submittedReport = await prisma.submitedReport.findFirst({
+      where: {
+        SubmitedReportID: submittedReportId
+      },
+      include: {
+        report: true,
+        users: true,
+      },
+    });
+
+    if (!submittedReport) {
+      return res.status(404).json({ message: "Submitted report not found" });
+    }
+
+    res.render("admin/editSubmittedReport", { 
+      submittedReport 
+    });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+    res.status(500).json({ error: "Failed to fetch submitted report for editing" });
+  }
+});
+
+router.post("/submittedReport/update/:id", async (req, res) => {
+  try {
+    const submittedReportId = +req.params.id;
+    const { UserID, ReportID } = req.body;
+    const file = req.files?.file;
+
+    // Validate required fields
+    if (!UserID || !ReportID) {
+      return res.status(400).json({ 
+        status: false, 
+        error: "Missing fields", 
+        message: "User ID and Report ID are required" 
+      });
+    }
+
+    // Get the existing submitted report
+    const existingSubmittedReport = await prisma.submitedReport.findFirst({
+      where: {
+        SubmitedReportID: submittedReportId
+      },
+    });
+
+    if (!existingSubmittedReport) {
+      return res.status(404).json({ 
+        status: false, 
+        error: "Submitted report not found" 
+      });
+    }
+
+    let filePath = existingSubmittedReport.FilePath; // Keep existing file if no new file uploaded
+
+    // If a new file is uploaded, save it and update the file path
+    if (file) {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const baseDir = path.join(__dirname, '../../public');
+      const reportsDir = path.join(baseDir, '/uploads/reports');
+
+      // Ensure the directory exists
+      fs.ensureDirSync(reportsDir);
+
+      // Delete the old file if it exists
+      if (existingSubmittedReport.FilePath) {
+        const oldFilePath = path.join(baseDir, existingSubmittedReport.FilePath.replace(/\\/g, '/'));
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+
+      // Save new file
+      const newFilePath = path.join(reportsDir, file.name);
+      await file.mv(newFilePath);
+      
+      filePath = path.relative(baseDir, newFilePath);
+      if (!filePath.startsWith('\\')) {
+        filePath = `\\${filePath}`;
+      }
+    }
+
+    // Update the submitted report
+    const updatedSubmittedReport = await prisma.submitedReport.update({
+      where: {
+        SubmitedReportID: submittedReportId,
+      },
+      data: {
+        UserID: parseInt(UserID),
+        ReportID: parseInt(ReportID),
+        FilePath: filePath,
+      },
+    });
+
+    if (!updatedSubmittedReport) {
+      return res.status(400).json({ status: false, error: "Failed to update submitted report" });
+    }
+
+    // Respond with success JSON
+    return res.status(200).json({ status: true, message: "Submitted report updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, error: error.message || error });
+  }
+});
+
 
 // router.delete("/allReports/:id", async (req, res) => {
 //   const reportId = parseInt(req.params.id, 10);

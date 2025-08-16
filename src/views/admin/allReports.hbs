@@ -106,15 +106,14 @@
     justify-content: center;
     padding: 10px 0;
   }
-  button.delete-uploaded-report,
-button.delete-submitted-report {
-  background: transparent;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: red !important;
-  margin-left: 8px;
-}
+   button.delete-uploaded-report,
+ button.delete-submitted-report {
+   background: transparent;
+   border: none;
+   font-size: 1.2rem;
+   cursor: pointer;
+   color: red !important;
+ }
 
 button.delete-uploaded-report:hover,
 button.delete-submitted-report:hover {
@@ -126,7 +125,7 @@ button.delete-submitted-report:hover {
 <link rel="stylesheet" href="/css/admin/programs.css" />
 
 <div class="content">
-  <h3 class="text-dark">Uploaded Reports</h3>
+  <h3 class="text-dark">Uploaded Reports </h3>
   <table id="monitors">
     <thead>
       <tr>
@@ -145,21 +144,22 @@ button.delete-submitted-report:hover {
     <td>{{this.targetRole}}</td>
     <td>
       <a download="true" class="btn btn-primary" href='{{this.FilePath}}'>Download</a>
-<button class="delete-uploaded-report" title="Delete">
-  <svg xmlns="http://www.w3.org/2000/svg"
-       width="30"
-       height="30"
-       fill="none"
-       viewBox="0 0 24 24"
-       stroke="red"
-       stroke-width="2">
-    <path stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M6 7h12M9 7V4h6v3m1 0v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7h10z"/>
-  </svg>
-</button>
-
-
+             <a href="/admin/report/edit/{{this.ReportID}}" class="text-primary" title="Edit Report">
+         <i class="fa-solid fa-edit" style="font-size: 20px;"></i>
+       </a>
+       <button class="delete-uploaded-report" title="Delete">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="20"
+             height="20"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="red"
+             stroke-width="2">
+          <path stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 7h12M9 7V4h6v3m1 0v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7h10z"/>
+        </svg>
+      </button>
     </td>
   </tr>
   {{/each}}
@@ -188,20 +188,22 @@ button.delete-submitted-report:hover {
     <td>{{this.submitRole}}</td>
     <td>
       <a download="true" class="btn btn-primary" href='{{this.FilePath}}'>Download</a>
-      <button class="delete-submitted-report" title="Delete">
-  <svg xmlns="http://www.w3.org/2000/svg"
-       width="30"
-       height="30"
-       fill="none"
-       viewBox="0 0 24 24"
-       stroke="red"
-       stroke-width="2">
-    <path stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M6 7h12M9 7V4h6v3m1 0v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7h10z"/>
-  </svg>
-</button>
-
+             <a href="/admin/submittedReport/edit/{{this.SubmitedReportID}}" class="text-primary" title="Edit Submitted Report">
+         <i class="fa-solid fa-edit" style="font-size: 20px;"></i>
+       </a>
+       <button class="delete-submitted-report" title="Delete">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="20"
+             height="20"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="red"
+             stroke-width="2">
+          <path stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 7h12M9 7V4h6v3m1 0v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7h10z"/>
+        </svg>
+      </button>
     </td>
   </tr>
   {{/each}}
