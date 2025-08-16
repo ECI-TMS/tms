@@ -264,6 +264,65 @@ router.delete("/organizations/:id", async (req, res) => {
   }
 });
 
+router.get("/organization/edit/:id", async (req, res) => {
+  try {
+    const organizationId = +req.params.id;
+    
+    // Get the organization
+    const organization = await prisma.thirdparties.findFirst({
+      where: {
+        ThirdPartyID: organizationId
+      },
+    });
+
+    if (!organization) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+
+    res.render("admin/editOrganization", { 
+      organization 
+    });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+    res.status(500).json({ error: "Failed to fetch organization for editing" });
+  }
+});
+
+router.post("/organization/update/:id", async (req, res) => {
+  try {
+    const organizationId = +req.params.id;
+    const { Name } = req.body;
+
+    // Validate required fields
+    if (!Name) {
+      return res.status(400).json({ 
+        status: false, 
+        error: "Missing fields", 
+        message: "Name is required" 
+      });
+    }
+
+    // Update the organization
+    const updatedOrganization = await prisma.thirdparties.update({
+      where: {
+        ThirdPartyID: organizationId,
+      },
+      data: {
+        Name,
+      },
+    });
+
+    if (!updatedOrganization) {
+      return res.status(400).json({ status: false, error: "Failed to update organization" });
+    }
+
+    // Respond with success JSON
+    return res.status(200).json({ status: true, message: "Organization updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, error: error.message || error });
+  }
+});
+
 
 router.get("/clients", async (req, res) => {
   try {
@@ -1255,6 +1314,107 @@ router.delete('/document/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.get("/document/edit/:id", async (req, res) => {
+  try {
+    const documentId = +req.params.id;
+    
+    // Get the document
+    const document = await prisma.documentType.findFirst({
+      where: {
+        DocumentTypeID: documentId
+      },
+    });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    res.render("admin/editDocument", { 
+      document 
+    });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+    res.status(500).json({ error: "Failed to fetch document for editing" });
+  }
+});
+
+router.post("/document/update/:id", async (req, res) => {
+  try {
+    const documentId = +req.params.id;
+    const { Name } = req.body;
+    const file = req.files?.file;
+
+    // Validate required fields
+    if (!Name) {
+      return res.status(400).json({ 
+        status: false, 
+        error: "Missing fields", 
+        message: "Name is required" 
+      });
+    }
+
+    // Get the existing document
+    const existingDocument = await prisma.documentType.findFirst({
+      where: {
+        DocumentTypeID: documentId
+      },
+    });
+
+    if (!existingDocument) {
+      return res.status(404).json({ 
+        status: false, 
+        error: "Document not found" 
+      });
+    }
+
+    let filePath = existingDocument.file; // Keep existing file if no new file uploaded
+
+    // If a new file is uploaded, save it and update the file path
+    if (file) {
+      // Ensure upload directory exists
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+      }
+
+      // Delete the old file if it exists
+      if (existingDocument.file) {
+        const oldFileName = path.basename(existingDocument.file);
+        const oldFilePath = path.join(uploadPath, oldFileName);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+
+      // Save new file with unique name
+      const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${file.name}`;
+      const newFilePath = path.join(uploadPath, uniqueName);
+
+      await file.mv(newFilePath);
+      filePath = `/uploads/documents/${uniqueName}`;
+    }
+
+    // Update the document
+    const updatedDocument = await prisma.documentType.update({
+      where: {
+        DocumentTypeID: documentId,
+      },
+      data: {
+        Name,
+        file: filePath,
+      },
+    });
+
+    if (!updatedDocument) {
+      return res.status(400).json({ status: false, error: "Failed to update document" });
+    }
+
+    // Respond with success JSON
+    return res.status(200).json({ status: true, message: "Document updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, error: error.message || error });
   }
 });
 

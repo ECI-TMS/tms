@@ -135,6 +135,17 @@
     td .btn {
     white-space: nowrap;
     }
+
+    /* Action button styling */
+    .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    }
+
+    .action-btn svg:hover {
+    fill: red;
+    }
     </style>
 
     <div class="container mt-4">
@@ -159,8 +170,16 @@
       {{/if}}
       
     </td>
-    <td><button type="button" onclick="deleteAction({{this.DocumentTypeID}})"
-        class="btn btn-danger btn-sm">Delete</button></td>
+    <td>
+      <a href="/admin/document/edit/{{this.DocumentTypeID}}" class="text-primary me-2" title="Edit Document">
+        <i class="fa-solid fa-edit"></i>
+      </a>
+      <button type="button" onclick="deleteAction({{this.DocumentTypeID}})" class="action-btn delete-btn" title="Delete">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" fill="red" viewBox="0 0 24 24">
+          <path d="M9 3v1H4v2h1v12a2 2 0 002 2h10a2 2 0 002-2V6h1V4h-5V3H9zm2 3h2v12h-2V6z"/>
+        </svg>
+      </button>
+    </td>
   </tr>
   {{/each}}
 </tbody>
@@ -191,7 +210,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add Document</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Add Document </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
