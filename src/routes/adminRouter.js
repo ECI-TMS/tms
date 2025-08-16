@@ -2007,8 +2007,79 @@ router.get("/program/create", async (_, res) => {
   }
 });
 
+router.get("/program/edit/:id", async (req, res) => {
+  try {
+    const programId = +req.params.id;
+    
+    // Get the program with its related data
+    const program = await prisma.programs.findFirst({
+      where: {
+        ProgramID: programId,
+      },
+      include: {
+        Documents: {
+          include: {
+            documentType: true,
+          },
+        },
+      },
+    });
+
+    if (!program) {
+      return res.status(404).json({ message: "Program not found" });
+    }
+
+    const donors = await prisma.thirdparties.findMany();
+    const managers = await prisma.users.findMany({
+      where: {
+        UserType: UserType.MANAGER
+      }
+    });
+    const documentType = await prisma.documentType.findMany();
+
+    // Format dates for input fields
+    const formatDate = (date) => {
+      const d = new Date(date);
+      const month = ('0' + (d.getMonth() + 1)).slice(-2);
+      const day = ('0' + d.getDate()).slice(-2);
+      return [d.getFullYear(), month, day].join('-');
+    };
+
+    program.Startdate = formatDate(program.Startdate);
+    program.EndDate = formatDate(program.EndDate);
+
+    // Get selected document type IDs
+    const selectedDocumentTypes = program.Documents.map(doc => doc.documentType.DocumentTypeID);
+
+    // Get manager username if ManagerID exists
+    let managerUsername = null;
+    if (program.ManagerID) {
+      const managerUser = await prisma.users.findFirst({
+        where: {
+          UserID: program.ManagerID,
+          UserType: UserType.MANAGER
+        }
+      });
+      managerUsername = managerUser?.Username || null;
+    }
+    // If no manager is assigned, managerUsername will remain null, which is fine for the template
+
+    res.render("admin/editProgram", { 
+      program, 
+      donors, 
+      managers, 
+      documentType,
+      selectedDocumentTypes,
+      managerUsername
+    });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+    res.status(500).json({ error: "Failed to fetch program for editing" });
+  }
+});
+
 router.post("/program/create", async (req, res) => {
-  const { Name, StartDate, EndDate, DonorOrganization, Description, Category, documentTypes } = req.body;
+  const { Name, StartDate, EndDate, DonorOrganization, Description, Category, Manager, documentTypes } = req.body;
   console.log(documentTypes);
 
   if (!documentTypes || documentTypes.length < 1) {
@@ -2027,6 +2098,18 @@ router.post("/program/create", async (req, res) => {
     const startDate = new Date(StartDate).toLocaleDateString();
     const endDate = new Date(EndDate).toLocaleDateString();
 
+    // Find manager user ID if manager username is provided
+    let managerId = null;
+    if (Manager) {
+      const managerUser = await prisma.users.findFirst({
+        where: {
+          Username: Manager,
+          UserType: UserType.MANAGER
+        }
+      });
+      managerId = managerUser?.UserID || null;
+    }
+
     const data = await prisma.programs.create({
       data: {
         Name,
@@ -2035,6 +2118,7 @@ router.post("/program/create", async (req, res) => {
         DonorOrganizationID: +DonorOrganization,
         Description,
         Category,
+        ManagerID: managerId,
         Documents: {
           create: documentTypes.map((documentTypeId) => ({
             documentType: { connect: { DocumentTypeID: +documentTypeId } },
@@ -2049,6 +2133,77 @@ router.post("/program/create", async (req, res) => {
 
     // Respond with success JSON instead of redirect
     return res.status(201).json({ status: true, message: "Program created successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, error: error.message || error });
+  }
+});
+
+router.post("/program/update/:id", async (req, res) => {
+  const { Name, StartDate, EndDate, DonorOrganization, Description, Category, Manager, documentTypes } = req.body;
+  const programId = +req.params.id;
+
+  if (!documentTypes || documentTypes.length < 1) {
+    return res.status(400).json({
+      status: false,
+      error: "Missing fields",
+      message: "Create / select at least 1 Document"
+    });
+  }
+
+  try {
+    if (!Name || !EndDate || !StartDate || !DonorOrganization || !Description || !Category) {
+      return res.status(400).json({ status: false, error: "Missing fields", message: "Missing fields" });
+    }
+
+    const startDate = new Date(StartDate).toLocaleDateString();
+    const endDate = new Date(EndDate).toLocaleDateString();
+
+    // Find manager user ID if manager username is provided
+    let managerId = null;
+    if (Manager) {
+      const managerUser = await prisma.users.findFirst({
+        where: {
+          Username: Manager,
+          UserType: UserType.MANAGER
+        }
+      });
+      managerId = managerUser?.UserID || null;
+    }
+
+    // First, delete existing document associations
+    await prisma.documentTypeProgram.deleteMany({
+      where: {
+        ProgramID: programId,
+      },
+    });
+
+    // Update the program
+    const updatedProgram = await prisma.programs.update({
+      where: {
+        ProgramID: programId,
+      },
+      data: {
+        Name,
+        EndDate: endDate,
+        Startdate: startDate,
+        DonorOrganizationID: +DonorOrganization,
+        Description,
+        Category,
+        ManagerID: managerId,
+        Documents: {
+          create: documentTypes.map((documentTypeId) => ({
+            documentType: { connect: { DocumentTypeID: +documentTypeId } },
+          })),
+        },
+      },
+    });
+
+    if (!updatedProgram) {
+      return res.status(400).json({ status: false, error: "Failed to update program" });
+    }
+
+    // Respond with success JSON instead of redirect
+    return res.status(200).json({ status: true, message: "Program updated successfully" });
   } catch (error) {
     return res.status(500).json({ status: false, error: error.message || error });
   }

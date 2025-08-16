@@ -88,6 +88,13 @@ export function hbsHelpers() {
                     hour: '2-digit',
                     minute: '2-digit'
                 });
+            },
+            eq: function(a, b) {
+                return a === b;
+            },
+            includes: function(array, value) {
+                if (!array || !Array.isArray(array)) return false;
+                return array.includes(value);
             }
 
 

@@ -1,24 +1,19 @@
 {{!< dashboard}}
 <div class="container mt-4">
   <div class="row justify-content-center">
-    <div class="col-lg-6 bg-white p-4"><h3 class="fw-bold">Add Project </h3></div>
+    <div class="col-lg-6 bg-white p-4"><h3 class="fw-bold">Edit Project</h3></div>
   </div>
-
 </div>
 
 <div class="container mt-4 mb-4">
   <form
-    action="/admin/program/create"
+    action="/admin/program/update/{{program.ProgramID}}"
     method="post"
     id="programForm"
     class="row g-3 needs-validation justify-content-center"
-    
-
   >
-
     <div class="col-lg-6 bg-white p-5">
       <div class="row gap-4">
-
         <div class="row">
           <div class="col-md-6">
             <label for="validationCustom01" class="form-label">Name</label>
@@ -27,6 +22,7 @@
               name="Name"
               class="form-control"
               id="validationCustom01"
+              value="{{program.Name}}"
               required
             />
             <div class="valid-feedback">
@@ -35,18 +31,18 @@
           </div>
           {{! donor organization }}
           <div class="col-md-6">
-            <label for="validationCustom04" class="form-label">Donor
-              Organization
-            </label>
+            <label for="validationCustom04" class="form-label">Donor Organization</label>
             <select
               class="form-select"
               name="DonorOrganization"
               id="validationCustom04"
               required
             >
-              <option selected disabled value="">Choose...</option>
+              <option disabled value="">Choose...</option>
               {{#each donors}}
-                <option value="{{this.ThirdPartyID}}">{{this.Name}}</option>
+                <option value="{{this.ThirdPartyID}}" {{#if (eq this.ThirdPartyID ../program.DonorOrganizationID)}}selected{{/if}}>
+                  {{this.Name}}
+                </option>
               {{/each}}
             </select>
             <div class="invalid-feedback">
@@ -63,7 +59,7 @@
               name="StartDate"
               class="form-control"
               id="validationCustom02"
-              value="{{session.StartDate}}"
+              value="{{program.Startdate}}"
               required
             />
             <div class="valid-feedback">
@@ -78,7 +74,7 @@
               name="EndDate"
               class="form-control"
               id="validationCustom02"
-              value="{{session.EndDate}}"
+              value="{{program.EndDate}}"
               required
             />
             <div class="valid-feedback">
@@ -93,8 +89,7 @@
             class="form-control"
             id="validationCustom03"
             required
-          ></textarea>
-
+          >{{program.Description}}</textarea>
           <div class="invalid-feedback">
             Please provide a valid Description.
           </div>
@@ -109,27 +104,34 @@
               id="validationCustom04"
               required
             >
-              <option selected disabled value="">Choose...</option>
+              <option disabled value="">Choose...</option>
               <option
                 value="Climate-Resilient Livelihoods and Enterprise development"
-              >Climate-Resilient Livelihoods and Enterprise development
-              </option>
-              <option value="Youth and gender-based initiatives">Youth and
-                gender-based initiatives
-              </option>
+                {{#if (eq ../program.Category "Climate-Resilient Livelihoods and Enterprise development")}}selected{{/if}}
+              >Climate-Resilient Livelihoods and Enterprise development</option>
+              <option 
+                value="Youth and gender-based initiatives"
+                {{#if (eq ../program.Category "Youth and gender-based initiatives")}}selected{{/if}}
+              >Youth and gender-based initiatives</option>
               <option
                 value="Good Governance and Institutional Strengthening"
+                {{#if (eq ../program.Category "Good Governance and Institutional Strengthening")}}selected{{/if}}
               >Good Governance and Institutional Strengthening</option>
-              <option value="Health and Safety">Health and Safety</option>
+              <option 
+                value="Health and Safety"
+                {{#if (eq ../program.Category "Health and Safety")}}selected{{/if}}
+              >Health and Safety</option>
               <option
                 value="Technical Advisory Services for Microfinance"
+                {{#if (eq ../program.Category "Technical Advisory Services for Microfinance")}}selected{{/if}}
               >Technical Advisory Services for Microfinance</option>
-              <option value="Research Monitoring and Evaluation">Research
-                Monitoring and Evaluation</option>
-
+              <option 
+                value="Research Monitoring and Evaluation"
+                {{#if (eq ../program.Category "Research Monitoring and Evaluation")}}selected{{/if}}
+              >Research Monitoring and Evaluation</option>
             </select>
             <div class="invalid-feedback">
-              Please select a valid Organization.
+              Please select a valid Category.
             </div>
           </div>
           {{! manager }}
@@ -141,14 +143,15 @@
               id="validationCustom04"
               required
             >
-              <option selected disabled value="">Choose...</option>
+              <option disabled value="">Choose...</option>
               {{#each managers}}
-                <option value={{this.Username}}>{{this.Username}}</option>
+                <option value={{this.Username}} {{#if (eq this.Username ../managerUsername)}}selected{{/if}}>
+                  {{this.Username}}
+                </option>
               {{/each}}
-
             </select>
             <div class="invalid-feedback">
-              Please select a valid Organization.
+              Please select a valid Manager.
             </div>
           </div>
         </div>
@@ -162,6 +165,7 @@
                 id="flexSwitchCheckDefault-{{@index}}"
                 name="documentTypes[]"
                 value="{{this.DocumentTypeID}}"
+                {{#if (includes ../selectedDocumentTypes this.DocumentTypeID)}}checked{{/if}}
               />
               <label
                 class="form-check-label"
@@ -171,14 +175,13 @@
           {{/each}}
         </div>
         <div class="col-12">
-          <button class="btn btn-primary" type="submit">Submit form</button>
+          <button class="btn btn-primary" type="submit">Update Program</button>
+          <a href="/admin/programs" class="btn btn-secondary ms-2">Cancel</a>
         </div>
       </div>
     </div>
-
   </form>
 </div>
-
 
 <script>
   const form = document.getElementById("programForm");
@@ -193,7 +196,7 @@
       DonorOrganization: form.elements["DonorOrganization"].value,
       Description: form.elements["Description"].value,
       Category: form.elements["Category"].value,
-      Manager: form.elements["Manager"]?.value || null, // if used in backend later
+      Manager: form.elements["Manager"]?.value || null,
       documentTypes: []
     };
 
@@ -210,7 +213,7 @@
     }
 
     try {
-      const res = await fetch("/admin/program/create", {
+      const res = await fetch("/admin/program/update/{{program.ProgramID}}", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -221,11 +224,10 @@
       const data = await res.json();
 
       if (res.ok && data.status) {
-        alert(data.message || "Program created successfully!");
-        form.reset();
-            window.location.href = "/admin/programs";
+        alert(data.message || "Program updated successfully!");
+        window.location.href = "/admin/programs";
       } else {
-        alert(data.message || "Failed to create program. Please check your input.");
+        alert(data.message || "Failed to update program. Please check your input.");
       }
     } catch (error) {
       alert("An unexpected error occurred. Please try again.");
@@ -233,7 +235,3 @@
     }
   });
 </script>
-
-
-
-<script src="/js/admin/createProgram.js"></script>
