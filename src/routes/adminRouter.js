@@ -34,11 +34,22 @@ const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'documents');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadPath)
+    // Create uploads directory if it doesn't exist
+    const fs = require('fs');
+    const path = require('path');
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    
+    cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix)
+    // Preserve original filename with timestamp to avoid conflicts
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const originalName = file.originalname;
+    cb(null, originalName);
   }
 })
 
@@ -1082,6 +1093,121 @@ router.delete("/session/:sessionId/assignments/:assignmentId/delete", authMiddle
   }
 });
 
+// Edit assignment route
+router.get("/assignment/:id/edit", authMiddleware, async (req, res) => {
+  try {
+    const assignmentId = +req.params.id;
+    
+    const assignment = await prisma.assignments.findFirst({
+      where: { AssignmentID: assignmentId },
+      include: {
+        trainingsessions: {
+          include: {
+            course: true,
+            programs: true,
+            users_trainingsessions_TrainerIDTousers: true,
+            users_trainingsessions_MonitorIDTousers: true,
+          }
+        },
+      },
+    });
+
+    if (!assignment) {
+      return res.status(404).json({ error: "Assignment not found" });
+    }
+
+    res.render("admin/editAssignment", { assignment });
+  } catch (error) {
+    console.log("Error fetching assignment:", error);
+    res.status(400).json({ error });
+  }
+});
+
+// Update assignment route
+router.post("/assignment/:id/edit", authMiddleware, async (req, res) => {
+  try {
+    const assignmentId = +req.params.id;
+    const { Title, Deadline } = req.body;
+    const template = req.files?.template;
+
+    if (!Title || !Deadline) {
+      return res.status(400).json({ error: "Title and deadline are required" });
+    }
+
+    // Get the current assignment to get the session ID
+    const currentAssignment = await prisma.assignments.findFirst({
+      where: { AssignmentID: assignmentId },
+    });
+
+    if (!currentAssignment) {
+      return res.status(404).json({ error: "Assignment not found" });
+    }
+
+    let updateData = {
+      Title,
+      Deadline: new Date(Deadline).toLocaleDateString(),
+    };
+
+    // Handle file upload if provided
+    if (template) {
+      // Create session-specific directory
+      const uploadsDirectory = path.join(process.cwd(), 'uploads');
+      const sessionDirectory = path.join(uploadsDirectory, `${currentAssignment.SessionID}`);
+      
+      if (!fs.existsSync(uploadsDirectory)) {
+        fs.mkdirSync(uploadsDirectory, { recursive: true });
+      }
+      
+      if (!fs.existsSync(sessionDirectory)) {
+        fs.mkdirSync(sessionDirectory, { recursive: true });
+      }
+      
+      // Save file to session directory
+      const filePath = path.join(sessionDirectory, template.name);
+      await template.mv(filePath);
+      
+      // Use the same path structure as assignment creation: /uploads/{sessionId}/
+      const relativePath = filePath.split(process.cwd())[1].replace("\\public", "");
+      updateData.FilePath = relativePath;
+    }
+
+    const updatedAssignment = await prisma.assignments.update({
+      where: { AssignmentID: assignmentId },
+      data: updateData,
+    });
+
+    res.redirect(`/admin/session/${updatedAssignment.SessionID}/assignments`);
+  } catch (error) {
+    console.log("Error updating assignment:", error);
+    res.status(400).json({ error: error.message || "An error occurred while updating the assignment" });
+  }
+});
+
+// Delete assignment route
+router.delete("/assignment/:id/delete", authMiddleware, async (req, res) => {
+  try {
+    const assignmentId = +req.params.id;
+
+    const assignment = await prisma.assignments.findFirst({
+      where: { AssignmentID: assignmentId },
+    });
+
+    if (!assignment) {
+      return res.status(404).json({ error: "Assignment not found" });
+    }
+
+    // Delete the assignment
+    await prisma.assignments.delete({
+      where: { AssignmentID: assignmentId },
+    });
+
+    res.json({ success: true, message: "Assignment deleted successfully" });
+  } catch (error) {
+    console.log("Error deleting assignment:", error);
+    res.status(500).json({ success: false, error: error.message || error });
+  }
+});
+
 router.get("/session/:id/documents", async (req, res) => {
   try {
     const documents = await prisma.documents.findMany({
@@ -1205,6 +1331,126 @@ router.get("/session/:sessionId/documents/admin", async (req, res) => {
 
   } catch (error) {
     console.error("Error fetching admin documents:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error",
+      error: error.message 
+    });
+  }
+});
+
+// Route to get admin document for editing
+router.get("/session/:sessionId/documents/admin/:documentId/edit", async (req, res) => {
+  try {
+    const { sessionId, documentId } = req.params;
+    
+    const document = await prisma.admin_docs.findFirst({
+      where: {
+        id: +documentId,
+        sessionId: +sessionId,
+      },
+    });
+
+    if (!document) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Document not found" 
+      });
+    }
+
+    res.json({
+      success: true,
+      document: document
+    });
+
+  } catch (error) {
+    console.error("Error fetching admin document:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error",
+      error: error.message 
+    });
+  }
+});
+
+// Route to update admin document
+router.post("/session/:sessionId/documents/admin/:documentId/edit", async (req, res) => {
+  try {
+    const { sessionId, documentId } = req.params;
+    const { filename } = req.body;
+    const file = req.files?.file;
+
+    // Get the existing document
+    const existingDocument = await prisma.admin_docs.findFirst({
+      where: {
+        id: +documentId,
+        sessionId: +sessionId,
+      },
+    });
+
+    if (!existingDocument) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Document not found" 
+      });
+    }
+
+    let updateData = {
+      filename: filename
+    };
+
+    // Handle file upload if provided
+    if (file) {
+      // Create adminDocs directory if it doesn't exist
+      const adminDocsPath = path.join(process.cwd(), 'public', 'uploads', 'adminDocs');
+      if (!fs.existsSync(adminDocsPath)) {
+        fs.mkdirSync(adminDocsPath, { recursive: true });
+      }
+
+      // Delete old file if it exists
+      if (existingDocument.filepath) {
+        const oldFilePath = path.join(process.cwd(), 'public', existingDocument.filepath);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+
+      // Generate unique filename
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const originalName = file.name;
+      const fileExtension = path.extname(originalName);
+      const fileName = `admin-doc-${uniqueSuffix}${fileExtension}`;
+      
+      // Save new file
+      const filePath = path.join(adminDocsPath, fileName);
+      await file.mv(filePath);
+
+      // Update filepath
+      const relativePath = `/uploads/adminDocs/${fileName}`;
+      updateData.filepath = relativePath;
+    }
+
+    // Update document in database
+    const updatedDocument = await prisma.admin_docs.update({
+      where: {
+        id: +documentId,
+      },
+      data: updateData,
+    });
+
+    res.json({
+      success: true,
+      message: "Document updated successfully",
+      document: {
+        id: updatedDocument.id,
+        filename: updatedDocument.filename,
+        filepath: updatedDocument.filepath,
+        createdAt: updatedDocument.createdAt
+      }
+    });
+
+  } catch (error) {
+    console.error("Error updating admin document:", error);
     res.status(500).json({ 
       success: false, 
       message: "Internal server error",

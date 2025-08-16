@@ -1,134 +1,506 @@
-{{!< dashboard}} <style>
-  .container {
-  display: flex;
+{{!< dashboard}}
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
 
-
-  .main-content {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
   }
 
-  table {
-  table-layout: fixed;
-  border-collapse: collapse;
+  .content {
+    padding: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
-  th, td {
-  padding: 15px;
-  text-align: left;
-  font-size: 16px;
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(46, 90, 146, 0.1);
+    border-left: 5px solid #2E5A92;
   }
 
-  th {
-  background-color: #2E5A92;
-  color: #fff;
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2E5A92;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
-  table, th, td {
-  width: 1fr;
-  text-align: center;
+  .title-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
   }
 
-  table tbody tr {
-  background-color: white;
+  .add-button {
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(46, 90, 146, 0.3);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 
-  table tbody tr:nth-child(odd) {
-  background-color: #f2f2f2;
+  .add-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 90, 146, 0.4);
+    background: linear-gradient(135deg, #4a7bc8, #2E5A92);
   }
 
-  table thead th {
-  border: none;
+  .table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(46, 90, 146, 0.1);
+    border: 1px solid rgba(46, 90, 146, 0.1);
+    margin-bottom: 30px;
+  }
+
+  .table-header {
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    padding: 20px 25px;
+    color: white;
+  }
+
+  .table-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .table-subtitle {
+    opacity: 0.9;
+    font-size: 14px;
+  }
+
+  .table {
+    width: 100% !important;
+    border-collapse: collapse;
+    background: white;
+    margin: 0 !important;
+  }
+
+  .table thead {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  }
+
+  .table th {
+    padding: 18px 20px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    color: #2E5A92 !important;
+    font-size: 14px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(46, 90, 146, 0.1) !important;
+    background: none !important;
+  }
+
+  .table td {
+    padding: 16px 20px !important;
+    border-bottom: 1px solid #f1f3f4 !important;
+    color: #495057 !important;
+    font-size: 14px !important;
+    vertical-align: middle !important;
+  }
+
+  .table tbody tr {
+    transition: all 0.2s ease;
+    background: white !important;
+  }
+
+  .table tbody tr:nth-child(odd) {
+    background: #f8f9fa !important;
+  }
+
+  .table tbody tr:hover {
+    background: rgba(46, 90, 146, 0.05) !important;
+    transform: scale(1.001);
+  }
+
+  .assignment-title {
+    font-weight: 600;
+    color: #2E5A92;
+    margin-bottom: 4px;
+  }
+
+  .assignment-id {
+    font-size: 12px;
+    color: #6c757d;
+  }
+
+  .trainer-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .trainer-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .trainer-name {
+    font-weight: 500;
+    color: #2E5A92;
+  }
+
+  .deadline-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .deadline-upcoming {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+  }
+
+  .deadline-overdue {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+  }
+
+  .deadline-completed {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+  }
+
+  .download-btn {
+    background: rgba(46, 90, 146, 0.1);
+    color: #2E5A92;
+    border: 1px solid rgba(46, 90, 146, 0.2);
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .download-btn:hover {
+    background: #2E5A92;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(46, 90, 146, 0.3);
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .action-btn {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .edit-btn {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+  }
+
+  .edit-btn:hover {
+    background: #ffc107;
+    color: #212529;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  }
+
+  .delete-btn {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+  }
+
+  .delete-btn:hover {
+    background: #dc3545;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  }
+
+  .tooltip {
+    position: absolute;
+    bottom: 45px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1000;
+  }
+
+  .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+  }
+
+  .action-btn:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
   }
 
   .grade-input {
-  width: 80px;
-  padding: 5px;
-  font-size: 16px;
+    width: 80px;
+    padding: 8px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+    transition: border-color 0.3s ease;
   }
 
-  
-  .add-button { padding: 10px
-  15px; border: none; border-radius: 5px; cursor: pointer; margin-left:
-  100px; /* Add margin-left for space from the left */ }
-
-
-  .delete-btn {
-    background-color: red;
-    color: #fff;
-    width: 35px;
-    height: 35px;
-    border-radius: 20px;
-    justify-content: center;
-    align-items: center;
-    border: none;
+  .grade-input:focus {
+    outline: none;
+    border-color: #2E5A92;
+    box-shadow: 0 0 0 0.2rem rgba(46, 90, 146, 0.25);
   }
 
-  .delete-btn svg {
-    width: 20px;
-    height: 20px;
+  .save-grade-btn {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
-  </style>
 
+  .save-grade-btn:hover {
+    background: #28a745;
+    color: white;
+    transform: translateY(-1px);
+  }
 
-  <button class="add-button" data-bs-toggle="modal" data-bs-target="#addProgram">Add Assignment</button>
-  {{!-- given assginments table --}}
-  
- 
-   
+  .grade-display {
+    font-weight: 600;
+    color: #2E5A92;
+    font-size: 16px;
+  }
+
+  /* DataTables Custom Styling */
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate {
+    padding: 20px 25px;
+  }
+
+  .dataTables_wrapper .dataTables_filter input {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-left: 10px;
+  }
+
+  .dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #2E5A92;
+    outline: none;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #495057;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 0 2px;
+    transition: all 0.2s ease;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button:hover,
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #2E5A92 !important;
+    color: white !important;
+    border-color: #2E5A92 !important;
+  }
+
+  @media (max-width: 768px) {
+    .content {
+      padding: 15px;
+    }
+    
+    .header-section {
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
+    
+    .table {
+      font-size: 12px;
+    }
+    
+    .table th,
+    .table td {
+      padding: 12px 8px;
+    }
+  }
+</style>
+
+<div class="content">
+  <div class="header-section">
+    <div class="page-title">
+      <div class="title-icon">📚</div>
+      Assignment Management
+    </div>
+
+    <button class="add-button" data-bs-toggle="modal" data-bs-target="#addProgram">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+      Add Assignment
+    </button>
+  </div>
+
   {{#isAdminOrTrainer user.UserType}}
-  <div class="container mt-4 mb-5">
-    
-    
-    
-    <div class="row flex-grow-1">
-        
-      <div class="col-12">
-    <table id="givenAssTable" class="w-100" >
+  <!-- Given Assignments Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <div class="table-title">Given Assignments</div>
+      <div class="table-subtitle">Assignments created by trainers</div>
+    </div>
+
+    <table id="givenAssTable" class="table">
       <thead>
         <tr>
-          <th class="text-center">Assignment </th>
-          <th class="text-center">Trainer</th>
-          <th class="text-center">DeadLine</th>
-  
-  
+          <th>Assignment</th>
+          <th>Trainer</th>
+          <th>Deadline</th>
+          <th>Template</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {{#each modifiedAssByTrainerData}}
         <tr>
-          
-          
-          
-          
-          <td>{{this.Title}}</td>
-          <td>{{this.trainer.Username}}</td>
-          <td>{{this.Deadline}}</td>
-          
-          
+          <td>
+            <div class="assignment-title">{{this.Title}}</div>
+            <div class="assignment-id">#{{this.AssignmentID}}</div>
+          </td>
+          <td>
+            <div class="trainer-info">
+              <div class="trainer-avatar">{{substring this.trainer.Username 0 2}}</div>
+              <div class="trainer-name">{{this.trainer.Username}}</div>
+            </div>
+          </td>
+          <td>
+            <span class="deadline-badge deadline-upcoming">{{this.Deadline}}</span>
+          </td>
+          <td>
+            {{#if this.FilePath}}
+            <a class="download-btn" download="{{getFilename this.FilePath}}" href="{{this.FilePath}}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+              </svg>
+              Download
+            </a>
+            {{else}}
+            <span style="color: #6c757d; font-style: italic;">No file</span>
+            {{/if}}
+          </td>
+          <td>
+            <div class="action-buttons">
+              <a href="/admin/assignment/{{this.AssignmentID}}/edit" class="action-btn edit-btn" title="Edit Assignment">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+                <div class="tooltip">Edit Assignment</div>
+              </a>
+              <button class="action-btn delete-btn" onclick="confirmDeleteAssignment({{this.AssignmentID}})" title="Delete Assignment">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+                <div class="tooltip">Delete Assignment</div>
+              </button>
+            </div>
+          </td>
         </tr>
         {{/each}}
       </tbody>
     </table>
-    </div>
-    </div>
   </div>
-   {{/isAdminOrTrainer}}
+  {{/isAdminOrTrainer}}
 
- 
-  
+  <!-- Student Assignments Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <div class="table-title">Student Submissions</div>
+      <div class="table-subtitle">Assignments submitted by students</div>
+    </div>
 
-  {{!-- student assignemnts table --}}
-  
-  
-  <div class="container mt-5">
-    <table id="participantTable" class="w-100">
+    <table id="participantTable" class="table">
       <thead>
         <tr>
-          
-               <th>Student</th>
+          <th>Student</th>
           <th>Assignment</th>
           <th>Submission Date</th>
           <th>File</th>
@@ -139,140 +511,172 @@
       <tbody>
         {{#each assignmentsByStudents}}
         <tr>
-  <td>{{this.ParticipantID}}</td>
-  <td>{{this.Title}}</td>
-  <td>{{this.createdAt}}</td>
-  <td><a class="download-btn" download="true" href="{{this.FilePath}}"><i class="fa-solid fa-download text-success"></i></a></td>
-  <td>
-    <form  class="grade-form">
-      {{#when this.Grade 'eq' null}}
-      <input type="number" class="grade-input" min="0" max="10" step="1" name="Grade" 
-        placeholder="0-10" />
-        <span class="badge text-bg-success  save-grade-btn cursor-pointer">save</span>
-   {{else}}
-   {{this.Grade}}
- {{/when}}
-
-      
-      
-      <input type="hidden" value="{{this.AssignmentID}}" name="assignmentID" />
-      <input type="hidden" value="{{this.ParticipantID}}" name="UserID" />
-    </form>
-  </td>
-  <td> <!-- New column for delete button -->
-        <button class="delete-btn" onclick="confirmDelete({{../session.SessionID}}, {{this.AssignmentID}})">
-        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256">
-          <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
-            stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none"
-            font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
-            <g transform="scale(8.53333,8.53333)">
-              <path
-                d="M14.98438,2.48633c-0.55152,0.00862 -0.99193,0.46214 -0.98437,1.01367v0.5h-5.5c-0.26757,-0.00363 -0.52543,0.10012 -0.71593,0.28805c-0.1905,0.18793 -0.29774,0.44436 -0.29774,0.71195h-1.48633c-0.36064,-0.0051 -0.69608,0.18438 -0.87789,0.49587c-0.18181,0.3115 -0.18181,0.69676 0,1.00825c0.18181,0.3115 0.51725,0.50097 0.87789,0.49587h18c0.36064,0.0051 0.69608,-0.18438 0.87789,-0.49587c0.18181,-0.3115 0.18181,-0.69676 0,-1.00825c-0.18181,-0.3115 -0.51725,-0.50097 -0.87789,-0.49587h-1.48633c0,-0.26759 -0.10724,-0.52403 -0.29774,-0.71195c-0.1905,-0.18793 -0.44836,-0.29168 -0.71593,-0.28805h-5.5v-0.5c0.0037,-0.2703 -0.10218,-0.53059 -0.29351,-0.72155c-0.19133,-0.19097 -0.45182,-0.29634 -0.72212,-0.29212zM6,9l1.79297,15.23438c0.118,1.007 0.97037,1.76563 1.98438,1.76563h10.44531c1.014,0 1.86538,-0.75862 1.98438,-1.76562l1.79297,-15.23437z">
-              </path>
-            </g>
-          </g>
-        </svg>
-        </button>
-      </td>
-</tr>
+          <td>
+            <div class="assignment-title">Student #{{this.ParticipantID}}</div>
+            <div class="assignment-id">Submission #{{this.id}}</div>
+          </td>
+          <td>
+            <div class="assignment-title">{{this.Title}}</div>
+            <div class="assignment-id">Assignment #{{this.AssignmentID}}</div>
+          </td>
+          <td>
+            <span class="deadline-badge deadline-completed">{{this.createdAt}}</span>
+          </td>
+          <td>
+            {{#if this.FilePath}}
+            <a class="download-btn" download="{{getFilename this.FilePath}}" href="{{this.FilePath}}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+              </svg>
+              Download
+            </a>
+            {{else}}
+            <span style="color: #6c757d; font-style: italic;">No file</span>
+            {{/if}}
+          </td>
+          <td>
+            <form class="grade-form">
+              {{#when this.Grade 'eq' null}}
+              <input type="number" class="grade-input" min="0" max="10" step="1" name="Grade" placeholder="0-10" />
+              <span class="save-grade-btn cursor-pointer">Save</span>
+              {{else}}
+              <div class="grade-display">{{this.Grade}}/10</div>
+              {{/when}}
+              <input type="hidden" value="{{this.AssignmentID}}" name="assignmentID" />
+              <input type="hidden" value="{{this.ParticipantID}}" name="UserID" />
+            </form>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="action-btn delete-btn" onclick="confirmDeleteSubmission({{../session.SessionID}}, {{this.AssignmentID}})" title="Delete Submission">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+                <div class="tooltip">Delete Submission</div>
+              </button>
+            </div>
+          </td>
+        </tr>
         {{/each}}
       </tbody>
     </table>
   </div>
-  
+</div>
 
-  
+<!-- Add Assignment Modal -->
+<div class="modal fade" id="addProgram" tabindex="-1" aria-labelledby="addProgram" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Assignment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 needs-validation" novalidate>
+          <input type="hidden" name="SessionID" class="form-control" id="sessionInput" value="{{session.SessionID}}" />
+          
+          <div class="col-12">
+            <label for="validationCustom03" class="form-label">Title</label>
+            <input type="text" name="Title" class="form-control" id="titleInput" required />
+            <div class="invalid-feedback">
+              Please provide a valid title.
+            </div>
+          </div>
+          
+          <div class="col-12">
+            <label for="validationCustom03" class="form-label">Template</label>
+            <input type="file" name="template" class="form-control" id="fileInput" required />
+            <div class="invalid-feedback">
+              Please provide a template file.
+            </div>
+          </div>
+          
+          <div class="col-12">
+            <label for="validationCustom03" class="form-label">Deadline</label>
+            <input type="date" name="Deadline" class="form-control" id="deadlineInput" required />
+            <div class="invalid-feedback">
+              Please provide a valid deadline.
+            </div>
+          </div>
 
-
-  </div>
-  <div class="modal fade" id="addProgram" tabindex="-1" aria-labelledby="addProgram" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Add Assignment</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3 needs-validation" novalidate>
-            <input type="hidden" name="SessionID" class="form-control" id="sessionInput"
-              value="{{session.SessionID}}" />
-            {{! title }}
-            <div class="col-12">
-              <label for="validationCustom03" class="form-label">Title</label>
-              <input type="text" name="Title" class="form-control" id="titleInput" required />
-              <div class="invalid-feedback">
-                Please provide a valid Crieteria.
-              </div>
-            </div>
-            {{! file }}
-            <div class="col-12">
-              <label for="validationCustom03" class="form-label">Template</label>
-              <input type="file" name="template" class="form-control" id="fileInput" required />
-              <div class="invalid-feedback">
-                Please provide a valid Crieteria.
-              </div>
-            </div>
-            {{! deadline }}
-            <div class="col-12">
-              <label for="validationCustom03" class="form-label">Deadline</label>
-              <input type="date" name="Deadline" class="form-control" id="deadlineInput" required />
-              <div class="invalid-feedback">
-                Please provide a valid Requirements.
-              </div>
-            </div>
-
-            <div class="col-12">
-              <button class="btn btn-primary" id="uploadButton" type="button">Create Assignment</button>
-            </div>
+          <div class="col-12">
+            <button class="btn btn-primary" id="uploadButton" type="button">Create Assignment</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
+<script>
+  new DataTable('#participantTable');
+  new DataTable('#givenAssTable');
+</script>
 
-  
-  <script>
-    new DataTable('#participantTable');
-    new DataTable('#givenAssTable');
-  </script>
+<script src="/js/createAssignment.js"></script>
 
-  <script src="/js/createAssignment.js"></script>
-
-
-  <script>
-
-
-    
-
-
-
-    $('.save-grade-btn').on('click', function() {
+<script>
+  // Grade saving functionality
+  $('.save-grade-btn').on('click', function() {
     var form = $(this).closest('form');
     var grade = form.find('input[name="Grade"]').val();
     var assignmentID = form.find('input[name="assignmentID"]').val();
     var userID = form.find('input[name="UserID"]').val();
 
-    
+    if (!grade || grade < 0 || grade > 10) {
+      alert('Please enter a valid grade between 0 and 10');
+      return;
+    }
 
-    // You can further process the values here, like sending an AJAX request if needed
     $.ajax({
       type: 'POST',
-      url: '/trainer/assignment/mark', // Replace with your endpoint
+      url: '/trainer/assignment/mark',
       data: {
         Grade: grade,
         assignmentID: assignmentID,
         userID: userID,
       },
       success: function(response) {
-        // Handle the success response here
-        alert('grade updated')
-        
+        alert('Grade updated successfully!');
+        location.reload();
       },
       error: function(error) {
-        // Handle the error response here
         console.log('Error sending data:', error);
+        alert('Error updating grade. Please try again.');
       }
     });
   });
+
+  // Delete assignment confirmation
+  function confirmDeleteAssignment(assignmentId) {
+    if (confirm('Are you sure you want to delete this assignment? This action cannot be undone.')) {
+      fetch(`/admin/assignment/${assignmentId}/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Assignment deleted successfully!');
+          location.reload();
+        } else {
+          alert('Error deleting assignment: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting assignment. Please try again.');
+      });
+    }
+  }
+
+  // Delete submission confirmation
+  function confirmDeleteSubmission(sessionId, assignmentId) {
+    if (confirm('Are you sure you want to delete this submission? This action cannot be undone.')) {
+      // Existing delete functionality
+      console.log('Deleting submission:', sessionId, assignmentId);
+    }
+  }
 </script>

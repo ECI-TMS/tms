@@ -63,6 +63,12 @@ async function loadAdminDocuments() {
             </svg>
           </button>`,
           `<div class="actions-cell">
+            <button class="action-icon edit-icon" onclick="editFile(${doc.id}, '${doc.filename}', '${doc.filepath}')" title="Edit">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
             <button class="action-icon delete-icon" onclick="deleteFile(${doc.id})" title="Delete">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3,6 5,6 21,6"/>
@@ -248,6 +254,145 @@ function downloadFile(filePath, fileName) {
   document.body.removeChild(link);
 }
 
+// Edit file function
+function editFile(documentId, filename, filepath) {
+  // Store the document data for editing
+  window.editingDocument = {
+    id: documentId,
+    filename: filename,
+    filepath: filepath
+  };
+  
+  // Populate the edit modal
+  document.getElementById('editCurrentFile').textContent = filename;
+  
+  // Show the edit modal
+  document.getElementById('editModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+// Close edit modal function
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('active');
+  document.body.style.overflow = 'auto';
+  resetEditModal();
+}
+
+// Reset edit modal function
+function resetEditModal() {
+  window.editingDocument = null;
+  document.getElementById('editCurrentFile').textContent = '';
+  document.getElementById('editFileInput').value = '';
+  document.getElementById('editFileList').style.display = 'none';
+  document.getElementById('editFileItems').innerHTML = '';
+  document.getElementById('updateBtn').disabled = true;
+  document.getElementById('updateBtnText').textContent = 'Update File';
+}
+
+// Handle edit file input
+document.getElementById('editFileInput').addEventListener('change', function(e) {
+  handleEditFiles(e.target.files);
+});
+
+// Handle edit files
+function handleEditFiles(files) {
+  if (files.length > 0) {
+    window.editSelectedFiles = [files[0]];
+    updateEditFileList();
+  }
+}
+
+// Update edit file list
+function updateEditFileList() {
+  const fileList = document.getElementById('editFileList');
+  const fileItems = document.getElementById('editFileItems');
+  const updateBtn = document.getElementById('updateBtn');
+
+  if (window.editSelectedFiles && window.editSelectedFiles.length > 0) {
+    fileList.style.display = 'block';
+    updateBtn.disabled = false;
+    
+    fileItems.innerHTML = window.editSelectedFiles.map((file, index) => `
+      <div class="file-item">
+        <div class="file-info">
+          <div class="file-icon">
+            ${getFileIcon(file.name)}
+          </div>
+          <div>
+            <div style="font-weight: 600; color: var(--primary-blue-dark);">
+              ${file.name}
+            </div>
+            <div class="file-size">${formatFileSize(file.size)}</div>
+          </div>
+        </div>
+        <button class="remove-file" onclick="removeEditFile(${index})" title="Remove file">
+          ×
+        </button>
+      </div>
+    `).join('');
+  } else {
+    fileList.style.display = 'none';
+    updateBtn.disabled = true;
+  }
+}
+
+// Remove edit file
+function removeEditFile(index) {
+  window.editSelectedFiles.splice(index, 1);
+  updateEditFileList();
+}
+
+// Update file function
+async function updateFile() {
+  if (!window.editingDocument) return;
+
+  const updateBtn = document.getElementById('updateBtn');
+  const updateBtnText = document.getElementById('updateBtnText');
+  
+  // Show loading state
+  updateBtn.disabled = true;
+  updateBtnText.innerHTML = '<span class="loading"></span> Updating...';
+
+  try {
+    const formData = new FormData();
+    
+    // Determine filename - use new file's name if selected, otherwise keep current
+    let filename = window.editingDocument.filename;
+    if (window.editSelectedFiles && window.editSelectedFiles.length > 0) {
+      filename = window.editSelectedFiles[0].name;
+    }
+    
+    formData.append('filename', filename);
+    
+    // Add new file if selected
+    if (window.editSelectedFiles && window.editSelectedFiles.length > 0) {
+      formData.append('file', window.editSelectedFiles[0]);
+    }
+
+    const response = await fetch(`/admin/session/${sessionId}/documents/admin/${window.editingDocument.id}/edit`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      alert('File updated successfully');
+      closeEditModal();
+      loadAdminDocuments(); // Reload the table
+    } else {
+      alert(`Update failed: ${result.message}`);
+    }
+  } catch (error) {
+    console.error('Update error:', error);
+    alert('Update failed. Please try again.');
+  } finally {
+    // Reset button state
+    updateBtn.disabled = false;
+    updateBtnText.textContent = 'Update File';
+  }
+}
+
 // Delete file function
 async function deleteFile(documentId) {
   if (confirm('Are you sure you want to delete this file?')) {
@@ -278,9 +423,19 @@ document.getElementById('uploadModal').addEventListener('click', function(e) {
   }
 });
 
+// Close edit modal when clicking outside
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeEditModal();
+  }
+});
+
 // Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && document.getElementById('uploadModal').classList.contains('active')) {
     closeUploadModal();
+  }
+  if (e.key === 'Escape' && document.getElementById('editModal').classList.contains('active')) {
+    closeEditModal();
   }
 });

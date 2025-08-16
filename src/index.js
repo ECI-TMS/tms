@@ -63,6 +63,7 @@ app.use(fileUpload());
 app.use(express.json());
 app.use(express.static("public"));
 app.use('/documents', express.static(path.join(process.cwd(), 'public', 'documents')));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 console.log('111111111111111111111111111111111111111111111')
 
 // app.engine(

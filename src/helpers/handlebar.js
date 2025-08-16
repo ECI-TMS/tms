@@ -54,19 +54,23 @@ export function hbsHelpers() {
             getFilename: function(filepath) {
     if (!filepath) return '';
     
-    const fileName = filepath.split('/').pop(); // Get the filename only
+    // Handle both forward slashes and backslashes
+    const normalizedPath = filepath.replace(/\\/g, '/');
     
-    // Filename format: "timestamp-randomnumber-originalfilename.ext"
-    // Split by '-' and remove the first two parts (timestamp and random number)
-    const parts = fileName.split('-');
+    // Get the filename from the path (last part after /)
+    const fileName = normalizedPath.split('/').pop();
     
-    if(parts.length < 3) {
-        // If format unexpected, return full filename
-        return fileName;
+    // If the filename starts with "upload_", extract the original filename
+    if(fileName && fileName.startsWith('upload_')) {
+        const parts = fileName.split('_');
+        if(parts.length >= 3) {
+            // Remove "upload" and session ID, keep the rest as original filename
+            return parts.slice(2).join('_');
+        }
     }
     
-    // Join back the rest parts (original filename could contain dashes)
-    return parts.slice(2).join('-');
+    // For other formats, just return the filename as is
+    return fileName;
 },
             formatFileSize: function(bytes) {
                 if (!bytes || bytes === 0) return '0 Bytes';
@@ -101,6 +105,26 @@ export function hbsHelpers() {
             },
             isSelected: function(value1, value2) {
                 return String(value1) === String(value2);
+            },
+            substring: function(str, start, end) {
+                if (!str) return '';
+                return String(str).substring(start, end);
+            },
+            incrementIndex: function(index) {
+                return index + 1;
+            },
+            formatDateForInput: function(dateString) {
+                if (!dateString) return '';
+                
+                // Parse the localized date string (e.g., "12/25/2023") and convert to YYYY-MM-DD
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return '';
+                
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                
+                return `${year}-${month}-${day}`;
             }
 
 
