@@ -1571,6 +1571,11 @@ router.get("/session/:id/quizes", async (req, res) => {
       where: {
         SessionID: +req.params.id,
       },
+      select: {
+        SessionID: true,
+        ProgramID: true,
+        CourseID: true,
+      },
     });
 
     res.render("admin/quizes", {
@@ -1586,7 +1591,7 @@ router.get("/session/:id/quizes", async (req, res) => {
 // ===========================================================================
 router.get("/session/:id/quizes/:quizId", async (req, res) => {
   try {
-    const quizquestions = await prisma.Quiz.findFirst({
+    const quiz = await prisma.Quiz.findFirst({
       where: {
         id: +req.params.quizId,
       },
@@ -1596,6 +1601,7 @@ router.get("/session/:id/quizes/:quizId", async (req, res) => {
             options: true,
           },
         },
+        SubmittedQuizes: true,
       },
     });
 
@@ -1603,18 +1609,186 @@ router.get("/session/:id/quizes/:quizId", async (req, res) => {
       where: {
         SessionID: +req.params.id,
       },
+      select: {
+        SessionID: true,
+        ProgramID: true,
+        CourseID: true,
+      },
     });
-    // res.json(session)
+
+    if (!quiz) {
+      return res.status(404).json({ error: "Quiz not found" });
+    }
+
     res.render("admin/quizQuestions", {
-      questions: quizquestions.questions,
+      quiz,
+      questions: quiz.questions,
       session,
     });
   } catch (error) {
+    console.error("Error fetching quiz questions:", error);
     res.status(400).json({ error });
   }
 });
 
+// Update question route
+router.put("/quiz/:quizId/question/:questionId/update", async (req, res) => {
+  try {
+    const { quizId, questionId } = req.params;
+    const { question, answer, options } = req.body;
 
+    if (!question || !answer || !options || options.length !== 4) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Question, answer, and exactly 4 options are required" 
+      });
+    }
+
+    // Update the question
+    await prisma.QuizQuestion.update({
+      where: { id: +questionId },
+      data: {
+        question: question.trim(),
+        answer: answer.trim(),
+      },
+    });
+
+    // Delete existing options
+    await prisma.Option.deleteMany({
+      where: { questionId: +questionId },
+    });
+
+    // Create new options
+    await prisma.Option.createMany({
+      data: options.map(option => ({
+        value: option.trim(),
+        questionId: +questionId,
+      })),
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Question updated successfully" 
+    });
+  } catch (error) {
+    console.error("Error updating question:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to update question",
+      error: error.message 
+    });
+  }
+});
+
+// Delete question route
+router.delete("/quiz/:quizId/question/:questionId/delete", async (req, res) => {
+  try {
+    const { quizId, questionId } = req.params;
+
+    // Delete options first
+    await prisma.Option.deleteMany({
+      where: { questionId: +questionId },
+    });
+
+    // Delete the question
+    await prisma.QuizQuestion.delete({
+      where: { id: +questionId },
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Question deleted successfully" 
+    });
+  } catch (error) {
+    console.error("Error deleting question:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to delete question",
+      error: error.message 
+    });
+  }
+});
+
+// Get question data route
+router.get("/quiz/:quizId/question/:questionId/data", async (req, res) => {
+  try {
+    const { quizId, questionId } = req.params;
+
+    const question = await prisma.QuizQuestion.findFirst({
+      where: { 
+        id: +questionId,
+        quizId: +quizId
+      },
+      include: {
+        options: true,
+      },
+    });
+
+    if (!question) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Question not found" 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      question: question
+    });
+  } catch (error) {
+    console.error("Error fetching question data:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to fetch question data",
+      error: error.message 
+    });
+  }
+});
+
+// Add new question route
+router.post("/quiz/:quizId/question/add", async (req, res) => {
+  try {
+    const { quizId } = req.params;
+    const { question, answer, options } = req.body;
+
+    if (!question || !answer || !options || options.length !== 4) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Question, answer, and exactly 4 options are required" 
+      });
+    }
+
+    // Create the question with options
+    const newQuestion = await prisma.QuizQuestion.create({
+      data: {
+        question: question.trim(),
+        answer: answer.trim(),
+        quizId: +quizId,
+        options: {
+          create: options.map(option => ({
+            value: option.trim(),
+          })),
+        },
+      },
+      include: {
+        options: true,
+      },
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Question added successfully",
+      question: newQuestion
+    });
+  } catch (error) {
+    console.error("Error adding question:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to add question",
+      error: error.message 
+    });
+  }
+});
 
 router.get('/documents', async (req, res) => {
   try {
