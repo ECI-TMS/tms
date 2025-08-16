@@ -1676,6 +1676,91 @@ router.delete("/monitors/:id", async (req, res) => {
   }
 });
 
+router.get("/monitor/edit/:id", async (req, res) => {
+  try {
+    const monitorId = +req.params.id;
+    
+    // Get the monitor with their related program
+    const monitor = await prisma.users.findFirst({
+      where: {
+        UserID: monitorId,
+        UserType: "MONITOR"
+      },
+    });
+
+    if (!monitor) {
+      return res.status(404).json({ message: "Monitor not found" });
+    }
+
+    // Get all programs for the dropdown
+    const programs = await prisma.programs.findMany();
+
+    res.render("admin/editMonitor", { 
+      monitor, 
+      programs 
+    });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+    res.status(500).json({ error: "Failed to fetch monitor for editing" });
+  }
+});
+
+router.post("/monitor/update/:id", async (req, res) => {
+  try {
+    const monitorId = +req.params.id;
+    const { Username, Email, FirstName, LastName, ContactNumber, ProgramID } = req.body;
+
+    // Validate required fields
+    if (!Username || !Email) {
+      return res.status(400).json({ 
+        status: false, 
+        error: "Missing fields", 
+        message: "Username and Email are required" 
+      });
+    }
+
+    // Check if email already exists for another user
+    const existingUser = await prisma.users.findFirst({
+      where: {
+        Email: Email,
+        UserID: { not: monitorId }
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ 
+        status: false, 
+        error: "Email already exists", 
+        message: "This email is already registered to another user" 
+      });
+    }
+
+    // Update the monitor
+    const updatedMonitor = await prisma.users.update({
+      where: {
+        UserID: monitorId,
+      },
+      data: {
+        Username,
+        Email,
+        FirstName: FirstName || null,
+        LastName: LastName || null,
+        ContactNumber: ContactNumber || null,
+        ProgramID: ProgramID || null,
+      },
+    });
+
+    if (!updatedMonitor) {
+      return res.status(400).json({ status: false, error: "Failed to update monitor" });
+    }
+
+    // Respond with success JSON
+    return res.status(200).json({ status: true, message: "Monitor updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, error: error.message || error });
+  }
+});
+
 
 
 
@@ -1771,6 +1856,91 @@ router.get("/trainers", async (req, res) => {
     res.render("admin/trainers", { var_trainers: allTrainers });
   } catch (error) {
     
+  }
+});
+
+router.get("/trainer/edit/:id", async (req, res) => {
+  try {
+    const trainerId = +req.params.id;
+    
+    // Get the trainer with their related program
+    const trainer = await prisma.users.findFirst({
+      where: {
+        UserID: trainerId,
+        UserType: "TRAINER"
+      },
+    });
+
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    // Get all programs for the dropdown
+    const programs = await prisma.programs.findMany();
+
+    res.render("admin/editTrainer", { 
+      trainer, 
+      programs 
+    });
+  } catch (error) {
+    console.log("🚀 ~ router.get ~ error:", error);
+    res.status(500).json({ error: "Failed to fetch trainer for editing" });
+  }
+});
+
+router.post("/trainer/update/:id", async (req, res) => {
+  try {
+    const trainerId = +req.params.id;
+    const { Username, Email, FirstName, LastName, ContactNumber, ProgramID } = req.body;
+
+    // Validate required fields
+    if (!Username || !Email) {
+      return res.status(400).json({ 
+        status: false, 
+        error: "Missing fields", 
+        message: "Username and Email are required" 
+      });
+    }
+
+    // Check if email already exists for another user
+    const existingUser = await prisma.users.findFirst({
+      where: {
+        Email: Email,
+        UserID: { not: trainerId }
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ 
+        status: false, 
+        error: "Email already exists", 
+        message: "This email is already registered to another user" 
+      });
+    }
+
+    // Update the trainer
+    const updatedTrainer = await prisma.users.update({
+      where: {
+        UserID: trainerId,
+      },
+      data: {
+        Username,
+        Email,
+        FirstName: FirstName || null,
+        LastName: LastName || null,
+        ContactNumber: ContactNumber || null,
+        ProgramID: ProgramID || null,
+      },
+    });
+
+    if (!updatedTrainer) {
+      return res.status(400).json({ status: false, error: "Failed to update trainer" });
+    }
+
+    // Respond with success JSON
+    return res.status(200).json({ status: true, message: "Trainer updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, error: error.message || error });
   }
 });
 

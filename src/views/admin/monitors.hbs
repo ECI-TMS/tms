@@ -49,10 +49,22 @@
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
   }
 
   .action-btn:hover {
     background-color: darkred;
+    color: white;
+    text-decoration: none;
+  }
+
+  .edit-btn {
+    background-color: #007bff !important;
+  }
+
+  .edit-btn:hover {
+    background-color: #0056b3 !important;
   }
     .section-heading {
   color: #2E5A92;
@@ -69,7 +81,7 @@
 
 <div class="content">
   <div style="text-align: center;">
-  <h2 class="section-heading">Manage Monitors</h2>
+  <h2 class="section-heading">Manage Monitor </h2>
 </div>
 
 
@@ -93,6 +105,9 @@
         <td>{{this.Email}}</td>
         <td>{{#if this.program}}{{this.program.Name}}{{else}}—{{/if}}</td>
         <td>
+          <a href="/admin/monitor/edit/{{this.UserID}}" class="text-primary me-2" title="Edit Monitor">
+            <i class="fa-solid fa-edit"></i>
+          </a>
           <button class="action-btn" onclick="deleteMonitor('{{this.UserID}}', '{{this.Username}}')">Delete</button>
         </td>
       </tr>

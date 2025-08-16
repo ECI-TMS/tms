@@ -95,6 +95,12 @@ export function hbsHelpers() {
             includes: function(array, value) {
                 if (!array || !Array.isArray(array)) return false;
                 return array.includes(value);
+            },
+            toString: function(value) {
+                return String(value);
+            },
+            isSelected: function(value1, value2) {
+                return String(value1) === String(value2);
             }
 
 

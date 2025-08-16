@@ -89,6 +89,32 @@
     border-bottom: 2px solid #2E5A92;
     padding-bottom: 10px;
   }
+
+  .action-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 5px;
+  }
+
+  .action-btn:hover {
+    background-color: darkred;
+    color: white;
+    text-decoration: none;
+  }
+
+  .edit-btn {
+    background-color: #007bff !important;
+  }
+
+  .edit-btn:hover {
+    background-color: #0056b3 !important;
+  }
     </style>
 
     <div class="main-content">
@@ -150,10 +176,13 @@
                                 <td>{{programName}}</td> <!-- Changed from this.program -->
                                 <td>{{sessionsCompleted}}</td>
                                 {{!-- <td>{{programName}}</td> --}}
-                                <td>
-                                    <i class="fa-solid fa-trash text-danger delete_trainer cursor-pointer"
-                                        data-id="{{UserID}}" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>
-                                </td>
+                                                                 <td>
+                                     <a href="/admin/trainer/edit/{{UserID}}" class="text-primary me-2" title="Edit Trainer">
+                                         <i class="fa-solid fa-edit"></i>
+                                     </a>
+                                     <i class="fa-solid fa-trash text-danger delete_trainer cursor-pointer"
+                                         data-id="{{UserID}}" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>
+                                 </td>
                             </tr>
 
                             {{/each}}

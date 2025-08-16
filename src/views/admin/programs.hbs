@@ -146,7 +146,9 @@
         <td>
           <div class="action-btns">
             <a href="/admin/programs/{{this.ProgramID}}"> Training Courses</a>
-            <a href="/admin/program/edit/{{this.ProgramID}}">Edit</a>
+            <a href="/admin/program/edit/{{this.ProgramID}}" class="text-primary me-2" title="Edit Program">
+              <i class="fa-solid fa-edit"></i>
+            </a>
             <button type="button" class="delete" onclick="openModal('modal-{{this.ProgramID}}')">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0,0,256,256">
                 <g fill="#ffffff" transform="scale(8.53333,8.53333)">
