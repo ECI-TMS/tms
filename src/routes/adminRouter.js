@@ -1541,6 +1541,12 @@ router.get("/program/:programId/course/:courseId/sessions/:id/edit", async (req,
       where: {
         SessionID: +id,
       },
+      include: {
+        course: true,
+        programs: true,
+        users_trainingsessions_TrainerIDTousers: true,
+        users_trainingsessions_MonitorIDTousers: true,
+      },
     });
 
     const centers = await prisma.centers.findMany();
@@ -1573,6 +1579,13 @@ router.get("/program/:programId/course/:courseId/sessions/:id/edit", async (req,
     session.StartDate = formatDate(session.StartDate);
     session.EndDate = formatDate(session.EndDate);
 
+    // Debug: Log session center and centers for comparison
+    console.log("Session Center:", session.Center);
+    console.log("Available Centers:", centers.map(c => c.Name));
+    console.log("Session Center type:", typeof session.Center);
+    console.log("Center names types:", centers.map(c => ({ name: c.Name, type: typeof c.Name })));
+
+    
     res.render("admin/editSession", {
       session,
       centers,

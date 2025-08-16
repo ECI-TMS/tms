@@ -1,88 +1,245 @@
 {{!< dashboard}}
 
-<div class="container mt-4">
-  <div class="row justify-content-center">
-    <div class="col-lg-6 bg-white p-4"><h3 class="fw-bold">Edit Batch</h3></div>
-  </div>
-</div>
-<div class="container mt-4">
-  <form action="/admin/program/{{programId}}/course/{{courseId}}/sessions/{{session.SessionID}}/edit" method="POST" class="row g-3 needs-validation justify-content-center">
-    <input type="hidden" name="program_id" value="{{programId}}">
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    color: #000;
+  }
 
-    <div class="col-lg-6 bg-white p-5">
-      <div class="row gap-4">
-        <div class="row">
-          <div class="col-md-6">
-            <label for="validationCustom04" class="form-label">Course</label>
-            <select class="form-select" name="CourseID" id="validationCustom04" required>
-              <option selected disabled value="">Choose...</option>
-              {{#each courses}}
-                <option value="{{this.CourseID}}" {{#eq this.CourseID ../session.CourseID}} selected {{/eq}}>{{this.Name}}</option>
-              {{/each}}
-            </select>
-            <div class="invalid-feedback">
-              Please select a valid course.
-            </div>
-          </div>
-          <div class="col-md-6">
-            <label for="validationCustom04" class="form-label">District</label>
-            <select class="form-select" name="Center" id="validationCustom04" required>
-              <option selected disabled value="">Choose...</option>
-              {{#each centers}}
-                <option value="{{this.Name}}" {{#eq this.Name ../session.Center}} selected {{/eq}}>{{this.Name}}</option>
-              {{/each}}
-            </select>
-            <div class="invalid-feedback">
-              Please select a valid center.
-            </div>
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .form-container {
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #2E5A92;
+    margin-bottom: 8px;
+  }
+
+  .form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #2E5A92;
+    box-shadow: 0 0 0 0.2rem rgba(46, 90, 146, 0.25);
+  }
+
+  .btn-primary {
+    background-color: #2E5A92;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #1e4a7a;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+</style>
+
+<div class="container mt-4">
+  <div class="form-container">
+    <h3 class="mb-4 text-center" style="color: #2E5A92;">Edit Batch</h3>
+    
+    <form action="/admin/program/{{programId}}/course/{{courseId}}/sessions/{{session.SessionID}}/edit" method="POST" class="needs-validation">
+      <input type="hidden" name="program_id" value="{{programId}}">
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="courseSelect" class="form-label">Course</label>
+                     <select class="form-select" name="CourseID" id="courseSelect" required>
+             <option value="">Choose...</option>
+             {{#each courses}}
+               <option value="{{this.CourseID}}" data-course-id="{{this.CourseID}}">{{this.Name}}</option>
+             {{/each}}
+           </select>
+          <div class="invalid-feedback">
+            Please select a valid course.
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-6">
-            <label for="validationCustom02" class="form-label">Start Date</label>
-            <input type="date" name="StartDate" class="form-control" id="validationCustom02" value="{{session.StartDate}}" required />
-            <div class="valid-feedback">
-              Looks good!
-            </div>
+        
+        <div class="col-md-6 mb-3">
+          <label for="centerSelect" class="form-label">District</label>
+                     <select class="form-select" name="Center" id="centerSelect" required>
+             <option value="">Choose...</option>
+             {{#each centers}}
+               <option value="{{this.Name}}" data-center-name="{{this.Name}}">{{this.Name}}</option>
+             {{/each}}
+           </select>
+          <div class="invalid-feedback">
+            Please select a valid center.
           </div>
-          <div class="col-md-6">
-            <label for="validationCustom02" class="form-label">End Date</label>
-            <input type="date" name="EndDate" class="form-control" id="validationCustom02" value="{{session.EndDate}}" required />
-            <div class="valid-feedback">
-              Looks good!
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <label for="validationCustom04" class="form-label">Trainer</label>
-            <select class="form-select" name="TrainerID" id="validationCustom04" required>
-              <option selected disabled value="">Choose...</option>
-              {{#each trainers}}
-                <option value="{{this.UserID}}" {{#eq this.UserID ../session.TrainerID}} selected {{/eq}}>{{this.Username}}</option>
-              {{/each}}
-            </select>
-            <div class="invalid-feedback">
-              Please select a trainer.
-            </div>
-          </div>
-          <div class="col-md-6">
-            <label for="validationCustom04" class="form-label">Monitor</label>
-            <select class="form-select" name="MonitorID" id="validationCustom04" required>
-              <option selected disabled value="">Choose...</option>
-              {{#each monitors}}
-                <option value="{{this.UserID}}" {{#eq this.UserID ../session.MonitorID}} selected {{/eq}}>{{this.Username}}</option>
-              {{/each}}
-            </select>
-            <div class="invalid-feedback">
-              Please select a monitor.
-            </div>
-          </div>
-        </div>
-        <div class="col-12">
-          <button class="btn btn-primary" type="submit">Update Batch</button>
         </div>
       </div>
-    </div>
-  </form>
-</div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="startDate" class="form-label">Start Date</label>
+          <input type="date" name="StartDate" class="form-control" id="startDate" value="{{session.StartDate}}" required />
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+          <label for="endDate" class="form-label">End Date</label>
+          <input type="date" name="EndDate" class="form-control" id="endDate" value="{{session.EndDate}}" required />
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="trainerSelect" class="form-label">Trainer</label>
+                     <select class="form-select" name="TrainerID" id="trainerSelect" required>
+             <option value="">Choose...</option>
+             {{#each trainers}}
+               <option value="{{this.UserID}}" data-trainer-id="{{this.UserID}}">{{this.Username}}</option>
+             {{/each}}
+           </select>
+          <div class="invalid-feedback">
+            Please select a trainer.
+          </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+          <label for="monitorSelect" class="form-label">Monitor</label>
+                     <select class="form-select" name="MonitorID" id="monitorSelect" required>
+             <option value="">Choose...</option>
+             {{#each monitors}}
+               <option value="{{this.UserID}}" data-monitor-id="{{this.UserID}}">{{this.Username}}</option>
+             {{/each}}
+           </select>
+          <div class="invalid-feedback">
+            Please select a monitor.
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end">
+        <a href="/admin/programs/{{programId}}/courses/{{courseId}}" class="btn btn-secondary">Cancel</a>
+        <button class="btn btn-primary" type="submit">Update Batch</button>
+      </div>
+         </form>
+   </div>
+ </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get session data from server
+    const sessionData = {
+      Center: '{{session.Center}}',
+      CourseID: '{{session.CourseID}}',
+      TrainerID: '{{session.TrainerID}}',
+      MonitorID: '{{session.MonitorID}}'
+    };
+
+    console.log('Session data:', sessionData);
+
+         // Function to set dropdown selection
+     function setDropdownSelection(selectId, targetValue) {
+       const select = document.getElementById(selectId);
+       if (!select || !targetValue) return;
+
+       console.log(`Setting ${selectId} to:`, targetValue);
+       console.log(`Available options for ${selectId}:`, Array.from(select.options).map((opt, idx) => `${idx}: ${opt.value} (${opt.text})`));
+       
+       // Try exact match first
+       for (let i = 0; i < select.options.length; i++) {
+         const option = select.options[i];
+         console.log(`Checking option ${i}: value="${option.value}", data-center-name="${option.getAttribute('data-center-name')}", text="${option.text}"`);
+         
+         if (option.value === targetValue || option.getAttribute('data-center-name') === targetValue || 
+             option.getAttribute('data-course-id') === targetValue || 
+             option.getAttribute('data-trainer-id') === targetValue || 
+             option.getAttribute('data-monitor-id') === targetValue) {
+           select.selectedIndex = i;
+           console.log(`Selected option ${i} for ${selectId}:`, option.text);
+           break;
+         }
+       }
+     }
+
+         // Special function for center selection
+     function setCenterSelection() {
+       const centerSelect = document.getElementById('centerSelect');
+       const sessionCenter = sessionData.Center;
+       
+       if (!centerSelect || !sessionCenter) {
+         console.log('Center select or session center not found');
+         return;
+       }
+
+       console.log('Setting center to:', sessionCenter);
+       console.log('Available center options:', Array.from(centerSelect.options).map((opt, idx) => `${idx}: "${opt.value}" (${opt.text})`));
+       
+       // Try multiple matching strategies
+       for (let i = 0; i < centerSelect.options.length; i++) {
+         const option = centerSelect.options[i];
+         const optionValue = option.value;
+         const optionDataName = option.getAttribute('data-center-name');
+         
+         console.log(`Checking center option ${i}: value="${optionValue}", data-center-name="${optionDataName}", text="${option.text}"`);
+         
+         // Try exact match, case-insensitive match, and data attribute match
+         if (optionValue === sessionCenter || 
+             optionValue.toLowerCase() === sessionCenter.toLowerCase() ||
+             optionDataName === sessionCenter ||
+             optionDataName === sessionCenter.toLowerCase()) {
+           centerSelect.selectedIndex = i;
+           console.log(`Selected center option ${i}:`, option.text);
+           return;
+         }
+       }
+       
+       console.log('No matching center found');
+     }
+
+     // Set selections with a small delay to ensure DOM is ready
+     setTimeout(() => {
+       setCenterSelection();
+       setDropdownSelection('courseSelect', sessionData.CourseID);
+       setDropdownSelection('trainerSelect', sessionData.TrainerID);
+       setDropdownSelection('monitorSelect', sessionData.MonitorID);
+     }, 100);
+
+     // Also try again after a longer delay as fallback
+     setTimeout(() => {
+       setCenterSelection();
+       setDropdownSelection('courseSelect', sessionData.CourseID);
+       setDropdownSelection('trainerSelect', sessionData.TrainerID);
+       setDropdownSelection('monitorSelect', sessionData.MonitorID);
+     }, 500);
+  });
+</script>

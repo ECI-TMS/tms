@@ -37,6 +37,26 @@
     cursor: pointer;
   }
 
+  .edit-icon {
+    background-color: #2E5A92;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .edit-icon i {
+    color: white;
+    font-size: 16px;
+  }
+
   .action-btns .delete {
     background-color: red;
     display: flex;
@@ -146,7 +166,7 @@
         <td>
           <div class="action-btns">
             <a href="/admin/programs/{{this.ProgramID}}"> Training Courses</a>
-            <a href="/admin/program/edit/{{this.ProgramID}}" class="text-primary me-2" title="Edit Program">
+            <a href="/admin/program/edit/{{this.ProgramID}}" class="edit-icon" title="Edit Program">
               <i class="fa-solid fa-edit"></i>
             </a>
             <button type="button" class="delete" onclick="openModal('modal-{{this.ProgramID}}')">
