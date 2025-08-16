@@ -1,156 +1,819 @@
 {{!< dashboard}}
 
-<link rel="stylesheet" href="programs.css" />
-
 <style>
-  /* Additional styles specific to the Programs section */ .programs-container {
-  display: flex;   flex-wrap: wrap; gap: 20px; padding-block: 20px; }
-  .program-card { border: 2px solid rgba(46, 90, 146,0.3); background-color:
-  #f7f7f7; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width:
-  200px;height: 150px; display: flex; flex-direction:column;justify-content:
-  space-between; overflow: hidden; } .program-card h3 { color: #2E5A92; }
-  .program-card p { color: white; font-weight: 500 } .add-button { margin-bottom: 15px;
-  background-color: #2E5A92; color: #fff; padding: 10px 15px; border: none;
-  border-radius: 5px; cursor: pointer; } .add-button:hover { background-color:
-  #2E5ABB; } .card-upper { padding: 15px; display: flex;justify-content:
-  center;align-items: center; flex:1;} .card-lower { padding-inline: 15px;
-  background: #2E5A92; color: white; display: flex;height: 30px;
-  justify-content: center; }
-
-  .card-upper>h3{
-    font-size: 1.2rem;
+  .quizzes-container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+    margin-bottom: 2rem;
   }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 18px;
-    text-align: left;
-}
 
-th, td {
-    text-align: center;
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-}
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+  }
 
-th {
-    background-color: #2e5a92;
-    color: #fff;
-}
+  .page-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2e5a92;
+    margin: 0;
+  }
 
-tr:hover {
-    background-color: #f5f5f5;
-}
+  .session-info {
+    background: linear-gradient(135deg, #2e5a92 0%, #4a7bb8 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(46, 90, 146, 0.2);
+  }
 
-.action-button {
-    padding: 8px 16px;
-    background-color: #4CAF50;
+  .session-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+
+  .session-info p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+  }
+
+  .add-quiz-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
     border: none;
-    border-radius: 4px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
     cursor: pointer;
-}
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-.action-button:hover {
-    background-color: #45a049;
-}
+  .add-quiz-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .add-quiz-btn i {
+    font-size: 1rem;
+  }
+
+  .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb-item {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+
+  .breadcrumb-item.active {
+    color: #2e5a92;
+    font-weight: 500;
+  }
+
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    color: #6c757d;
+    margin: 0 0.5rem;
+  }
+
+  .quizzes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .quiz-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .quiz-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2e5a92, #4a7bb8);
+  }
+
+  .quiz-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #2e5a92;
+  }
+
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2e5a92;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .quiz-status {
+    background: #e8f5e8;
+    color: #28a745;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .quiz-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    min-width: 80px;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2e5a92;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    text-align: center;
+  }
+
+  .quiz-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #2e5a92 0%, #4a7bb8 100%);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #1e4a82 0%, #3a6ba8 100%);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background: #5a6268;
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .btn-warning {
+    background: #ffc107;
+    color: #212529;
+  }
+
+  .btn-warning:hover {
+    background: #e0a800;
+    color: #212529;
+    transform: translateY(-1px);
+  }
+
+  .btn-danger {
+    background: #dc3545;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: #c82333;
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .quizzes-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Modal Styles */
+  .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #2e5a92 0%, #4a7bb8 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+  }
+
+  .modal-title {
+    font-weight: 600;
+  }
+
+  .modal-body {
+    padding: 2rem;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    border-color: #2e5a92;
+    box-shadow: 0 0 0 0.2rem rgba(46, 90, 146, 0.25);
+  }
+
+  .modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 1rem 2rem;
+  }
+
+  .btn-modal {
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-modal-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+  }
+
+  .btn-modal-secondary:hover {
+    background: #5a6268;
+    color: white;
+  }
+
+  .btn-modal-primary {
+    background: linear-gradient(135deg, #2e5a92 0%, #4a7bb8 100%);
+    color: white;
+    border: none;
+  }
+
+  .btn-modal-primary:hover {
+    background: linear-gradient(135deg, #1e4a82 0%, #3a6ba8 100%);
+    color: white;
+  }
+
+  .btn-modal-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+  }
+
+  .btn-modal-danger:hover {
+    background: #c82333;
+    color: white;
+  }
+
+  /* Toast notification styles */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+
+  .toast {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: none;
+    margin-bottom: 10px;
+  }
+
+  .toast-header {
+    background: transparent;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .toast-success {
+    border-left: 4px solid #28a745;
+  }
+
+  .toast-error {
+    border-left: 4px solid #dc3545;
+  }
+
+  .toast-warning {
+    border-left: 4px solid #ffc107;
+  }
+
+  .table {
+    margin: 0;
+  }
+
+  .table thead th {
+    background: linear-gradient(135deg, #2e5a92 0%, #4a7bb8 100%);
+    color: white;
+    border: none;
+    padding: 1rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .table tbody td {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+  }
+
+  .table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  .table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6c757d;
+  }
+
+  .empty-state i {
+    font-size: 3rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state h4 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state p {
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .quizzes-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .quiz-stats {
+      flex-wrap: wrap;
+    }
+
+    .quiz-actions {
+      flex-direction: column;
+    }
+  }
 </style>
 
 <div class="content">
-  
-  <button
-    class="add-button"
-    onclick="window.location.href='/admin/quiz/{{session.SessionID}}/create'"
-  >
-    Add Quiz</button>
-
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item" aria-current="page">Home</li>
-    <li class="breadcrumb-item" aria-current="page">{{session.SessionID}}</li>
-    <li class="breadcrumb-item active" aria-current="page">Quiz</li>
-  </ol>
-
-  <div class="programs-container">
-    {{#each quizes}}
-      <a href="/admin/quiz/{{this.id}}" style="text-decoration: none;">
-        <div class="program-card">
-          <div class="card-upper"><h3>{{this.name}}</h3></div>
-          <div class="card-lower"><p>Submitted:
-              {{this.SubmittedQuizes.length}}</p></div>
-        </div></a>
-    {{/each}}
-
-
-        <table>
-        <thead>
-            <tr>
-                <th>Quiz</th>
-                <th>Submitted</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-          {{#each quizes}}
-            <tr>
-                <td>{{this.name}}</td>
-                <td>{{this.SubmittedQuizes.length}}</td>
-                <td><a href="/admin/session/{{this.SessionID}}/quizes/{{this.id}}" class="add-button" style="text-decoration: none;">View</a></td>
-            </tr>
-          {{/each}}
-        </tbody>
-    </table>
-
-  </div>
-</div>
-
-<!-- Modal for adding/editing programs (can be hidden by default) -->
-<div
-  class="modal fade"
-  id="createReportModal"
-  tabindex="-1"
-  aria-labelledby="createReportModal"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Add Report</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
+  <div class="quizzes-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Session Quizzes</h1>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="/admin/dashboard" style="color: #6c757d; text-decoration: none;">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+              <a href="/admin/sessions" style="color: #6c757d; text-decoration: none;">Sessions</a>
+            </li>
+            <li class="breadcrumb-item active">Session {{session.SessionID}} - Quizzes</li>
+          </ol>
+        </nav>
       </div>
-      <div class="modal-body">
-        <form
-          action="/reports/{{program.ProgramID}}/create"
-          method="post"
-          class="row g-3 needs-validation"
-        >
-          {{! NAme }}
-          <div class="col-12">
-            <label for="validationCustom01" class="form-label">Name</label>
-            <input
-              type="text"
-              name="Name"
-              class="form-control"
-              id="validationCustom01"
-              required
-            />
-            <div class="valid-feedback">
-              Looks good!
+      <button
+        class="add-quiz-btn"
+        onclick="window.location.href='/admin/quiz/{{session.SessionID}}/create'"
+      >
+        <i class="fas fa-plus"></i>
+        Create New Quiz
+      </button>
+    </div>
+
+    <!-- Session Info -->
+    <div class="session-info">
+      <h3>Session Information</h3>
+      <p><strong>Session ID:</strong> {{session.SessionID}} | <strong>Total Quizzes:</strong> {{quizes.length}}</p>
+    </div>
+
+    {{#if quizes.length}}
+      <!-- Quizzes Grid View -->
+      <div class="quizzes-grid">
+        {{#each quizes}}
+          <div class="quiz-card" onclick="window.location.href='/admin/quiz/{{this.id}}'">
+            <div class="quiz-header">
+              <h3 class="quiz-title">{{this.name}}</h3>
+              <span class="quiz-status">Active</span>
+            </div>
+            
+            <div class="quiz-stats">
+              <div class="stat-item">
+                <div class="stat-number">{{this.SubmittedQuizes.length}}</div>
+                <div class="stat-label">Submissions</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">{{this.questions.length}}</div>
+                <div class="stat-label">Questions</div>
+              </div>
+            </div>
+
+            <div class="quiz-actions">
+              <a href="/admin/quiz/{{this.id}}" class="action-btn btn-primary">
+                <i class="fas fa-eye"></i>
+                View Details
+              </a>
+              <a href="/admin/session/{{this.SessionID}}/quizes/{{this.id}}" class="action-btn btn-secondary">
+                <i class="fas fa-chart-bar"></i>
+                View Results
+              </a>
             </div>
           </div>
-          <div class="col-12">
-            <button class="btn btn-primary" type="submit">Submit form</button>
-          </div>
-        </form>
+        {{/each}}
       </div>
-    </div>
-  </div>
-</div>
 
-{{! <script src="reports.js"></script> }}
+      <!-- Quizzes Table View -->
+      <div class="quizzes-table">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Quiz Name</th>
+              <th>Questions</th>
+              <th>Submissions</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each quizes}}
+              <tr>
+                <td>
+                  <strong>{{this.name}}</strong>
+                </td>
+                <td>{{this.questions.length}} questions</td>
+                <td>
+                  <span class="badge bg-success">{{this.SubmittedQuizes.length}} submissions</span>
+                </td>
+                                 <td>
+                   <div class="quiz-actions">
+                     <a href="/admin/quiz/{{this.id}}" class="action-btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">
+                       <i class="fas fa-eye"></i>
+                       View
+                     </a>
+                     <a href="/admin/session/{{this.SessionID}}/quizes/{{this.id}}" class="action-btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">
+                       <i class="fas fa-chart-bar"></i>
+                       Results
+                     </a>
+                     <button onclick="openEditModal('{{this.id}}', '{{this.name}}')" class="action-btn btn-warning" style="padding: 6px 12px; font-size: 0.8rem;">
+                       <i class="fas fa-edit"></i>
+                       Edit
+                     </button>
+                     <button onclick="openDeleteModal('{{this.id}}', '{{this.name}}')" class="action-btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">
+                       <i class="fas fa-trash"></i>
+                       Delete
+                     </button>
+                   </div>
+                 </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <!-- Empty State -->
+      <div class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <h4>No Quizzes Available</h4>
+        <p>This session doesn't have any quizzes yet. Create the first quiz to get started.</p>
+        <button
+          class="add-quiz-btn"
+          onclick="window.location.href='/admin/quiz/{{session.SessionID}}/create'"
+        >
+          <i class="fas fa-plus"></i>
+          Create Your First Quiz
+        </button>
+      </div>
+         {{/if}}
+   </div>
+ </div>
+
+ <!-- Toast Container -->
+ <div id="toastContainer" class="toast-container"></div>
+
+ <!-- Edit Quiz Modal -->
+ <div id="editQuizModal" class="modal fade" tabindex="-1" aria-labelledby="editQuizModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 class="modal-title" id="editQuizModalLabel">
+           <i class="fas fa-edit me-2"></i>Edit Quiz
+         </h5>
+         <button type="button" class="btn-close btn-close-white" onclick="closeEditModal()" aria-label="Close"></button>
+       </div>
+       <div class="modal-body">
+         <div class="mb-3">
+           <label for="editQuizName" class="form-label">Quiz Name</label>
+           <input type="text" class="form-control" id="editQuizName" placeholder="Enter quiz name">
+         </div>
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-modal btn-modal-secondary" onclick="closeEditModal()">
+           <i class="fas fa-times me-1"></i>Cancel
+         </button>
+         <button type="button" class="btn btn-modal btn-modal-primary" onclick="saveQuizEdit()">
+           <i class="fas fa-save me-1"></i>Save Changes
+         </button>
+       </div>
+     </div>
+   </div>
+ </div>
+
+ <!-- Delete Quiz Modal -->
+ <div id="deleteQuizModal" class="modal fade" tabindex="-1" aria-labelledby="deleteQuizModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 class="modal-title" id="deleteQuizModalLabel">
+           <i class="fas fa-exclamation-triangle me-2"></i>Delete Quiz
+         </h5>
+         <button type="button" class="btn-close btn-close-white" onclick="closeDeleteModal()" aria-label="Close"></button>
+       </div>
+       <div class="modal-body">
+         <div class="alert alert-warning" role="alert">
+           <i class="fas fa-exclamation-triangle me-2"></i>
+           <strong>Warning:</strong> This action cannot be undone.
+         </div>
+         <p>Are you sure you want to delete the quiz "<strong id="deleteQuizName"></strong>"?</p>
+         <p class="text-muted small">
+           This will permanently delete:
+           <ul class="small">
+             <li>The quiz and all its questions</li>
+             <li>All question options</li>
+             <li>All submitted quiz responses</li>
+           </ul>
+         </p>
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-modal btn-modal-secondary" onclick="closeDeleteModal()">
+           <i class="fas fa-times me-1"></i>Cancel
+         </button>
+         <button type="button" class="btn btn-modal btn-modal-danger" onclick="confirmDeleteQuiz()">
+           <i class="fas fa-trash me-1"></i>Delete Quiz
+         </button>
+       </div>
+     </div>
+   </div>
+ </div>
+
+<script>
+  // Global variables for modals
+  let currentQuizId = null;
+  let currentQuizName = null;
+
+  // Edit Modal Functions
+  function openEditModal(quizId, quizName) {
+    currentQuizId = quizId;
+    currentQuizName = quizName;
+    
+    document.getElementById('editQuizName').value = quizName;
+    document.getElementById('editQuizModal').style.display = 'block';
+    document.getElementById('editQuizModal').classList.add('show');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editQuizModal').style.display = 'none';
+    document.getElementById('editQuizModal').classList.remove('show');
+    currentQuizId = null;
+    currentQuizName = null;
+  }
+
+  async function saveQuizEdit() {
+    const newName = document.getElementById('editQuizName').value.trim();
+    
+    if (!newName) {
+      showToast('Quiz name is required', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/admin/quiz/${currentQuizId}/edit`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: newName }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showToast('Quiz updated successfully', 'success');
+        closeEditModal();
+        // Reload the page to reflect changes
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        showToast(data.message || 'Failed to update quiz', 'error');
+      }
+    } catch (error) {
+      console.error('Error updating quiz:', error);
+      showToast('An error occurred while updating the quiz', 'error');
+    }
+  }
+
+  // Delete Modal Functions
+  function openDeleteModal(quizId, quizName) {
+    currentQuizId = quizId;
+    currentQuizName = quizName;
+    
+    document.getElementById('deleteQuizName').textContent = quizName;
+    document.getElementById('deleteQuizModal').style.display = 'block';
+    document.getElementById('deleteQuizModal').classList.add('show');
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('deleteQuizModal').style.display = 'none';
+    document.getElementById('deleteQuizModal').classList.remove('show');
+    currentQuizId = null;
+    currentQuizName = null;
+  }
+
+  async function confirmDeleteQuiz() {
+    try {
+      const response = await fetch(`/admin/quiz/${currentQuizId}/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showToast('Quiz and all related data deleted successfully', 'success');
+        closeDeleteModal();
+        // Reload the page to reflect changes
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        showToast(data.message || 'Failed to delete quiz', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting quiz:', error);
+      showToast('An error occurred while deleting the quiz', 'error');
+    }
+  }
+
+  // Toast notification function
+  function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toastId = 'toast-' + Date.now();
+    
+    const toastHtml = `
+      <div id="${toastId}" class="toast toast-${type} show" role="alert">
+        <div class="toast-header">
+          <strong class="me-auto">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+          <button type="button" class="btn-close" onclick="closeToast('${toastId}')"></button>
+        </div>
+        <div class="toast-body">
+          ${message}
+        </div>
+      </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      closeToast(toastId);
+    }, 5000);
+  }
+
+  function closeToast(toastId) {
+    const toast = document.getElementById(toastId);
+    if (toast) {
+      toast.remove();
+    }
+  }
+
+  // Close modals when clicking outside
+  window.onclick = function(event) {
+    const editModal = document.getElementById('editQuizModal');
+    const deleteModal = document.getElementById('deleteQuizModal');
+    
+    if (event.target === editModal) {
+      closeEditModal();
+    }
+    if (event.target === deleteModal) {
+      closeDeleteModal();
+    }
+  }
+
+  // Add smooth scrolling and enhanced interactions
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add loading animation to cards
+    const cards = document.querySelectorAll('.quiz-card');
+    cards.forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        card.style.transition = 'all 0.5s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, index * 100);
+    });
+
+    // Add hover effects for table rows
+    const tableRows = document.querySelectorAll('.table tbody tr');
+    tableRows.forEach(row => {
+      row.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.01)';
+        this.style.transition = 'transform 0.2s ease';
+      });
+      
+      row.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+      });
+    });
+  });
+</script>

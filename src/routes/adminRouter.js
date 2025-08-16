@@ -1868,6 +1868,108 @@ router.post("/quiz/create", async (req, res) => {
   }
 });
 
+// Edit quiz name route
+router.put("/quiz/:id/edit", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!name || name.trim() === '') {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Quiz name is required" 
+      });
+    }
+
+    const updatedQuiz = await prisma.Quiz.update({
+      where: { id: +id },
+      data: { name: name.trim() },
+      include: {
+        SubmittedQuizes: true,
+      },
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Quiz updated successfully",
+      quiz: updatedQuiz
+    });
+  } catch (error) {
+    console.error("Error updating quiz:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to update quiz",
+      error: error.message 
+    });
+  }
+});
+
+// Delete quiz and all related data route
+router.delete("/quiz/:id/delete", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // First, check if quiz exists
+    const quiz = await prisma.Quiz.findUnique({
+      where: { id: +id },
+      include: {
+        questions: {
+          include: {
+            options: true,
+          },
+        },
+        SubmittedQuizes: true,
+      },
+    });
+
+    if (!quiz) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Quiz not found" 
+      });
+    }
+
+    // Delete all related data in the correct order
+    // 1. Delete submitted quiz answers
+    if (quiz.SubmittedQuizes.length > 0) {
+      await prisma.SubmittedQuiz.deleteMany({
+        where: { QuizID: +id },
+      });
+    }
+
+    // 2. Delete question options
+    for (const question of quiz.questions) {
+      if (question.options.length > 0) {
+        await prisma.Option.deleteMany({
+          where: { questionId: question.id },
+        });
+      }
+    }
+
+    // 3. Delete questions
+    await prisma.QuizQuestion.deleteMany({
+      where: { quizId: +id },
+    });
+
+    // 4. Finally delete the quiz
+    await prisma.Quiz.delete({
+      where: { id: +id },
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Quiz and all related data deleted successfully" 
+    });
+  } catch (error) {
+    console.error("Error deleting quiz:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to delete quiz",
+      error: error.message 
+    });
+  }
+});
+
 router.get("/programs/:programId/courses/:id/session/create", async (req, res) => {
 
   
