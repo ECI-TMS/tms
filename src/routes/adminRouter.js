@@ -829,6 +829,132 @@ router.get("/program/:programId/course/:courseId/session/:id/participants", asyn
   }
 });
 
+// Edit participant route
+router.get("/program/:programId/course/:courseId/session/:sessionId/participant/:id/edit", async (req, res) => {
+  try {
+    const participantId = +req.params.id;
+    const programId = +req.params.programId;
+    const courseId = +req.params.courseId;
+    const sessionId = +req.params.sessionId;
+
+    // Get participant with related user data
+    const participant = await prisma.Participant.findFirst({
+      where: {
+        id: participantId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!participant) {
+      return res.status(404).json({ error: "Participant not found" });
+    }
+
+    // Get sessions for dropdown
+    const sessions = await prisma.trainingsessions.findMany({
+      where: {
+        ProgramID: programId,
+      },
+    });
+
+    res.render("admin/editParticipant", {
+      participant,
+      sessions,
+      programId,
+      courseId,
+      sessionId,
+    });
+  } catch (error) {
+    console.log("Error fetching participant:", error);
+    res.status(400).json({ error });
+  }
+});
+
+// Update participant route
+router.post("/program/:programId/course/:courseId/session/:sessionId/participant/:id/edit", async (req, res) => {
+  try {
+    const participantId = +req.params.id;
+    const programId = +req.params.programId;
+    const courseId = +req.params.courseId;
+    const sessionId = +req.params.sessionId;
+    const { name, cnic, email, contact, newSessionId } = req.body;
+
+    // Validate required fields
+    if (!name || !cnic || !email || !contact || !newSessionId) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Check if email already exists for other participants
+    const existingParticipant = await prisma.Participant.findFirst({
+      where: {
+        email: email,
+        id: { not: participantId },
+      },
+    });
+
+    if (existingParticipant) {
+      return res.status(400).json({ error: "Email already exists for another participant" });
+    }
+
+    // Check if email already exists in users table
+    const existingUser = await prisma.users.findFirst({
+      where: {
+        Email: email,
+        ParticipantID: { not: participantId },
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ error: "A user with this email already exists in the system" });
+    }
+
+    // Update participant
+    const updatedParticipant = await prisma.Participant.update({
+      where: {
+        id: participantId,
+      },
+      data: {
+        name,
+        cnic,
+        email,
+        contact,
+        sessionId: +newSessionId,
+      },
+    });
+
+    // Update associated user if exists
+    if (updatedParticipant.user) {
+      await prisma.users.update({
+        where: {
+          UserID: updatedParticipant.user.UserID,
+        },
+        data: {
+          Username: name,
+          Email: email,
+          SessionID: +newSessionId,
+        },
+      });
+
+      // Update ProgramUsers record
+      await prisma.programUsers.updateMany({
+        where: {
+          UserID: updatedParticipant.user.UserID,
+          ProgramID: programId,
+        },
+        data: {
+          SessionID: +newSessionId,
+        },
+      });
+    }
+
+    res.redirect(`/admin/program/${programId}/course/${courseId}/session/${sessionId}/participants`);
+  } catch (error) {
+    console.log("Error updating participant:", error);
+    res.status(400).json({ error });
+  }
+});
+
 router.delete("/duplicate-participant/:id", async (req, res) => {
   try {
     const duplicateId = +req.params.id;

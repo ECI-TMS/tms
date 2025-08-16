@@ -1,0 +1,330 @@
+{{!< dashboard}}
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    color: #000;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .form-container {
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #2E5A92;
+    margin-bottom: 8px;
+  }
+
+  .form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #2E5A92;
+    box-shadow: 0 0 0 0.2rem rgba(46, 90, 146, 0.25);
+  }
+
+  .btn-primary {
+    background-color: #2E5A92;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #1e4a7a;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+
+  .participant-info {
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .participant-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    margin-bottom: 15px;
+  }
+
+  .participant-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .participant-id {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+</style>
+
+<div class="container mt-4">
+  <div class="form-container">
+    <div class="participant-info">
+      <img class="participant-avatar" src="/placeholder-user.jpg" alt="{{participant.name}}" />
+      <div class="participant-name">{{participant.name}}</div>
+      <div class="participant-id">Participant #{{participant.id}}</div>
+    </div>
+
+         <h3 class="mb-4 text-center" style="color: #2E5A92;">Edit Participant Details</h3>
+     
+     <!-- Error Message Display -->
+     <div id="errorMessage" class="alert alert-danger" style="display: none; margin-bottom: 20px;">
+       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+       </svg>
+       <span id="errorText"></span>
+     </div>
+     
+     <form action="/admin/program/{{programId}}/course/{{courseId}}/session/{{sessionId}}/participant/{{participant.id}}/edit" method="POST" class="needs-validation" novalidate id="editParticipantForm">
+      
+      <div class="row">
+        <div class="col-12 mb-3">
+          <label for="name" class="form-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
+              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C8.69 8 6 10.69 6 14S8.69 20 12 20 18 17.31 18 14 15.31 8 12 8Z"/>
+            </svg>
+            Full Name
+          </label>
+          <input 
+            type="text" 
+            name="name" 
+            class="form-control" 
+            id="name" 
+            value="{{participant.name}}"
+            placeholder="Enter participant's full name" 
+            required 
+          />
+          <div class="invalid-feedback">Please provide a valid name.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="cnic" class="form-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            CNIC Number
+          </label>
+          <input 
+            type="text" 
+            name="cnic" 
+            class="form-control" 
+            id="cnic" 
+            value="{{participant.cnic}}"
+            placeholder="e.g., 12345-1234567-1" 
+            required 
+          />
+          <div class="invalid-feedback">Please provide a valid CNIC.</div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+          <label for="contact" class="form-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
+            Contact Number
+          </label>
+          <input 
+            type="text" 
+            name="contact" 
+            class="form-control" 
+            id="contact" 
+            value="{{participant.contact}}"
+            placeholder="e.g., 0300-1234567" 
+            required 
+          />
+          <div class="invalid-feedback">Please provide a valid contact number.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="email" class="form-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            Email Address
+          </label>
+          <input 
+            type="email" 
+            name="email" 
+            class="form-control" 
+            id="email" 
+            value="{{participant.email}}"
+            placeholder="e.g., participant@example.com" 
+            required 
+          />
+          <div class="invalid-feedback">Please provide a valid email address.</div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+          <label for="newSessionId" class="form-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
+              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6Z"/>
+            </svg>
+            Session
+          </label>
+          <select 
+            class="form-select" 
+            name="newSessionId" 
+            id="newSessionId" 
+            required
+          >
+            <option value="">Choose Session...</option>
+            {{#each sessions}}
+              <option value="{{this.SessionID}}" {{#if (isSelected this.SessionID ../participant.sessionId)}}selected{{/if}}>
+                Session {{this.SessionID}}
+              </option>
+            {{/each}}
+          </select>
+          <div class="invalid-feedback">Please select a valid session.</div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end">
+        <a href="/admin/program/{{programId}}/course/{{courseId}}/session/{{sessionId}}/participants" class="btn btn-secondary">Cancel</a>
+        <button class="btn btn-primary" type="submit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+          Update Participant
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editParticipantForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    
+    // Form validation and submission
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      
+      // Hide any previous error messages
+      errorMessage.style.display = 'none';
+      
+      // Check form validity
+      if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+      }
+      
+      // Get form data
+      const formData = new FormData(form);
+      
+      try {
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px; animation: spin 1s linear infinite;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>Updating...';
+        submitBtn.disabled = true;
+        
+        // Submit form data
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          // Success - redirect to participants list
+          window.location.href = '/admin/program/{{programId}}/course/{{courseId}}/session/{{sessionId}}/participants';
+        } else {
+          // Handle error response
+          const data = await response.json();
+          showError(data.error || 'An error occurred while updating the participant');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showError('An error occurred while updating the participant');
+      } finally {
+        // Reset button state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Update Participant';
+        submitBtn.disabled = false;
+      }
+    });
+    
+    // Function to show error message
+    function showError(message) {
+      errorText.textContent = message;
+      errorMessage.style.display = 'flex';
+      errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    // Auto-select current session if not already selected
+    const sessionSelect = document.getElementById('newSessionId');
+    const currentSessionId = '{{participant.sessionId}}';
+    
+    if (sessionSelect && currentSessionId) {
+      for (let i = 0; i < sessionSelect.options.length; i++) {
+        if (sessionSelect.options[i].value === currentSessionId) {
+          sessionSelect.selectedIndex = i;
+          break;
+        }
+      }
+    }
+  });
+</script>
+
+<style>
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  .alert {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  
+  .alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+  }
+</style>
