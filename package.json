@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "npx prisma generate --schema=./src/prisma/schema.prisma && npx prisma db push --schema=./src/prisma/schema.prisma && node src/index.js"
+    "start": "npx prisma generate --schema=./src/prisma/schema.prisma && npx prisma db push --schema=./src/prisma/schema.prisma && node src/index.js",
+    "seed": "npx prisma db seed --schema=./src/prisma/schema.prisma"
   },
   "keywords": [],
   "author": "",
@@ -33,5 +34,8 @@
     "@prisma/client": "^5.14.0",
     "nodemon": "^3.0.2",
     "prisma": "^5.14.0"
+  },
+  "prisma": {
+    "seed": "node src/prisma/seed.js"
   }
 }

@@ -154,12 +154,12 @@ router.get("/:id", async (req, res) => {
 });
 
 
-// DELETE route for deleting a participant
+// DELETE route for deleting a participant (Soft Delete)
 router.delete("/deleteParticipant/:id", async (req, res) => {
   try {
     const participantId = req.params.id;
 
-    // First check if the participant exists
+    // First check if the participant exists and is not already deleted
     const existingParticipant = await prisma.participant.findUnique({
       where: {
         id: +participantId,
@@ -173,23 +173,37 @@ router.delete("/deleteParticipant/:id", async (req, res) => {
       });
     }
 
-    // Delete the user by matching email with participant email
+    // Check if participant is already soft deleted
+    if (existingParticipant.deletedAt) {
+      return res.status(400).json({ 
+        message: "Participant is already deleted",
+        success: false 
+      });
+    }
+
+    // Soft delete the participant by setting deletedAt timestamp
+    const deletedParticipant = await prisma.participant.update({
+      where: {
+        id: +participantId,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    // Soft delete the associated user if exists
     const user = await prisma.users.findFirst({
       where: { Email: existingParticipant.email },
     });
 
     if (user) {
-      // Clean ProgramUsers first to satisfy FK constraint, then delete the user
-      await prisma.programUsers.deleteMany({ where: { UserID: user.UserID } });
-      await prisma.users.delete({ where: { UserID: user.UserID } });
+      await prisma.users.update({
+        where: { UserID: user.UserID },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
     }
-
-    // Delete the participant
-    const deletedParticipant = await prisma.participant.delete({
-      where: {
-        id: +participantId,
-      },
-    });
 
     // Return success response
     res.status(200).json({
@@ -220,6 +234,146 @@ router.delete("/deleteParticipant/:id", async (req, res) => {
     // Generic error response
     res.status(500).json({
       message: "Internal server error while deleting participant",
+      success: false,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// RESTORE route for restoring a deleted participant
+router.post("/restoreParticipant/:id", async (req, res) => {
+  try {
+    const participantId = req.params.id;
+
+    // Check if the participant exists and is soft deleted
+    const existingParticipant = await prisma.participant.findUnique({
+      where: {
+        id: +participantId,
+      },
+    });
+
+    if (!existingParticipant) {
+      return res.status(404).json({ 
+        message: "Participant not found",
+        success: false 
+      });
+    }
+
+    // Check if participant is not deleted (can't restore if not deleted)
+    if (!existingParticipant.deletedAt) {
+      return res.status(400).json({ 
+        message: "Participant is not deleted and cannot be restored",
+        success: false 
+      });
+    }
+
+    // Restore the participant by removing deletedAt timestamp
+    const restoredParticipant = await prisma.participant.update({
+      where: {
+        id: +participantId,
+      },
+      data: {
+        deletedAt: null,
+      },
+    });
+
+    // Restore the associated user if exists
+    const user = await prisma.users.findFirst({
+      where: { Email: existingParticipant.email },
+    });
+
+    if (user && user.deletedAt) {
+      await prisma.users.update({
+        where: { UserID: user.UserID },
+        data: {
+          deletedAt: null,
+        },
+      });
+    }
+
+    // Return success response
+    res.status(200).json({
+      message: "Participant restored successfully",
+      success: true,
+      restoredParticipant: restoredParticipant
+    });
+
+  } catch (error) {
+    console.error("Error restoring participant:", error);
+    
+    res.status(500).json({
+      message: "Internal server error while restoring participant",
+      success: false,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// PERMANENT DELETE route for permanently removing a participant after undo timeout
+router.delete("/permanentlyDeleteParticipant/:id", async (req, res) => {
+  try {
+    const participantId = req.params.id;
+
+    // First check if the participant exists
+    const existingParticipant = await prisma.participant.findUnique({
+      where: {
+        id: +participantId,
+      },
+    });
+
+    if (!existingParticipant) {
+      return res.status(404).json({ 
+        message: "Participant not found",
+        success: false 
+      });
+    }
+
+    // Permanently delete the participant from database (not soft delete)
+    await prisma.participant.delete({
+      where: {
+        id: +participantId,
+      },
+    });
+
+    // Permanently delete the associated user if exists
+    const user = await prisma.users.findFirst({
+      where: { Email: existingParticipant.email },
+    });
+
+    if (user) {
+      await prisma.users.delete({
+        where: { UserID: user.UserID },
+      });
+    }
+
+    // Return success response
+    res.status(200).json({
+      message: "Participant permanently deleted from database",
+      success: true
+    });
+
+  } catch (error) {
+    console.error("Error permanently deleting participant:", error);
+    
+    // Handle specific Prisma errors
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        message: "Participant not found",
+        success: false
+      });
+    }
+
+    // Handle foreign key constraint errors
+    if (error.code === 'P2003') {
+      return res.status(400).json({
+        message: "Cannot delete participant: participant is referenced in other records",
+        success: false
+      });
+    }
+
+    // Generic error response
+    res.status(500).json({
+      message: "Internal server error while permanently deleting participant",
       success: false,
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });

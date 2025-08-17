@@ -206,6 +206,7 @@ model Participant {
   contact    String
   sessionId  Int
   program_id Int
+  deletedAt  DateTime?        // Soft delete timestamp
   session    trainingsessions @relation(fields: [sessionId], references: [SessionID], onDelete: Cascade)
   program    programs         @relation(fields: [program_id], references: [ProgramID], onDelete: Cascade)
   user       users?
@@ -349,6 +350,7 @@ model users {
   ContactNumber    String?            @db.VarChar(255)
   UserType         UserType           @default(STUDENT)
   ParticipantID    Int?               @unique
+  deletedAt        DateTime?          // Soft delete timestamp
   documents        documents[]
   marks            marks[]
   notifications    notifications[]

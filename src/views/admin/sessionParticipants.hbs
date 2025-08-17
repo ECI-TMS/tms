@@ -352,6 +352,166 @@
       padding: 12px 8px;
     }
   }
+
+  /* Undo Notification Styles */
+  .undo-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #2E5A92, #4a7bc8);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(46, 90, 146, 0.3);
+    z-index: 10000;
+    animation: slideInUndo 0.4s ease;
+    max-width: 350px;
+    border-left: 4px solid #28a745;
+  }
+
+  .undo-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+  }
+
+  .undo-content span {
+    font-weight: 500;
+    font-size: 14px;
+    flex: 1;
+  }
+
+  .undo-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(10px);
+  }
+
+  .undo-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .undo-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Undo button in table */
+  .action-btn.undo-btn {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    color: white !important;
+    border: 1px solid #28a745 !important;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .action-btn.undo-btn:hover {
+    background: linear-gradient(135deg, #20c997, #28a745) !important;
+    color: white !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
+  }
+
+  .action-btn.undo-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+    fill: white !important;
+    display: block !important;
+  }
+
+  /* Ensure undo button is visible and properly styled */
+  .action-btn.undo-btn {
+    position: relative !important;
+    z-index: 10 !important;
+    min-width: 35px !important;
+    min-height: 35px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Override any conflicting styles */
+  .action-btn.undo-btn,
+  .action-btn.undo-btn:hover,
+  .action-btn.undo-btn:focus,
+  .action-btn.undo-btn:active {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    color: white !important;
+    border: 1px solid #28a745 !important;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
+  }
+
+  .action-btn.undo-btn:hover {
+    background: linear-gradient(135deg, #20c997, #28a745) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
+  }
+
+  @keyframes slideInUndo {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutUndo {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  .undo-notification.fade-out {
+    animation: slideOutUndo 0.4s ease forwards;
+  }
+
+  /* Progress bar for undo timeout */
+  .undo-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+  }
+
+  .undo-progress-bar {
+    height: 100%;
+    background: #28a745;
+    width: 100%;
+    animation: progressShrink 45s linear;
+  }
+
+  @keyframes progressShrink {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
 </style>
 
 <div class="content">
@@ -438,6 +598,22 @@
     </table>
 
 
+  </div>
+</div>
+
+<!-- Undo Notification -->
+<div id="undoNotification" class="undo-notification" style="display: none;">
+  <div class="undo-content">
+    <span id="undoMessage">Participant deleted successfully!</span>
+    <button id="undoButton" class="undo-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+      </svg>
+      Undo
+    </button>
+  </div>
+  <div class="undo-progress">
+    <div class="undo-progress-bar"></div>
   </div>
 </div>
 
