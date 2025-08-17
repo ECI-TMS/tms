@@ -267,10 +267,10 @@
     width: 20% !important;
   }
 
-  #materialsTable th:nth-child(4),
-  #materialsTable td:nth-child(4) {
-    width: 12% !important;
-  }
+     #materialsTable th:nth-child(4),
+   #materialsTable td:nth-child(4) {
+     width: 16% !important;
+   }
 
   .material-name {
     font-weight: 600;
@@ -304,15 +304,25 @@
     margin: 0 4px;
   }
 
-  .download-icon {
-    background: linear-gradient(135deg, var(--success-green) 0%, #20c997 100%);
-    color: white;
-  }
+     .view-icon {
+     background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+     color: white;
+   }
 
-  .download-icon:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-  }
+   .view-icon:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+   }
+
+   .download-icon {
+     background: linear-gradient(135deg, var(--success-green) 0%, #20c997 100%);
+     color: white;
+   }
+
+   .download-icon:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+   }
 
   .edit-icon {
     background: linear-gradient(135deg, var(--warning-orange) 0%, #ffb74d 100%);
@@ -734,29 +744,35 @@
         </td>
         <td>{{formatDate this.createdAt}}</td>
         <td>
-          <div class="actions-cell">
-            <button class="action-icon download-icon" onclick="downloadMaterial('{{this.FilePath}}', '{{this.Title}}')" title="Download">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7,10 12,15 17,10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-            </button>
-            <button class="action-icon edit-icon" onclick="editMaterial({{this.MaterialID}}, '{{this.Title}}', '{{this.FilePath}}')" title="Edit">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-            </button>
-            <button class="action-icon delete-icon" onclick="deleteMaterial({{this.MaterialID}})" title="Delete">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3,6 5,6 21,6"/>
-                <path d="M19,6V20A2,2 0 0,1 17,22H7A2,2 0 0,1 5,20V6M8,6V4A2,2 0 0,1 10,2H14A2,2 0 0,1 16,4V6"/>
-                <line x1="10" y1="11" x2="10" y2="17"/>
-                <line x1="14" y1="11" x2="14" y2="17"/>
-              </svg>
-            </button>
-          </div>
+                     <div class="actions-cell">
+             <button class="action-icon view-icon" onclick="viewMaterial('{{this.FilePath}}', '{{this.Title}}')" title="View">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                 <circle cx="12" cy="12" r="3"/>
+               </svg>
+             </button>
+             <button class="action-icon download-icon" onclick="downloadMaterial('{{this.FilePath}}', '{{this.Title}}')" title="Download">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                 <polyline points="7,10 12,15 17,10"/>
+                 <line x1="12" y1="15" x2="12" y2="3"/>
+               </svg>
+             </button>
+             <button class="action-icon edit-icon" onclick="editMaterial({{this.MaterialID}}, '{{this.Title}}', '{{this.FilePath}}')" title="Edit">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+               </svg>
+             </button>
+             <button class="action-icon delete-icon" onclick="deleteMaterial({{this.MaterialID}})" title="Delete">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <polyline points="3,6 5,6 21,6"/>
+                 <path d="M19,6V20A2,2 0 0,1 17,22H7A2,2 0 0,1 5,20V6M8,6V4A2,2 0 0,1 10,2H14A2,2 0 0,1 16,4V6"/>
+                 <line x1="10" y1="11" x2="10" y2="17"/>
+                 <line x1="14" y1="11" x2="14" y2="17"/>
+               </svg>
+             </button>
+           </div>
         </td>
       </tr>
       {{/each}}
@@ -811,10 +827,43 @@
         <span id="updateBtnText">Update Material</span>
       </button>
     </div>
-  </div>
-</div>
+     </div>
+ </div>
 
-<script>
+ <!-- View Modal -->
+ <div id="viewModal" class="modal-overlay">
+   <div class="modal-content" style="max-width: 90%; max-height: 90vh;">
+     <div class="modal-header">
+       <h2 class="modal-title" id="viewModalTitle">View Material</h2>
+       <button class="modal-close" onclick="closeViewModal()">
+         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+           <line x1="18" y1="6" x2="6" y2="18"/>
+           <line x1="6" y1="6" x2="18" y2="18"/>
+         </svg>
+       </button>
+     </div>
+     
+     <div class="modal-body" style="padding: 0; height: 70vh;">
+       <div id="viewContent" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+         <!-- Content will be loaded here -->
+       </div>
+     </div>
+     
+     <div class="modal-footer">
+       <button class="btn-cancel" onclick="closeViewModal()">Close</button>
+       <button class="btn-save" id="downloadBtn" onclick="downloadFromView()">
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+           <polyline points="7,10 12,15 17,10"/>
+           <line x1="12" y1="15" x2="12" y2="3"/>
+         </svg>
+         Download
+       </button>
+     </div>
+   </div>
+ </div>
+
+ <script>
   // Pass session data to external JavaScript file
   window.sessionData = {
     sessionId: {{session.SessionID}},

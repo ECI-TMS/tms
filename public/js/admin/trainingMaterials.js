@@ -30,6 +30,10 @@ $(document).ready(function() {
   });
 });
 
+// Global variables for view modal
+let currentViewingFile = null;
+let currentViewingFileName = null;
+
 // Download material function
 function downloadMaterial(filePath, fileName) {
   const link = document.createElement('a');
@@ -38,6 +42,106 @@ function downloadMaterial(filePath, fileName) {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+// View material function
+function viewMaterial(filePath, fileName) {
+  currentViewingFile = filePath;
+  currentViewingFileName = fileName;
+  
+  // Update modal title
+  document.getElementById('viewModalTitle').textContent = `View: ${fileName}`;
+  
+  // Get file extension
+  const fileExtension = fileName.split('.').pop().toLowerCase();
+  const viewContent = document.getElementById('viewContent');
+  
+  // Clear previous content
+  viewContent.innerHTML = '';
+  
+  // Show loading
+  viewContent.innerHTML = '<div style="text-align: center;"><div class="loading"></div><p>Loading preview...</p></div>';
+  
+  // Show the view modal
+  document.getElementById('viewModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  
+  // Handle different file types
+  if (['pdf'].includes(fileExtension)) {
+    // PDF files
+    viewContent.innerHTML = `
+      <iframe src="${filePath}" 
+              style="width: 100%; height: 100%; border: none;" 
+              title="${fileName}">
+      </iframe>
+    `;
+  } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension)) {
+    // Image files
+    viewContent.innerHTML = `
+      <img src="${filePath}" 
+           style="max-width: 100%; max-height: 100%; object-fit: contain;" 
+           alt="${fileName}"
+           onerror="handleViewError()">
+    `;
+  } else if (['txt', 'md', 'json', 'xml', 'html', 'css', 'js'].includes(fileExtension)) {
+    // Text files
+    fetch(filePath)
+      .then(response => response.text())
+      .then(text => {
+        viewContent.innerHTML = `
+          <pre style="width: 100%; height: 100%; overflow: auto; margin: 0; padding: 1rem; 
+                      background: #f8f9fa; border-radius: 8px; font-family: 'Courier New', monospace; 
+                      font-size: 14px; line-height: 1.5;">${text}</pre>
+        `;
+      })
+      .catch(error => {
+        handleViewError();
+      });
+  } else {
+    // Unsupported file types
+    viewContent.innerHTML = `
+      <div style="text-align: center; padding: 2rem;">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#6c757d" stroke-width="2">
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        </svg>
+        <h3 style="color: #6c757d; margin: 1rem 0;">Preview Not Available</h3>
+        <p style="color: #6c757d;">This file type (${fileExtension.toUpperCase()}) cannot be previewed directly.</p>
+        <p style="color: #6c757d;">Please download the file to view it.</p>
+      </div>
+    `;
+  }
+}
+
+// Handle view errors
+function handleViewError() {
+  const viewContent = document.getElementById('viewContent');
+  viewContent.innerHTML = `
+    <div style="text-align: center; padding: 2rem;">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+      <h3 style="color: #dc3545; margin: 1rem 0;">Error Loading Preview</h3>
+      <p style="color: #6c757d;">Unable to load the file preview.</p>
+      <p style="color: #6c757d;">Please try downloading the file instead.</p>
+    </div>
+  `;
+}
+
+// Close view modal function
+function closeViewModal() {
+  document.getElementById('viewModal').classList.remove('active');
+  document.body.style.overflow = 'auto';
+  currentViewingFile = null;
+  currentViewingFileName = null;
+}
+
+// Download from view modal
+function downloadFromView() {
+  if (currentViewingFile && currentViewingFileName) {
+    downloadMaterial(currentViewingFile, currentViewingFileName);
+  }
 }
 
 // Edit material function
@@ -164,10 +268,21 @@ document.getElementById('editModal').addEventListener('click', function(e) {
   }
 });
 
+document.getElementById('viewModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeViewModal();
+  }
+});
+
 // Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && document.getElementById('editModal').classList.contains('active')) {
-    closeEditModal();
+  if (e.key === 'Escape') {
+    if (document.getElementById('editModal').classList.contains('active')) {
+      closeEditModal();
+    }
+    if (document.getElementById('viewModal').classList.contains('active')) {
+      closeViewModal();
+    }
   }
 });
 
