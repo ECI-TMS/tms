@@ -1,0 +1,810 @@
+{{!< dashboard}}
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: white;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .header-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .page-subtitle {
+    color: #6b7280;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary-custom {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn-success-custom {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .btn-success-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+  }
+
+  .btn-back {
+    background: #6b7280;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .btn-back:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(107, 114, 128, 0.3);
+  }
+
+  .content-section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+  }
+
+  .data-table-wrapper {
+    overflow-x: auto;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  #usersTable {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 0;
+  }
+
+  #usersTable.dataTable {
+    border: none;
+    margin: 0;
+  }
+
+  #usersTable thead th {
+    background: #333;
+    color: white;
+    font-weight: 600;
+    padding: 18px 15px;
+    text-align: left;
+    border: none;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  #usersTable tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  #usersTable tbody tr:hover {
+    background-color: #f8fafc;
+    transform: scale(1.01);
+  }
+
+  #usersTable tbody td {
+    padding: 15px;
+    font-size: 14px;
+    color: #374151;
+    border: none;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+  }
+
+  .user-type-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .user-type-admin {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+  }
+
+  .user-type-trainer {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+  }
+
+  .user-type-student {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+  }
+
+  .user-type-monitor {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+  }
+
+  .user-type-manager {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+  }
+
+  .user-type-client {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+  }
+
+  .action-buttons-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .btn-view {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .btn-view:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+  }
+
+  .btn-edit {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .btn-edit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+  }
+
+  .btn-delete {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .btn-delete:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+  }
+
+  .dataTables_wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    margin-top: 1rem;
+  }
+
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_processing,
+  .dataTables_wrapper .dataTables_paginate {
+    margin: 15px 0;
+    padding: 0 20px;
+  }
+
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter {
+    padding: 20px 20px 10px;
+  }
+
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate {
+    padding: 10px 20px 20px;
+  }
+
+  /* Ensure DataTable controls are visible */
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Ensure table is visible */
+  #usersTable.dataTable {
+    display: table !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .dataTables_wrapper .dataTables_length select,
+  .dataTables_wrapper .dataTables_filter input {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .dataTables_wrapper .dataTables_filter input:focus {
+    outline: none;
+    border-color: #333;
+    box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.1);
+  }
+
+  /* Ensure search input is properly styled and functional */
+  .dataTables_filter input {
+    border: 2px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    width: 200px !important;
+    background: white !important;
+    color: #374151 !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .dataTables_filter input::placeholder {
+    color: #9ca3af !important;
+  }
+
+  .dataTables_filter input:focus {
+    border-color: #333 !important;
+    box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.1) !important;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    border: none;
+    background: #f3f4f6;
+    color: #374151;
+    padding: 8px 12px;
+    margin: 0 2px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button:hover,
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #333;
+    color: white;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+
+     @media (max-width: 768px) {
+     .container {
+       padding: 10px;
+     }
+
+     .header-section {
+       padding: 20px;
+     }
+
+     .header-section > div:first-child {
+       flex-direction: column;
+       gap: 15px;
+       align-items: stretch;
+     }
+
+     .btn-back {
+       justify-content: center;
+       width: 100%;
+     }
+
+     .page-title {
+       font-size: 2rem;
+     }
+
+    .action-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .btn-primary-custom,
+    .btn-success-custom {
+      width: 100%;
+      max-width: 300px;
+      justify-content: center;
+    }
+
+    .content-section {
+      padding: 20px;
+    }
+
+    #usersTable {
+      font-size: 12px;
+    }
+
+    #usersTable thead th,
+    #usersTable tbody td {
+      padding: 10px 8px;
+    }
+
+    .action-buttons-cell {
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .btn-view,
+    .btn-edit,
+    .btn-delete {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .container {
+      padding: 20px 40px;
+    }
+
+    .dataTables_wrapper {
+      margin: 0 -20px;
+    }
+  }
+</style>
+
+<div class="container">
+  <div class="header-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <a href="/admin/user/create" class="btn-back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Create User
+      </a>
+      <div style="text-align: center;">
+        <button onclick="testSearch('admin')" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin: 0 5px;">Test Search "admin"</button>
+        <button onclick="testSearch('')" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin: 0 5px;">Clear Search</button>
+      </div>
+    </div>
+    <h1 class="page-title">User Management</h1>
+    <p class="page-subtitle">Manage all system users with comprehensive control</p>
+  </div>
+
+  <div class="content-section">
+    <div class="data-table-wrapper">
+      <table id="usersTable" class="display">
+        <thead>
+          <tr>
+            <th>Avatar</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>User Type</th>
+            <th>Program</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each users}}
+          <tr>
+            <td>
+              {{#if ProfilePicture}}
+                <img src="{{ProfilePicture}}" alt="{{Username}}" class="user-avatar">
+              {{else}}
+                                 <div class="user-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">
+                   {{substring Username 0 1}}
+                 </div>
+              {{/if}}
+            </td>
+            <td>{{Username}}</td>
+            <td>{{Email}}</td>
+            <td>
+              <span class="user-type-badge user-type-{{lowercase UserType}}">
+                {{UserType}}
+              </span>
+            </td>
+            <td>
+              {{#if programName}}
+                {{programName}}
+              {{else}}
+                <span style="color: #9ca3af;">-</span>
+              {{/if}}
+            </td>
+            <td>{{formatDate createdAt}}</td>
+            <td class="action-buttons-cell">
+              <button class="btn-view" onclick="viewUser({{UserID}})">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                View
+              </button>
+              <button class="btn-edit" onclick="editUser({{UserID}})">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Edit
+              </button>
+              <button class="btn-delete" onclick="deleteUser({{UserID}}, '{{Username}}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3,6 5,6 21,6"/>
+                  <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
+                </svg>
+                Delete
+              </button>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- View User Modal -->
+<div id="viewUserModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>User Details</h2>
+      <span class="close" onclick="closeViewModal()">&times;</span>
+    </div>
+    <div class="modal-body" id="viewUserModalBody">
+      <!-- User details will be loaded here -->
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="editUserModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Edit User</h2>
+      <span class="close" onclick="closeEditModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <form id="editUserForm">
+        <div class="form-group">
+          <label for="editUsername">Username</label>
+          <input type="text" id="editUsername" name="Username" required>
+        </div>
+        <div class="form-group">
+          <label for="editEmail">Email</label>
+          <input type="email" id="editEmail" name="Email" required>
+        </div>
+        <div class="form-group">
+          <label for="editFirstName">First Name</label>
+          <input type="text" id="editFirstName" name="FirstName">
+        </div>
+        <div class="form-group">
+          <label for="editLastName">Last Name</label>
+          <input type="text" id="editLastName" name="LastName">
+        </div>
+        <div class="form-group">
+          <label for="editContactNumber">Contact Number</label>
+          <input type="text" id="editContactNumber" name="ContactNumber">
+        </div>
+        <div class="form-group">
+          <label for="editUserType">User Type</label>
+          <select id="editUserType" name="UserType" required>
+            <option value="STUDENT">Student</option>
+            <option value="TRAINER">Trainer</option>
+            <option value="ADMIN">Admin</option>
+            <option value="MONITOR">Monitor</option>
+            <option value="MANAGER">Manager</option>
+            <option value="CLIENT">Client</option>
+          </select>
+        </div>
+        <div class="form-group" id="editProgramGroup" style="display: none;">
+          <label for="editProgramID">Program</label>
+          <select id="editProgramID" name="ProgramID">
+            <option value="">Select Program</option>
+            {{#each programs}}
+            <option value="{{ProgramID}}">{{Name}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editProfilePicture">Profile Picture</label>
+          <input type="file" id="editProfilePicture" name="ProfilePicture" accept="image/*">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary-custom">Update User</button>
+          <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Styles -->
+<style>
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+  }
+
+  .modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    animation: modalSlideIn 0.3s ease-out;
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .modal-header {
+    background: #333;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .close {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .close:hover {
+    transform: scale(1.1);
+  }
+
+  .modal-body {
+    padding: 30px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 30px;
+  }
+
+  .btn-secondary {
+    background: #6b7280;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+  }
+
+  .user-details {
+    display: grid;
+    gap: 20px;
+  }
+
+  .user-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border-left: 4px solid #333;
+  }
+
+  .user-detail-label {
+    font-weight: 600;
+    color: #374151;
+    min-width: 120px;
+  }
+
+  .user-detail-value {
+    color: #6b7280;
+    flex: 1;
+  }
+
+  .user-detail-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+  }
+
+  @media (max-width: 768px) {
+    .modal-content {
+      width: 95%;
+      margin: 10% auto;
+    }
+
+    .modal-header {
+      padding: 15px 20px;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .user-detail-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .user-detail-label {
+      min-width: auto;
+    }
+  }
+</style>
+
+<script defer src="/js/admin/users.js"></script>

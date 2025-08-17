@@ -3150,6 +3150,203 @@ router.get("/user/create", async (req, res) => {
   }
 });
 
+router.post("/user/create", async (req, res) => {
+  try {
+    const { Email, Password, Username, UserType, ProgramID } = req.body;
+    
+    // Validate required fields
+    if (!Email || !Password || !Username || !UserType) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, Password, Username, and UserType are required"
+      });
+    }
+
+    // Check if email already exists
+    const existingUser = await prisma.users.findFirst({
+      where: { Email: Email.toLowerCase() }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists"
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await hash(Password, 10);
+
+    // Create user data
+    const userData = {
+      Email: Email.toLowerCase(),
+      Password: hashedPassword,
+      Username,
+      UserType
+    };
+
+    // Add ProgramID for trainers
+    if (UserType === 'TRAINER' && ProgramID) {
+      userData.ProgramID = ProgramID;
+    }
+
+    // Handle profile picture upload
+    if (req.files && req.files.ProfilePicture) {
+      const file = req.files.ProfilePicture;
+      const fileName = `${Date.now()}_${file.name}`;
+      const filePath = `/uploads/profiles/${fileName}`;
+      
+      await file.mv(`./public${filePath}`);
+      userData.ProfilePicture = filePath;
+    }
+
+    // Create user
+    const newUser = await prisma.users.create({
+      data: userData
+    });
+
+    res.json({
+      success: true,
+      message: "User created successfully",
+      user: {
+        id: newUser.UserID,
+        email: newUser.Email,
+        username: newUser.Username,
+        userType: newUser.UserType
+      }
+    });
+
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+});
+
+router.post("/user/bulk", async (req, res) => {
+  try {
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'No files were uploaded.' 
+      });
+    }
+
+    const excelFile = req.files.file;
+    const workbook = xlsx.read(excelFile.data, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const usersData = xlsx.utils.sheet_to_json(sheet);
+
+    let createdCount = 0;
+    let skippedCount = 0;
+    let errors = [];
+
+    for (let i = 0; i < usersData.length; i++) {
+      const row = usersData[i];
+      
+      try {
+        // Validate required fields
+        if (!row.email || !row.password || !row.username || !row.usertype) {
+          errors.push(`Row ${i + 2}: Missing required fields (email, password, username, usertype)`);
+          skippedCount++;
+          continue;
+        }
+
+        const email = row.email.trim().toLowerCase();
+        const password = row.password;
+        const username = row.username.trim();
+        const userType = row.usertype.toUpperCase();
+        const programId = row.program_id ? String(row.program_id) : null;
+
+        // Validate user type
+        const validUserTypes = ['TRAINER', 'ADMIN', 'STUDENT', 'MONITOR', 'MANAGER'];
+        if (!validUserTypes.includes(userType)) {
+          errors.push(`Row ${i + 2}: Invalid user type '${userType}'`);
+          skippedCount++;
+          continue;
+        }
+
+        // Check if email already exists
+        const existingUser = await prisma.users.findFirst({
+          where: { Email: email }
+        });
+
+        if (existingUser) {
+          errors.push(`Row ${i + 2}: Email '${email}' already exists`);
+          skippedCount++;
+          continue;
+        }
+
+        // Hash password
+        const hashedPassword = await hash(password, 10);
+
+        // Create user data
+        const userData = {
+          Email: email,
+          Password: hashedPassword,
+          Username: username,
+          UserType: userType
+        };
+
+        // Add ProgramID for trainers
+        if (userType === 'TRAINER' && programId) {
+          // Validate program exists
+          const program = await prisma.programs.findUnique({
+            where: { ProgramID: parseInt(programId) }
+          });
+          
+          if (!program) {
+            errors.push(`Row ${i + 2}: Program ID '${programId}' not found`);
+            skippedCount++;
+            continue;
+          }
+          
+          userData.ProgramID = programId;
+        }
+
+        // Create user
+        await prisma.users.create({
+          data: userData
+        });
+
+        createdCount++;
+
+      } catch (error) {
+        errors.push(`Row ${i + 2}: ${error.message}`);
+        skippedCount++;
+      }
+    }
+
+    let message = `Import complete. ${createdCount} users created, ${skippedCount} skipped.`;
+    if (errors.length > 0) {
+      message += `\n\nErrors:\n${errors.slice(0, 10).join('\n')}`;
+      if (errors.length > 10) {
+        message += `\n... and ${errors.length - 10} more errors`;
+      }
+    }
+
+    res.json({
+      success: true,
+      message: message,
+      createdCount,
+      skippedCount,
+      errors: errors.slice(0, 10) // Return first 10 errors
+    });
+
+  } catch (error) {
+    console.error("Error creating bulk users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to process bulk user upload",
+      error: error.message
+    });
+  }
+});
+
 router.get("/program/create", async (_, res) => {
   try {
     const donors = await prisma.thirdparties.findMany();
@@ -4129,5 +4326,252 @@ router.delete("/backups/:id", async (req, res) => {
   } catch (error) {
     console.error("Delete error:", error);
     res.status(500).json({ error: "Failed to delete backup" });
+  }
+});
+
+// ==================== USER MANAGEMENT ROUTES ====================
+
+// Get all users
+router.get("/users", async (req, res) => {
+  try {
+    const users = await prisma.users.findMany({
+      orderBy: {
+        UserID: 'desc'
+      }
+    });
+
+    // Get program names for users with ProgramID
+    const usersWithPrograms = await Promise.all(
+      users.map(async (user) => {
+        let programName = null;
+        
+        if (user.ProgramID && !isNaN(+user.ProgramID)) {
+          const program = await prisma.programs.findUnique({
+            where: { ProgramID: parseInt(user.ProgramID) },
+            select: { Name: true }
+          });
+          programName = program?.Name;
+        }
+
+        return {
+          ...user,
+          programName
+        };
+      })
+    );
+
+    const programs = await prisma.programs.findMany();
+
+    res.render("admin/users", { 
+      users: usersWithPrograms,
+      programs 
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// Get single user
+router.get("/user/:id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    const user = await prisma.users.findUnique({
+      where: { UserID: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Get program name if user has ProgramID
+    let programName = null;
+    if (user.ProgramID && !isNaN(+user.ProgramID)) {
+      const program = await prisma.programs.findUnique({
+        where: { ProgramID: parseInt(user.ProgramID) },
+        select: { Name: true }
+      });
+      programName = program?.Name;
+    }
+
+    res.json({
+      success: true,
+      user: {
+        ...user,
+        programName
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+});
+
+// Update user
+router.post("/user/:id/update", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { Username, Email, FirstName, LastName, ContactNumber, UserType, ProgramID } = req.body;
+
+    // Check if user exists
+    const existingUser = await prisma.users.findUnique({
+      where: { UserID: userId }
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Check if email is already taken by another user
+    if (Email && Email !== existingUser.Email) {
+      const emailExists = await prisma.users.findFirst({
+        where: { 
+          Email: Email.toLowerCase(),
+          UserID: { not: userId }
+        }
+      });
+
+      if (emailExists) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is already taken by another user"
+        });
+      }
+    }
+
+    // Prepare update data
+    const updateData = {
+      Username: Username || existingUser.Username,
+      Email: Email ? Email.toLowerCase() : existingUser.Email,
+      FirstName: FirstName || existingUser.FirstName,
+      LastName: LastName || existingUser.LastName,
+      ContactNumber: ContactNumber || existingUser.ContactNumber,
+      UserType: UserType || existingUser.UserType
+    };
+
+    // Handle ProgramID for trainers
+    if (UserType === 'TRAINER' && ProgramID) {
+      updateData.ProgramID = ProgramID;
+    } else if (UserType !== 'TRAINER') {
+      updateData.ProgramID = null;
+    }
+
+    // Handle profile picture upload
+    if (req.files && req.files.ProfilePicture) {
+      const file = req.files.ProfilePicture;
+      const fileName = `${Date.now()}_${file.name}`;
+      const filePath = `/uploads/profiles/${fileName}`;
+      
+      await file.mv(`./public${filePath}`);
+      updateData.ProfilePicture = filePath;
+    }
+
+    // Update user
+    const updatedUser = await prisma.users.update({
+      where: { UserID: userId },
+      data: updateData
+    });
+
+    res.json({
+      success: true,
+      message: "User updated successfully",
+      user: {
+        id: updatedUser.UserID,
+        email: updatedUser.Email,
+        username: updatedUser.Username,
+        userType: updatedUser.UserType
+      }
+    });
+
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+});
+
+// Delete user
+router.delete("/user/:id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+
+    // Check if user exists
+    const user = await prisma.users.findUnique({
+      where: { UserID: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Check if user is the last admin (prevent deleting all admins)
+    if (user.UserType === 'ADMIN') {
+      const adminCount = await prisma.users.count({
+        where: { UserType: 'ADMIN' }
+      });
+
+      if (adminCount <= 1) {
+        return res.status(400).json({
+          success: false,
+          message: "Cannot delete the last admin user"
+        });
+      }
+    }
+
+    // Delete user's profile picture if exists
+    if (user.ProfilePicture) {
+      const filePath = `./public${user.ProfilePicture}`;
+      if (fs.existsSync(filePath)) {
+        await fs.remove(filePath);
+      }
+    }
+
+    // Delete user
+    await prisma.users.delete({
+      where: { UserID: userId }
+    });
+
+    res.json({
+      success: true,
+      message: "User deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+});
+
+// Bulk user creation page
+router.get("/user/bulk", async (req, res) => {
+  try {
+    res.render("admin/createUser", { 
+      programs: [],
+      showBulkOnly: true 
+    });
+  } catch (error) {
+    console.error("Error loading bulk user page:", error);
+    res.status(500).json({ error: "Failed to load bulk user page" });
   }
 });

@@ -129,6 +129,28 @@ export function hbsHelpers() {
             endsWith: function(str, suffix) {
                 if (!str || !suffix) return false;
                 return String(str).toLowerCase().endsWith(String(suffix).toLowerCase());
+            },
+            lowercase: function(str) {
+                if (!str) return '';
+                return String(str).toLowerCase();
+            },
+            uppercase: function(str) {
+                if (!str) return '';
+                return String(str).toUpperCase();
+            },
+            formatDate: function(dateString) {
+                if (!dateString) return 'N/A';
+                
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'N/A';
+                
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
             }
 
 

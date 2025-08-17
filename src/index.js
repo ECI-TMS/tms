@@ -50,6 +50,20 @@ const app = express();
 const port = process.env.PORT || 5000;
 const handlebars = hbsHelpers();
 
+// Create necessary upload directories
+const uploadsDirectory = join(process.cwd(), "public", "uploads");
+const profilesDirectory = join(uploadsDirectory, "profiles");
+
+// Create uploads directory if it doesn't exist
+if (!fs.existsSync(uploadsDirectory)) {
+  fs.mkdirSync(uploadsDirectory, { recursive: true });
+}
+
+// Create profiles directory if it doesn't exist
+if (!fs.existsSync(profilesDirectory)) {
+  fs.mkdirSync(profilesDirectory, { recursive: true });
+}
+
 // hbs.registerHelper("eq", handlebarsEqual);
 handlebars.handlebars.registerHelper('eq', handlebarsEqual);
 handlebars.handlebars.registerHelper('incrementIndex', function(index) {
@@ -153,13 +167,14 @@ app.post("/user/create", async (req, res) => {
   const uploadsDirectory = join(
     process.cwd(),
     "public",
-    "uploads",
-    "ProfilePicture"
+    "uploads"
   );
 
-  // Create the uploads directory if it doesn't exist
-  if (!fs.existsSync(uploadsDirectory)) {
-    fs.mkdirSync(uploadsDirectory);
+  const profilesDirectory = join(uploadsDirectory, "profiles");
+
+  // Create the profiles directory if it doesn't exist
+  if (!fs.existsSync(profilesDirectory)) {
+    fs.mkdirSync(profilesDirectory, { recursive: true });
   }
   try {
     let hashedPassword = await hash(Password, 10);
@@ -178,18 +193,8 @@ app.post("/user/create", async (req, res) => {
       success: true
     })
 
-    const userDirectory = join(uploadsDirectory, `${created.UserID}`);
-
-    if (!fs.existsSync(uploadsDirectory)) {
-      fs.mkdirSync(uploadsDirectory, { recursive: true });
-    }
-
-    // Create user directory if it doesn't exist
-    if (!fs.existsSync(userDirectory)) {
-      fs.mkdirSync(userDirectory, { recursive: true });
-    }
-
-    const FilePath = join(userDirectory, ProfilePicture.name);
+    const fileName = `${Date.now()}_${ProfilePicture.name}`;
+    const FilePath = join(profilesDirectory, fileName);
     ProfilePicture.mv(FilePath);
     const path = FilePath.split(process.cwd())[1].replace("\\public", "");
     const updatedUser = await prisma.users.update({
