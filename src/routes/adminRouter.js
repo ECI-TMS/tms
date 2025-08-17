@@ -1543,11 +1543,118 @@ router.get("/program/:programId/course/:courseId/session/:id/materials/create", 
     });
     res.render("admin/createMaterial", {
       sessionId:+req.params.id,
-      programId
+      programId,
+      courseId:+req.params.courseId
     });
 
   } catch (error) {
     res.status(400).json({ error });
+  }
+});
+
+// Edit material route
+router.post("/materials/:materialId/edit", async (req, res) => {
+  try {
+    const { materialId } = req.params;
+    const { title } = req.body;
+    
+    if (!title || title.trim() === '') {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Material title is required" 
+      });
+    }
+
+    // Check if material exists
+    const existingMaterial = await prisma.materials.findUnique({
+      where: { MaterialID: +materialId }
+    });
+
+    if (!existingMaterial) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Material not found" 
+      });
+    }
+
+    let updateData = {
+      Title: title.trim()
+    };
+
+    // Handle file upload if provided
+    if (req.files && req.files.file) {
+      const file = req.files.file;
+      const fileName = file.name;
+      const filePath = `/uploads/materials/${materialId}_${Date.now()}_${fileName}`;
+      
+      // Save file to uploads directory
+      await file.mv(`./public${filePath}`);
+      
+      // Update file path
+      updateData.FilePath = filePath;
+    }
+
+    // Update material
+    await prisma.materials.update({
+      where: { MaterialID: +materialId },
+      data: updateData
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Material updated successfully" 
+    });
+
+  } catch (error) {
+    console.error("Error updating material:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error",
+      error: error.message 
+    });
+  }
+});
+
+// Delete material route
+router.delete("/materials/:materialId", async (req, res) => {
+  try {
+    const { materialId } = req.params;
+
+    // Check if material exists
+    const existingMaterial = await prisma.materials.findUnique({
+      where: { MaterialID: +materialId }
+    });
+
+    if (!existingMaterial) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Material not found" 
+      });
+    }
+
+    // Delete material from database
+    await prisma.materials.delete({
+      where: { MaterialID: +materialId }
+    });
+
+    // TODO: Optionally delete the physical file from server
+    // const filePath = `./public${existingMaterial.FilePath}`;
+    // if (fs.existsSync(filePath)) {
+    //   fs.unlinkSync(filePath);
+    // }
+
+    res.json({ 
+      success: true, 
+      message: "Material deleted successfully" 
+    });
+
+  } catch (error) {
+    console.error("Error deleting material:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error",
+      error: error.message 
+    });
   }
 });
 

@@ -125,6 +125,10 @@ export function hbsHelpers() {
                 const day = String(date.getDate()).padStart(2, '0');
                 
                 return `${year}-${month}-${day}`;
+            },
+            endsWith: function(str, suffix) {
+                if (!str || !suffix) return false;
+                return String(str).toLowerCase().endsWith(String(suffix).toLowerCase());
             }
 
 
