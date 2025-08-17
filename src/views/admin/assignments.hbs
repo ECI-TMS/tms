@@ -75,6 +75,44 @@
     background: linear-gradient(135deg, #4a7bc8, #2E5A92);
   }
 
+  /* Breadcrumb Styling */
+  .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 20px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb-item {
+    color: #6c757d;
+    font-size: 14px;
+  }
+
+  .breadcrumb-item:not(:last-child)::after {
+    content: ">";
+    margin: 0 8px;
+    color: #6c757d;
+  }
+
+  .breadcrumb-item a {
+    color: #2E5A92;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .breadcrumb-item a:hover {
+    color: #4a7bc8;
+    text-decoration: underline;
+  }
+
+  .breadcrumb-item.active {
+    color: #2E5A92;
+    font-weight: 500;
+  }
+
   .table-container {
     background: white;
     border-radius: 12px;
@@ -407,6 +445,26 @@
 </style>
 
 <div class="content">
+  <!-- Breadcrumb Navigation -->
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="/admin/programs">Project</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{session.ProgramID}}">{{#if session.programs}}{{session.programs.Name}}{{else}}Program{{/if}}</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{session.ProgramID}}/courses">Courses</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{session.ProgramID}}/courses/{{session.CourseID}}">{{#if session.course}}{{session.course.Name}}{{else}}Course{{/if}}</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{session.ProgramID}}/courses/{{session.CourseID}}">{{#if session.SessionName}}{{session.SessionName}}{{else}}Session{{/if}}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Assignments</li>
+  </ol>
+
   <div class="header-section">
     <div class="page-title">
       <div class="title-icon">📚</div>

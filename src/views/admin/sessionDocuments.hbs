@@ -75,6 +75,44 @@
     display: none;
   }
 
+  /* Breadcrumb Styling */
+  .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 20px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb-item {
+    color: #6c757d;
+    font-size: 14px;
+  }
+
+  .breadcrumb-item:not(:last-child)::after {
+    content: ">";
+    margin: 0 8px;
+    color: #6c757d;
+  }
+
+  .breadcrumb-item a {
+    color: #2E5A92;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .breadcrumb-item a:hover {
+    color: #4a7bc8;
+    text-decoration: underline;
+  }
+
+  .breadcrumb-item.active {
+    color: #2E5A92;
+    font-weight: 500;
+  }
+
   /* Professional DataTable Styling */
   .dataTables_wrapper {
     background: white;
@@ -652,6 +690,26 @@
 </style>
 
 <div class="container">
+  <!-- Breadcrumb Navigation -->
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="/admin/programs">Project</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{session.ProgramID}}">p2</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{session.ProgramID}}/courses">Courses</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{session.ProgramID}}/courses/{{session.CourseID}}">web</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{session.ProgramID}}/courses/{{session.CourseID}}">Session</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Documents</li>
+  </ol>
+
   <div class="header-section">
     <h1 class="page-title">Session Documents </h1>
     <div class="upload-section">

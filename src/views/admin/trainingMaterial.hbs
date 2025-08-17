@@ -29,6 +29,44 @@
     width: 100%;
   }
 
+  /* Breadcrumb Styling */
+  .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 20px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb-item {
+    color: #6c757d;
+    font-size: 14px;
+  }
+
+  .breadcrumb-item:not(:last-child)::after {
+    content: ">";
+    margin: 0 8px;
+    color: #6c757d;
+  }
+
+  .breadcrumb-item a {
+    color: #2E5A92;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .breadcrumb-item a:hover {
+    color: #4a7bc8;
+    text-decoration: underline;
+  }
+
+  .breadcrumb-item.active {
+    color: #2E5A92;
+    font-weight: 500;
+  }
+
   .header-section {
     background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
     border-radius: 16px;
@@ -618,6 +656,26 @@
 </style>
 
 <div class="container">
+  <!-- Breadcrumb Navigation -->
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="/admin/programs">Project</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{programId}}">p2</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{programId}}/courses">Courses</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{programId}}/courses/{{courseId}}">web</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/admin/programs/{{programId}}/courses/{{courseId}}">Session</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Materials</li>
+  </ol>
+
   <div class="header-section">
     <div>
       <h1 class="page-title">Training Materials</h1>

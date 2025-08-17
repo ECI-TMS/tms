@@ -1062,6 +1062,10 @@ router.get("/session/:id/assignments", authMiddleware, async (req, res) => {
       where: {
         SessionID: +req.params.id,
       },
+      include: {
+        course: true,
+        programs: true,
+      },
     });
 
     res.render("admin/assignments", {
