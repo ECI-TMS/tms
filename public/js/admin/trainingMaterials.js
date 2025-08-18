@@ -23,11 +23,23 @@ $(document).ready(function() {
     },
     dom: '<"top"lf>rt<"bottom"ip><"clear">',
     columnDefs: [
-      { orderable: false, targets: [3] }
+      { orderable: false, searchable: false, targets: 0 }, // S NO column should not sort/search
+      { orderable: false, targets: [3] } // Actions column
     ],
     autoWidth: false,
     scrollX: false
   });
+
+  // Renumber S NO column on each draw/order/search so it reflects display order (1..n)
+  dataTable.on('order.dt search.dt draw.dt', function() {
+    let displayIndex = 1;
+    dataTable
+      .column(0, { search: 'applied', order: 'applied' })
+      .nodes()
+      .each(function(cell) {
+        cell.innerHTML = displayIndex++;
+      });
+  }).draw();
 });
 
 // Global variables for view modal
