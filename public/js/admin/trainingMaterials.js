@@ -64,8 +64,9 @@ function viewMaterial(filePath, fileName) {
   // Update modal title
   document.getElementById('viewModalTitle').textContent = `View: ${fileName}`;
   
-  // Get file extension
-  const fileExtension = fileName.split('.').pop().toLowerCase();
+  // Get file extension (fallback to filePath if needed)
+  const fileNameForExt = (fileName && fileName.includes('.')) ? fileName : (filePath || '');
+  const fileExtension = fileNameForExt.split('.').pop().toLowerCase();
   const viewContent = document.getElementById('viewContent');
   
   // Clear previous content
@@ -78,6 +79,20 @@ function viewMaterial(filePath, fileName) {
   document.getElementById('viewModal').classList.add('active');
   document.body.style.overflow = 'hidden';
   
+  // Helper to build absolute URL for external viewers
+  const toAbsoluteUrl = (url) => {
+    if (!url) return '';
+    if (/^https?:\/\//i.test(url)) return url;
+    if (url.startsWith('//')) return window.location.protocol + url;
+    try {
+      return new URL(url, window.location.origin).href;
+    } catch (e) {
+      return window.location.origin + (url.startsWith('/') ? url : ('/' + url));
+    }
+  };
+
+  const absoluteFileUrl = toAbsoluteUrl(filePath);
+
   // Handle different file types
   if (['pdf'].includes(fileExtension)) {
     // PDF files
@@ -87,6 +102,92 @@ function viewMaterial(filePath, fileName) {
               title="${fileName}">
       </iframe>
     `;
+  } else if (fileExtension === 'docx') {
+    // Try client-side render with Mammoth; fallback to Office Web Viewer
+    const renderOfficeFallback = () => {
+      const officeViewerUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(absoluteFileUrl);
+      viewContent.innerHTML = `
+        <iframe src="${officeViewerUrl}" style="width: 100%; height: 100%; border: none;" title="${fileName}"></iframe>
+        <div style="position:absolute; bottom: 8px; right: 12px; font-size: 12px; color: #6c757d;">
+          If the preview doesn't load, <a href="${officeViewerUrl}" target="_blank" rel="noopener">open in a new tab</a>.
+        </div>
+      `;
+    };
+
+    if (!window.mammoth) {
+      renderOfficeFallback();
+    } else {
+      fetch(absoluteFileUrl)
+        .then(r => r.arrayBuffer())
+        .then(arrayBuffer => window.mammoth.convertToHtml({ arrayBuffer }))
+        .then(result => {
+          viewContent.innerHTML = `
+            <div style="width: 100%; height: 100%; overflow: auto; background: #fff; padding: 16px;">
+              ${result.value}
+            </div>
+          `;
+        })
+        .catch(() => {
+          renderOfficeFallback();
+        });
+    }
+  } else if (['xlsx', 'xls'].includes(fileExtension)) {
+    // Try client-side render with SheetJS; fallback to Office Web Viewer
+    const renderOfficeFallback = () => {
+      const officeViewerUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(absoluteFileUrl);
+      viewContent.innerHTML = `
+        <iframe src="${officeViewerUrl}" style="width: 100%; height: 100%; border: none;" title="${fileName}"></iframe>
+        <div style="position:absolute; bottom: 8px; right: 12px; font-size: 12px; color: #6c757d;">
+          If the preview doesn't load, <a href="${officeViewerUrl}" target="_blank" rel="noopener">open in a new tab</a>.
+        </div>
+      `;
+    };
+
+    if (!window.XLSX) {
+      renderOfficeFallback();
+    } else {
+      fetch(absoluteFileUrl)
+        .then(r => r.arrayBuffer())
+        .then(buffer => {
+          const data = new Uint8Array(buffer);
+          const wb = window.XLSX.read(data, { type: 'array' });
+          const firstSheetName = wb.SheetNames[0];
+          const ws = wb.Sheets[firstSheetName];
+          const html = window.XLSX.utils.sheet_to_html(ws, { id: 'xlsx-preview' });
+          viewContent.innerHTML = `
+            <div style="width: 100%; height: 100%; overflow: auto; background: #fff;">
+              ${html}
+            </div>
+          `;
+        })
+        .catch(() => {
+          renderOfficeFallback();
+        });
+    }
+  } else if (['doc', 'ppt', 'pptx'].includes(fileExtension)) {
+    // Other Office formats use Microsoft Office Web Viewer
+    const officeViewerUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(absoluteFileUrl);
+    viewContent.innerHTML = `
+      <iframe src="${officeViewerUrl}" style="width: 100%; height: 100%; border: none;" title="${fileName}"></iframe>
+      <div style="position:absolute; bottom: 8px; right: 12px; font-size: 12px; color: #6c757d;">
+        If the preview doesn't load, <a href="${officeViewerUrl}" target="_blank" rel="noopener">open in a new tab</a>.
+      </div>
+    `;
+  } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
+    // Video files
+    viewContent.innerHTML = `
+      <video controls style="width: 100%; height: 100%;" src="${filePath}">
+        Your browser does not support the video tag.
+      </video>
+    `;
+  } else if (['mp3', 'wav', 'ogg', 'm4a'].includes(fileExtension)) {
+    // Audio files
+    viewContent.innerHTML = `
+      <audio controls style="width: 100%;">
+        <source src="${filePath}" type="audio/${fileExtension}">
+        Your browser does not support the audio element.
+      </audio>
+    `;
   } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension)) {
     // Image files
     viewContent.innerHTML = `
@@ -95,7 +196,7 @@ function viewMaterial(filePath, fileName) {
            alt="${fileName}"
            onerror="handleViewError()">
     `;
-  } else if (['txt', 'md', 'json', 'xml', 'html', 'css', 'js'].includes(fileExtension)) {
+  } else if (['txt', 'md', 'json', 'xml', 'html', 'css', 'js', 'csv'].includes(fileExtension)) {
     // Text files
     fetch(filePath)
       .then(response => response.text())
@@ -110,15 +211,14 @@ function viewMaterial(filePath, fileName) {
         handleViewError();
       });
   } else {
-    // Unsupported file types
+    // Fallback attempt: try embedding directly; if browser can't render, show helpful message
     viewContent.innerHTML = `
-      <div style="text-align: center; padding: 2rem;">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#6c757d" stroke-width="2">
-          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-        </svg>
-        <h3 style="color: #6c757d; margin: 1rem 0;">Preview Not Available</h3>
-        <p style="color: #6c757d;">This file type (${fileExtension.toUpperCase()}) cannot be previewed directly.</p>
-        <p style="color: #6c757d;">Please download the file to view it.</p>
+      <iframe src="${filePath}" 
+              style="width: 100%; height: 100%; border: none; background: #fff;" 
+              title="${fileName}">
+      </iframe>
+      <div style="position:absolute; bottom: 8px; right: 12px; font-size: 12px; color: #6c757d;">
+        If the preview doesn't load, try <a href="${filePath}" download>downloading</a> the file.
       </div>
     `;
   }
