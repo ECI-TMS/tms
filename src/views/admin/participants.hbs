@@ -426,6 +426,7 @@
     color: #28a745;
     font-size: 12px;
     margin-top: 4px;
+    display: none;
   }
 
   .invalid-feedback {
@@ -654,6 +655,7 @@
         >
         <input type="hidden" name="program_id" value="{{programId}}">
         <input type="hidden" name="course_id" value="{{courseId}}">
+        <input type="hidden" name="sessionId" value="{{sessionId}}">
         
           <div class="col-12">
             <label for="validationCustom01" class="form-label">
@@ -685,10 +687,12 @@
               name="cnic"
               class="form-control"
               id="validationCustom02"
-              placeholder="e.g., 12345-1234567-1"
+              placeholder="e.g., 17301-0429538-3"
               required
+              novalidate
             />
             <div class="valid-feedback">CNIC format is correct.</div>
+            <div class="invalid-feedback">Please enter a valid CNIC in the format: 17301-0429538-3</div>
           </div>
           
           <div class="col-md-6">
@@ -721,34 +725,14 @@
               name="contact"
               class="form-control"
               id="validationCustom04"
-              placeholder="e.g., +92 300 1234567"
+                             placeholder="e.g., 03088429785 (11 digits)"
               required
             />
-            <div class="invalid-feedback">Please provide a valid contact number.</div>
+            <div class="valid-feedback">Contact number format is correct.</div>
+                         <div class="invalid-feedback">Please enter a valid contact number (11 digits)</div>
           </div>
           
-          <div class="col-md-6">
-            <label for="validationCustom05" class="form-label">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
-                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6Z"/>
-              </svg>
-              Session
-            </label>
-            <select
-              class="form-select"
-              name="sessionId"
-              id="validationCustom05"
-              required
-            >
-              <option selected disabled value="">Choose Session...</option>
-              {{#each sessions}}
-                <option value="{{this.SessionID}}" {{#eq this.SessionID ../sessionId}} selected {{/eq}}>
-                  Session {{this.SessionID}}
-                </option>
-              {{/each}}
-            </select>
-            <div class="invalid-feedback">Please select a valid session.</div>
-          </div>
+
 
           <div class="col-12 d-flex justify-content-end gap-3 mt-4">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
