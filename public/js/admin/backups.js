@@ -71,6 +71,83 @@ $(document).ready(function() {
         }
     });
 
+    // Handle backup upload form submission
+    $('#uploadBackupForm').on('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = $('#uploadSubmitBtn');
+        const btnText = $('#uploadBtnText');
+        const btnSpinner = $('#uploadBtnSpinner');
+        const uploadBtn = $('#uploadBtn');
+        
+        // Validate file selection
+        const fileInput = document.getElementById('backupFile');
+        if (!fileInput.files[0]) {
+            showNotification('Please select a backup file', 'error');
+            return;
+        }
+
+        // Validate file type
+        const fileName = fileInput.files[0].name;
+        if (!fileName.toLowerCase().endsWith('.zip')) {
+            showNotification('Please select a valid ZIP file', 'error');
+            return;
+        }
+
+        // Validate confirmation checkbox
+        if (!document.getElementById('confirmUpload').checked) {
+            showNotification('Please confirm that you understand the risks', 'error');
+            return;
+        }
+        
+        // Disable button and show loading
+        submitBtn.prop('disabled', true);
+        uploadBtn.prop('disabled', true);
+        btnText.text('Uploading & Restoring...');
+        btnSpinner.show();
+
+        const formData = new FormData(this);
+
+        try {
+            showNotification('Starting backup upload and restoration process...', 'info');
+            
+            const response = await fetch('/admin/backups/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                // Show success message
+                showNotification('Backup uploaded and restored successfully!', 'success');
+                
+                // Close modal
+                $('#uploadBackupModal').modal('hide');
+                
+                // Reset form
+                this.reset();
+                $('#confirmUpload').prop('checked', false);
+                
+                // Reload page to show new backup
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification(result.error || 'Failed to upload backup', 'error');
+            }
+        } catch (error) {
+            console.error('Error uploading backup:', error);
+            showNotification('An error occurred while uploading backup', 'error');
+        } finally {
+            // Re-enable button and hide loading
+            submitBtn.prop('disabled', false);
+            uploadBtn.prop('disabled', false);
+            btnText.text('Upload & Restore');
+            btnSpinner.hide();
+        }
+    });
+
     // Reset form when modal is closed
     $('#generateBackupModal').on('hidden.bs.modal', function() {
         $('#generateBackupForm')[0].reset();
@@ -82,6 +159,21 @@ $(document).ready(function() {
         submitBtn.prop('disabled', false);
         generateBtn.prop('disabled', false);
         btnText.text('Generate Backup');
+        btnSpinner.hide();
+    });
+
+    // Reset upload form when modal is closed
+    $('#uploadBackupModal').on('hidden.bs.modal', function() {
+        $('#uploadBackupForm')[0].reset();
+        $('#confirmUpload').prop('checked', false);
+        const submitBtn = $('#uploadSubmitBtn');
+        const btnText = $('#uploadBtnText');
+        const btnSpinner = $('#uploadBtnSpinner');
+        const uploadBtn = $('#uploadBtn');
+        
+        submitBtn.prop('disabled', false);
+        uploadBtn.prop('disabled', false);
+        btnText.text('Upload & Restore');
         btnSpinner.hide();
     });
 });

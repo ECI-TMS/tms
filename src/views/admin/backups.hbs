@@ -52,7 +52,13 @@
     font-weight: bold;
   }
 
-  .generate-button {
+  .button-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .generate-button, .upload-button {
     background: linear-gradient(135deg, #2E5A92, #4a7bc8);
     color: white;
     padding: 12px 24px;
@@ -68,13 +74,41 @@
     gap: 8px;
   }
 
+  .upload-button {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .upload-button:hover::before {
+    left: 100%;
+  }
+
   .generate-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(46, 90, 146, 0.4);
     background: linear-gradient(135deg, #4a7bc8, #2E5A92);
   }
 
-  .generate-button:disabled {
+  .upload-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    background: linear-gradient(135deg, #20c997, #28a745);
+  }
+
+  .generate-button:disabled, .upload-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
@@ -397,7 +431,12 @@
       text-align: center;
     }
     
-    .generate-button {
+    .button-group {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .generate-button, .upload-button {
       width: 100%;
       justify-content: center;
     }
@@ -410,17 +449,30 @@
       <div class="title-icon">💾</div>
       Backup Management
     </div>
-    <button
-      class="generate-button"
-      data-bs-toggle="modal"
-      data-bs-target="#generateBackupModal"
-      id="generateBtn"
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
-      </svg>
-      Generate Backup
-    </button>
+    <div class="button-group">
+      <button
+        class="upload-button"
+        data-bs-toggle="modal"
+        data-bs-target="#uploadBackupModal"
+        id="uploadBtn"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        </svg>
+        Upload Backup
+      </button>
+      <button
+        class="generate-button"
+        data-bs-toggle="modal"
+        data-bs-target="#generateBackupModal"
+        id="generateBtn"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+        </svg>
+        Generate Backup
+      </button>
+    </div>
   </div>
 
   <div class="table-container">
@@ -511,6 +563,75 @@
             <button type="submit" class="btn btn-primary" id="generateSubmitBtn">
               <span id="generateBtnText">Generate Backup</span>
               <span id="generateBtnSpinner" class="loading-spinner" style="display: none;"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Backup Modal -->
+<div class="modal fade" id="uploadBackupModal" tabindex="-1" aria-labelledby="uploadBackupModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadBackupModalLabel">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+          </svg>
+          Upload Backup
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="uploadBackupForm" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="backupFile" class="form-label">Backup File (ZIP)</label>
+            <input
+              type="file"
+              class="form-control"
+              id="backupFile"
+              name="backupFile"
+              accept=".zip"
+              required
+            />
+            <div class="form-text">Select a ZIP file containing SQL backup and uploads folder</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="uploadDescription" class="form-label">Description (Optional)</label>
+            <textarea
+              class="form-control"
+              id="uploadDescription"
+              name="description"
+              rows="3"
+              placeholder="Enter a description for this uploaded backup..."
+            ></textarea>
+          </div>
+          
+          <div class="alert alert-warning">
+            <strong>⚠️ Warning:</strong>
+            <ul class="mb-0 mt-2">
+              <li>This will replace existing database data</li>
+              <li>Existing public/uploads folder will be replaced</li>
+              <li>Make sure you have a current backup before proceeding</li>
+              <li>This action cannot be undone</li>
+            </ul>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="confirmUpload" required>
+            <label class="form-check-label" for="confirmUpload">
+              I understand that this will replace existing data and cannot be undone
+            </label>
+          </div>
+
+          <div class="d-flex justify-content-end gap-3 mt-4">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">
+              <span id="uploadBtnText">Upload & Restore</span>
+              <span id="uploadBtnSpinner" class="loading-spinner" style="display: none;"></span>
             </button>
           </div>
         </form>
