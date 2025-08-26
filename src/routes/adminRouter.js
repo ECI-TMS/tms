@@ -744,6 +744,7 @@ router.get("/program/:programId/course/:courseId/sessions/:id", async (req, res)
     const participants = await prisma.Participant.count({
       where: {
         sessionId: +id,
+        deletedAt: null, // Exclude soft-deleted participants
       },
     });
 
@@ -2450,7 +2451,8 @@ router.get("/program/:programId/course/:courseId/session/:sessionId/participant"
      const courseId =  +req.params.courseId;
      const data = await prisma.Participant.findMany({
       where: {
-        sessionId: sessionId
+        sessionId: sessionId,
+        deletedAt: null, // Exclude soft-deleted participants
       }
     });
     
