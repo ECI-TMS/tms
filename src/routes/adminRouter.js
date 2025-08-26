@@ -817,6 +817,7 @@ router.get("/program/:programId/course/:courseId/session/:id/participants", asyn
     const  sessionId  =  +req.params.id;
     const  programId  =  +req.params.programId;
     const  courseId  =  +req.params.courseId;
+    const { msg, type } = req.query;
     const participants = await prisma.Participant.findMany({
       where: {
         sessionId: +req.params.id,
@@ -836,7 +837,9 @@ router.get("/program/:programId/course/:courseId/session/:id/participants", asyn
       session,
       sessionId,
       programId,
-      courseId
+      courseId,
+      message: msg || null,
+      messageType: type || null
     });
   } catch (error) {
     res.status(400).json({ error });

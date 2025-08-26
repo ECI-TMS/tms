@@ -617,4 +617,21 @@
   </div>
 </div>
 
+<script>
+  (function(){
+    const msg = '{{message}}';
+    const type = '{{messageType}}';
+    if (msg && msg !== 'null') {
+      // Wait for sessionPart.js to define showNotification
+      const show = function(){
+        if (typeof showNotification === 'function') {
+          showNotification(msg, type || 'info');
+        } else {
+          setTimeout(show, 50);
+        }
+      };
+      show();
+    }
+  })();
+</script>
 <script  defer src="/js/admin/sessionPart.js" ></script>

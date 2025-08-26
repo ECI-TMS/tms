@@ -13,8 +13,42 @@ router.post("/create", async (req, res) => {
   const { name, cnic, email, contact, sessionId ,program_id,course_id } = req.body;
 
   try {
-    if (!name && !cnic && !email && !contact && !sessionId) {
-      return res.status(400).json({ error: "Missing fields" });
+    // Validate required fields similar to bulk logic
+    if (!name || !cnic || !email || !contact || !sessionId || !program_id) {
+      await prisma.duplicateParticipant.create({
+        data: {
+          name: name || 'N/A',
+          cnic: String(cnic || 'N/A'),
+          email: email || 'N/A',
+          contact: String(contact || 'N/A'),
+          sessionId: +sessionId,
+          program_id: +program_id,
+          reason: 'Missing required fields'
+        }
+      });
+      const msg = encodeURIComponent('Missing required fields. Saved to duplicates.');
+      return res.redirect(`/admin/program/${program_id}/course/${course_id}/session/${+sessionId}/participants?msg=${msg}&type=error`);
+    }
+
+    // Check duplicate email (case-insensitive) similar to bulk logic
+    const trimmedEmail = email.trim().toLowerCase();
+    const existingUsers = await prisma.$queryRaw`SELECT * FROM users WHERE LOWER(Email) = ${trimmedEmail}`;
+    const existingUser = existingUsers[0] || null;
+
+    if (existingUser) {
+      await prisma.duplicateParticipant.create({
+        data: {
+          name,
+          cnic: String(cnic),
+          email,
+          contact: String(contact),
+          sessionId: +sessionId,
+          program_id: +program_id,
+          reason: 'Email already exists in system'
+        }
+      });
+      const msg = encodeURIComponent('Email already exists. Saved to duplicates.');
+      return res.redirect(`/admin/program/${program_id}/course/${course_id}/session/${+sessionId}/participants?msg=${msg}&type=error`);
     }
 
     const data = await prisma.Participant.create({
