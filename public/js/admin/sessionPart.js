@@ -1,9 +1,6 @@
-// Global variables for undo functionality
-let deletedParticipantData = null;
-let undoTimeout = null;
+// Multi-delete support: keep independent state per participant
+const deletedStates = new Map(); // id -> { rowData, rowNode, originalActions, intervalId, timeoutId }
 let undoInProgress = false;
-let deletedRowElement = null;
-let countdownInterval = null;
 
 $(document).ready(function() {
   $('#example').DataTable({
@@ -23,11 +20,10 @@ $(document).ready(function() {
     }
   });
 
-  // Add event listener for undo button
-  document.getElementById('undoButton').addEventListener('click', handleUndo);
+  // Removed undo button - message only now
 });
 
-// Delete participant function with undo capability
+// Delete participant function with undo capability (supports multiple concurrent deletes)
 async function deleteParticipant(participantId) {
   if (undoInProgress) {
     showNotification('Please wait for the current operation to complete.', 'warning');
@@ -42,13 +38,11 @@ async function deleteParticipant(participantId) {
       const rowData = row.data();
       const rowNode = row.node();
 
-      // Store participant data for potential undo
-      deletedParticipantData = {
-        id: participantId,
-        rowData: rowData,
-        rowNode: rowNode,
-        rowIndex: row.index()
-      };
+      // If already in deleted state, skip re-adding timer
+      if (deletedStates.has(participantId)) {
+        showNotification('Delete already in progress for this participant.', 'info');
+        return;
+      }
 
       const response = await fetch(`/participant/deleteParticipant/${participantId}`, {
         method: 'DELETE',
@@ -62,13 +56,12 @@ async function deleteParticipant(participantId) {
         const actionCell = rowNode.querySelector('.action-buttons');
         const originalActions = actionCell.innerHTML;
         
-        // Store the original actions for restoration
-        deletedParticipantData.originalActions = originalActions;
-        deletedRowElement = rowNode;
+        // Store per-participant state for restoration
+        deletedStates.set(participantId, { rowData, rowNode, originalActions, intervalId: null, timeoutId: null });
         
         // Replace with timer button
         actionCell.innerHTML = `
-          <button class="action-btn undo-btn" onclick="handleUndo()" title="Undo Delete" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; border: 1px solid #28a745; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3); display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; font-weight: bold; font-size: 12px;">
+          <button class="action-btn undo-btn" onclick="handleUndo('${participantId}')" title="Undo Delete" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; border: 1px solid #28a745; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3); display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; font-weight: bold; font-size: 12px;">
             <span style="color: white; font-size: 12px;" id="timer-${participantId}">45</span>
             <div class="tooltip">Undo Delete</div>
           </button>
@@ -78,59 +71,65 @@ async function deleteParticipant(participantId) {
         rowNode.style.opacity = '0.6';
         rowNode.style.backgroundColor = '#fff3cd';
         
-        // Show undo notification
-        showUndoNotification(`"${rowData[0].split('>')[1].split('<')[0].trim()}" deleted successfully!`);
+        // Show undo notification with instruction to click counter
+        showUndoNotification(`"${rowData[0].split('>')[1].split('<')[0].trim()}" deleted successfully! Please click the counter to undo the action.`);
         
         // Start timer countdown
         let timeLeft = 45;
         const timerElement = document.getElementById(`timer-${participantId}`);
-        
-        countdownInterval = setInterval(() => {
+        const intervalId = setInterval(() => {
           timeLeft--;
           if (timerElement) {
             timerElement.textContent = timeLeft;
           }
           
           if (timeLeft <= 0) {
-            clearInterval(countdownInterval);
+            clearInterval(intervalId);
           }
         }, 1000);
 
-        // Set timeout for undo (45 seconds)
-        undoTimeout = setTimeout(async () => {
-          if (countdownInterval) {
-            clearInterval(countdownInterval);
-          }
-          if (deletedParticipantData) {
-            try {
-              // Call backend to permanently delete the participant
-              const permanentDeleteResponse = await fetch(`/participant/permanentlyDeleteParticipant/${participantId}`, {
-                method: 'DELETE',
-                headers: {
-                  'Content-Type': 'application/json',
-                }
-              });
+        // Save interval id
+        const state = deletedStates.get(participantId);
+        state.intervalId = intervalId;
 
-              if (permanentDeleteResponse.ok) {
-                // Permanently remove the row from the table
-                const table = $('#example').DataTable();
-                const currentRow = table.row(`tr[data-participant-id="${participantId}"]`);
-                currentRow.remove().draw();
-                
-                hideUndoNotification();
-                deletedParticipantData = null;
-                deletedRowElement = null;
-                showNotification('Undo time expired. Participant permanently deleted from database.', 'info');
-              } else {
-                console.error('Failed to permanently delete participant');
-                showNotification('Error: Failed to permanently delete participant.', 'error');
+        // Set timeout for undo (45 seconds) independent per participant
+        const timeoutId = setTimeout(async () => {
+          const st = deletedStates.get(participantId);
+          if (!st) return; // already undone
+          try {
+            // Call backend to permanently delete the participant
+            const permanentDeleteResponse = await fetch(`/participant/permanentlyDeleteParticipant/${participantId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
               }
-            } catch (error) {
-              console.error('Error permanently deleting participant:', error);
+            });
+
+            if (permanentDeleteResponse.ok) {
+              // Permanently remove the row from the table
+              const table = $('#example').DataTable();
+              const currentRow = table.row(`tr[data-participant-id="${participantId}"]`);
+              currentRow.remove().draw();
+              
+              // Clear timers and state
+              if (st.intervalId) clearInterval(st.intervalId);
+              deletedStates.delete(participantId);
+              // If no remaining deletes in progress, hide the message
+              if (deletedStates.size === 0) {
+                hideUndoNotification();
+              }
+              showNotification('Undo time expired. Participant permanently deleted from database.', 'info');
+            } else {
+              console.error('Failed to permanently delete participant');
               showNotification('Error: Failed to permanently delete participant.', 'error');
             }
+          } catch (error) {
+            console.error('Error permanently deleting participant:', error);
+            showNotification('Error: Failed to permanently delete participant.', 'error');
           }
         }, 45000);
+
+        state.timeoutId = timeoutId;
 
       } else {
         throw new Error('Failed to delete participant');
@@ -138,22 +137,21 @@ async function deleteParticipant(participantId) {
     } catch (error) {
       console.error('Error deleting participant:', error);
       showNotification('Error deleting participant. Please try again.', 'error');
-      deletedParticipantData = null;
     }
   }
 }
 
-// Handle undo action
-async function handleUndo() {
-  if (!deletedParticipantData || undoInProgress) {
-    return;
-  }
+// Handle undo action for a specific participant
+async function handleUndo(participantId) {
+  if (!participantId || undoInProgress) return;
+  const state = deletedStates.get(participantId);
+  if (!state) return;
 
   undoInProgress = true;
   
   try {
     // Call backend to restore the participant
-    const response = await fetch(`/participant/restoreParticipant/${deletedParticipantData.id}`, {
+    const response = await fetch(`/participant/restoreParticipant/${participantId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -162,29 +160,21 @@ async function handleUndo() {
 
     if (response.ok) {
       // Restore the original action buttons
-      if (deletedRowElement && deletedParticipantData.originalActions) {
-        const actionCell = deletedRowElement.querySelector('.action-buttons');
-        actionCell.innerHTML = deletedParticipantData.originalActions;
-        
+      if (state.rowNode && state.originalActions) {
+        const actionCell = state.rowNode.querySelector('.action-buttons');
+        actionCell.innerHTML = state.originalActions;
         // Restore row appearance
-        deletedRowElement.style.opacity = '1';
-        deletedRowElement.style.backgroundColor = '';
+        state.rowNode.style.opacity = '1';
+        state.rowNode.style.backgroundColor = '';
       }
       
-      // Hide undo notification
-      hideUndoNotification();
-      
-      // Clear timeout and data
-      if (undoTimeout) {
-        clearTimeout(undoTimeout);
-        undoTimeout = null;
+      // Clear timers and state only for this participant
+      if (state.timeoutId) clearTimeout(state.timeoutId);
+      if (state.intervalId) clearInterval(state.intervalId);
+      deletedStates.delete(participantId);
+      if (deletedStates.size === 0) {
+        hideUndoNotification();
       }
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-        countdownInterval = null;
-      }
-      deletedParticipantData = null;
-      deletedRowElement = null;
       
       showNotification('Participant restored successfully!', 'success');
     } else {
@@ -217,7 +207,6 @@ function showUndoNotification(message) {
 function hideUndoNotification() {
   const notification = document.getElementById('undoNotification');
   notification.classList.add('fade-out');
-  
   setTimeout(() => {
     notification.style.display = 'none';
     notification.classList.remove('fade-out');
