@@ -261,26 +261,32 @@
 
   <div class="sessions-container">
     <table id="sessionsTable" class="display">
-      <thead>
-        <tr>
-          <th>S NO</th>
-          <th>Batch Name</th>
-          <th>Center</th>
-          <th>Training  Course</th>
-          <th>Project</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each sessions}}
-        <tr>
-          <td>{{incrementIndex @index}}</td>
-          <td>
-            <a href="/admin/program/{{../programId}}/course/{{../courseId}}/sessions/{{this.SessionID}}"
-               class="session-link">
-              {{this.Center}}-{{this.course.Name}}
-            </a>
-          </td>
+             <thead>
+         <tr>
+           <th>S NO</th>
+           <th>Batch ID</th>
+           <th>Batch Name</th>
+           <th>Center</th>
+           <th>Training  Course</th>
+           <th>Project</th>
+           <th>Actions</th>
+         </tr>
+       </thead>
+       <tbody>
+         {{#each sessions}}
+         <tr>
+           <td>{{incrementIndex @index}}</td>
+           <td>
+             <span style="background: #2E5A92; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+               {{this.SessionID}}
+             </span>
+           </td>
+           <td>
+             <a href="/admin/program/{{../programId}}/course/{{../courseId}}/sessions/{{this.SessionID}}"
+                class="session-link">
+               {{this.Center}}-{{this.course.Name}}
+             </a>
+           </td>
           <td>{{this.Center}}</td>
           <td>{{this.course.Name}}</td>
           <td>{{this.programs.Name}}</td>
