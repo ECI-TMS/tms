@@ -4264,7 +4264,13 @@ COMMIT;
             filename: `${backupName}.zip`,
             filepath: `/uploads/db_backup/${backupName}.zip`,
             filesize: BigInt(stats.size),
-            description: description || `Backup generated on ${new Date().toLocaleString()}`,
+            description: description || `Backup generated on ${new Date().toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}`,
             createdBy: 'Admin',
             status: 'completed'
           }
