@@ -4378,11 +4378,38 @@ router.post("/backups/upload", async (req, res) => {
       return res.status(400).json({ error: "Only ZIP files are allowed" });
     }
 
-    // Step 1: Delete public/uploads folder first
+    // Step 1: Delete public/uploads folder first with retry mechanism
     const uploadsPath = path.join(process.cwd(), 'public', 'uploads');
     if (await fs.pathExists(uploadsPath)) {
-      await fs.remove(uploadsPath);
-      console.log('Deleted existing public/uploads folder');
+      try {
+        await fs.remove(uploadsPath);
+        console.log('Deleted existing public/uploads folder');
+      } catch (removeError) {
+        console.log('Failed to remove uploads folder, trying alternative approach:', removeError.message);
+        
+        // Alternative approach: Remove files individually first, then directory
+        try {
+          const removeFilesRecursively = async (dirPath) => {
+            const entries = await fs.readdir(dirPath, { withFileTypes: true });
+            for (const entry of entries) {
+              const fullPath = path.join(dirPath, entry.name);
+              if (entry.isDirectory()) {
+                await removeFilesRecursively(fullPath);
+                await fs.rmdir(fullPath);
+              } else {
+                await fs.unlink(fullPath);
+              }
+            }
+          };
+          
+          await removeFilesRecursively(uploadsPath);
+          await fs.rmdir(uploadsPath);
+          console.log('Deleted existing public/uploads folder using alternative method');
+        } catch (altError) {
+          console.log('Alternative removal also failed, continuing with existing folder:', altError.message);
+          // Continue with existing folder - files will be overwritten
+        }
+      }
     }
 
     // Step 2: Create temporary directory and extract ZIP
@@ -4423,22 +4450,49 @@ router.post("/backups/upload", async (req, res) => {
         throw new Error("Backup must contain an 'uploads' folder");
       }
 
-      // Step 3: Copy the extracted uploads folder to public/uploads
+      // Step 3: Copy the extracted uploads folder to public/uploads with retry mechanism
       console.log(`Copying from: ${backupUploadsPath}`);
       console.log(`Copying to: ${uploadsPath}`);
       
       // Ensure the destination directory exists
       await fs.ensureDir(uploadsPath);
       
-      // Copy all contents from the extracted uploads folder
+      // Copy all contents from the extracted uploads folder with retry logic
       const extractedContents = await fs.readdir(backupUploadsPath);
       console.log('Extracted uploads contents:', extractedContents);
       
       for (const item of extractedContents) {
         const sourcePath = path.join(backupUploadsPath, item);
         const destPath = path.join(uploadsPath, item);
-        await fs.copy(sourcePath, destPath);
-        console.log(`Copied: ${item}`);
+        
+        try {
+          await fs.copy(sourcePath, destPath);
+          console.log(`Copied: ${item}`);
+        } catch (copyError) {
+          console.log(`Failed to copy ${item}, trying alternative method:`, copyError.message);
+          
+          // Alternative: Copy file by file for directories
+          try {
+            const copyRecursively = async (src, dest) => {
+              const stat = await fs.stat(src);
+              if (stat.isDirectory()) {
+                await fs.ensureDir(dest);
+                const entries = await fs.readdir(src);
+                for (const entry of entries) {
+                  await copyRecursively(path.join(src, entry), path.join(dest, entry));
+                }
+              } else {
+                await fs.copy(src, dest);
+              }
+            };
+            
+            await copyRecursively(sourcePath, destPath);
+            console.log(`Copied ${item} using alternative method`);
+          } catch (altCopyError) {
+            console.log(`Failed to copy ${item} with alternative method:`, altCopyError.message);
+            throw new Error(`Failed to copy ${item}: ${altCopyError.message}`);
+          }
+        }
       }
       
       console.log('Uploads folder copied successfully');
