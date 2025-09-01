@@ -42,6 +42,7 @@ async function loadAdminDocuments() {
       
       data.documents.forEach(doc => {
         const uploadDate = new Date(doc.createdAt).toLocaleDateString('en-US', {
+        timeZone: 'Asia/Karachi', // Use Pakistan timezone for consistency
           year: 'numeric',
           month: 'short',
           day: 'numeric',

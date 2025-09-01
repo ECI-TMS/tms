@@ -1028,7 +1028,7 @@ router.get("/session/:id/assignments", authMiddleware, async (req, res) => {
   .filter((assignment) => assignment.assignments.SessionID === SessionID)
   .map((assignment) => ({
     ...assignment,
-    createdAt: new Date(assignment.createdAt).toLocaleDateString('en-US'), // Formatting the createdAt field
+                createdAt: new Date(assignment.createdAt).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' }), // Formatting the createdAt field
   })
 );
   
@@ -1155,7 +1155,7 @@ router.post("/assignment/:id/edit", authMiddleware, async (req, res) => {
 
     let updateData = {
       Title,
-      Deadline: new Date(Deadline).toLocaleDateString(),
+              Deadline: new Date(Deadline).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' }),
     };
 
     // Handle file upload if provided
@@ -3464,8 +3464,8 @@ router.post("/program/create", async (req, res) => {
       return res.status(400).json({ status: false, error: "Missing fields", message: "Missing fields" });
     }
 
-    const startDate = new Date(StartDate).toLocaleDateString();
-    const endDate = new Date(EndDate).toLocaleDateString();
+    const startDate = new Date(StartDate).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' });
+    const endDate = new Date(EndDate).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' });
 
     // Find manager user ID if manager username is provided
     let managerId = null;
@@ -3524,8 +3524,8 @@ router.post("/program/update/:id", async (req, res) => {
       return res.status(400).json({ status: false, error: "Missing fields", message: "Missing fields" });
     }
 
-    const startDate = new Date(StartDate).toLocaleDateString();
-    const endDate = new Date(EndDate).toLocaleDateString();
+    const startDate = new Date(StartDate).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' });
+    const endDate = new Date(EndDate).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' });
 
     // Find manager user ID if manager username is provided
     let managerId = null;
@@ -4269,7 +4269,8 @@ COMMIT;
               month: 'short',
               day: 'numeric',
               hour: '2-digit',
-              minute: '2-digit'
+              minute: '2-digit',
+              timeZone: 'Asia/Karachi' // Use Pakistan timezone for consistency
             })}`,
             createdBy: 'Admin',
             status: 'completed'

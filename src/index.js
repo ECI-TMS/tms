@@ -45,6 +45,9 @@ dotenv.config({
   path: "../",
 });
 
+// Set timezone to Pakistan (Asia/Karachi) for consistent date/time handling across environments
+process.env.TZ = 'Asia/Karachi';
+
 const app = express();
 
 const port = process.env.PORT || 5000;
@@ -238,7 +241,7 @@ if (!fs.existsSync(uploadsDirectory)) {
     const FilePath = join(sessionDirectory, file.name);
       file.mv(FilePath);
       const path = FilePath.split(process.cwd())[1].replace("\\public", "");
-  const Deadline = new Date(deadline).toLocaleDateString();
+  const Deadline = new Date(deadline).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' });
 
   const created = await prisma.assignments.create({
     data: {
@@ -260,7 +263,7 @@ if (!fs.existsSync(uploadsDirectory)) {
 });
 app.post("/:id/assignment/create", async (req, res) => {
   const { Title, Deadline } = req.body;
-  const deadline = new Date(Deadline).toLocaleDateString();
+  const deadline = new Date(Deadline).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' });
   const SessionID = +req.params.id;
   const created = await prisma.assignments.create({
     data: {

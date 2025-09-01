@@ -102,7 +102,7 @@ router.get("/:id/assignments",authMiddleware, async (req, res) => {
     const assignments = assignmentsByStudents.filter((assignment) => assignment.assignments.SessionID === SessionID)
   .map((assignment) => ({
     ...assignment,
-    createdAt: new Date(assignment.createdAt).toLocaleDateString('en-US'), // Formatting the createdAt field
+            createdAt: new Date(assignment.createdAt).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' }), // Formatting the createdAt field
   }));
 
       // assignments by  trainer

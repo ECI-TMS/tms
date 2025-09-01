@@ -154,8 +154,8 @@ router.post("/session/create", async (req, res) => {
       return res.status(400).json({ error: "Missing fields" });
     }
 
-    const startDate = new Date(StartDate).toLocaleDateString();
-    const endDate = new Date(EndDate).toLocaleDateString();
+    const startDate = new Date(StartDate).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' });
+    const endDate = new Date(EndDate).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' });
 
     const data = await prisma.trainingsessions.create({
       data: {

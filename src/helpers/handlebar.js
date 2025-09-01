@@ -82,15 +82,18 @@ export function hbsHelpers() {
                 return parseFloat((Number(bytes) / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             },
             formatDate: function(dateString) {
-                if (!dateString) return '';
+                if (!dateString) return 'N/A';
                 
                 const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'N/A';
+                
                 return date.toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
                     hour: '2-digit',
-                    minute: '2-digit'
+                    minute: '2-digit',
+                    timeZone: 'Asia/Karachi' // Use Pakistan timezone for consistency
                 });
             },
             eq: function(a, b) {
@@ -137,20 +140,6 @@ export function hbsHelpers() {
             uppercase: function(str) {
                 if (!str) return '';
                 return String(str).toUpperCase();
-            },
-            formatDate: function(dateString) {
-                if (!dateString) return 'N/A';
-                
-                const date = new Date(dateString);
-                if (isNaN(date.getTime())) return 'N/A';
-                
-                return date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
             }
 
 
