@@ -3250,7 +3250,8 @@ router.post("/user/bulk", async (req, res) => {
     const workbook = xlsx.read(excelFile.data, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
-    const usersData = xlsx.utils.sheet_to_json(sheet);
+    // Coerce all cell values to strings where possible and provide defaults
+    const usersData = xlsx.utils.sheet_to_json(sheet, { defval: '', raw: false });
 
     let createdCount = 0;
     let skippedCount = 0;
@@ -3267,9 +3268,9 @@ router.post("/user/bulk", async (req, res) => {
           continue;
         }
 
-        const email = row.email.trim().toLowerCase();
-        const password = row.password;
-        const username = row.username.trim();
+        const email = String(row.email).trim().toLowerCase();
+        const password = String(row.password ?? '').trim();
+        const username = String(row.username).trim();
         const userType = row.usertype.toUpperCase();
         const programId = row.program_id ? String(row.program_id) : null;
 
@@ -3292,7 +3293,14 @@ router.post("/user/bulk", async (req, res) => {
           continue;
         }
 
-        // Hash password
+        // Validate password is non-empty after coercion
+        if (!password) {
+          errors.push(`Row ${i + 2}: Password is empty or invalid`);
+          skippedCount++;
+          continue;
+        }
+
+        // Hash password (expects string)
         const hashedPassword = await hash(password, 10);
 
         // Create user data
