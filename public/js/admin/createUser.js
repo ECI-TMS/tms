@@ -284,21 +284,29 @@ function downloadTemplate() {
     }
   ];
 
-  // Convert to CSV format
-  const headers = ['email', 'password', 'username', 'usertype', 'program_id'];
-  const csvContent = [
-    headers.join(','),
-    ...sampleData.map(row => headers.map(header => row[header]).join(','))
-  ].join('\n');
+  // Ensure SheetJS (XLSX) is available
+  if (typeof XLSX === 'undefined') {
+    alert('Excel generator is not loaded. Please refresh and try again.');
+    return;
+  }
 
-  // Create and download the file
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'user_bulk_upload_template.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  window.URL.revokeObjectURL(url);
+  // Create a worksheet from JSON and a workbook
+  const worksheet = XLSX.utils.json_to_sheet(sampleData, {
+    header: ['email', 'password', 'username', 'usertype', 'program_id']
+  });
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+
+  // Auto-size columns based on headers
+  const colWidths = [
+    { wch: 28 }, // email
+    { wch: 16 }, // password
+    { wch: 16 }, // username
+    { wch: 10 }, // usertype
+    { wch: 12 }  // program_id
+  ];
+  worksheet['!cols'] = colWidths;
+
+  // Trigger download as .xlsx
+  XLSX.writeFile(workbook, 'user_bulk_upload_template.xlsx');
 }
